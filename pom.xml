@@ -56,7 +56,11 @@
                 <artifactId>lombok</artifactId>
                 <version>${org.projectlombok}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.prolog.eis</groupId>
+                <artifactId>eis-service-center-service</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

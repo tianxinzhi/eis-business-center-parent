@@ -9,14 +9,15 @@ import java.util.List;
  * @Author clarence_she
  * @Date 2021/8/18
  **/
-public interface ContainerTaskService {
+public interface ContainerTaskIssueService {
 
     /**
      * 容器任务下发
      * @param containerTaskIssueDtoList
-     * @return
+     * @return 返回错误的任务集合
      * @throws Exception
      */
-    boolean containerTaskIssue(List<ContainerTaskIssueDto> containerTaskIssueDtoList)throws Exception;
+    List<ContainerTaskIssueDto> containerTaskIssue(List<ContainerTaskIssueDto> containerTaskIssueDtoList)throws Exception;
+
 
 }

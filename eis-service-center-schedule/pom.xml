@@ -11,5 +11,11 @@
 
     <artifactId>eis-service-center-schedule</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-service-center-service</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
