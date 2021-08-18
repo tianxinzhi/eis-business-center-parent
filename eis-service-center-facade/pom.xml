@@ -11,5 +11,31 @@
 
     <artifactId>eis-service-center-facade</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.prolog.framework</groupId>
+            <artifactId>plg-fx-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.prolog.framework</groupId>
+            <artifactId>plg-fx-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.prolog.framework</groupId>
+            <artifactId>plg-fx-starter-apidoc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
