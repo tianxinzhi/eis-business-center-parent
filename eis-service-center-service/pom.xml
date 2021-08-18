@@ -10,6 +10,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eis-service-center-service</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-common2</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-service-center-facade</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

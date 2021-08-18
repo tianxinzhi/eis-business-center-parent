@@ -11,7 +11,7 @@
     <modules>
         <module>eis-service-center-facade</module>
         <module>eis-service-center-service</module>
-        <module>eis-service-center-schdule</module>
+        <module>eis-service-center-schedule</module>
     </modules>
 
     <properties>
