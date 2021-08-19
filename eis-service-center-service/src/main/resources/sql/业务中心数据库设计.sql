@@ -495,3 +495,41 @@ CREATE TABLE `store_accounting` (
   `create_time` datetime  COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB  CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '库存变更记录账单表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `store_area_location`;
+CREATE TABLE `store_area_location` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `store_area` varchar(20) DEFAULT NULL COMMENT '库存区域',
+  `is_available` int(11) DEFAULT NULL COMMENT '是否可用（0否 1是）',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '库存区域货位关系汇总配置表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `store_area_location_detail`;
+CREATE TABLE `store_area_location_detail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `store_area_location_id` int(11) DEFAULT NULL COMMENT '汇总id',
+  `associate_area` varchar(20) DEFAULT NULL COMMENT '关联区域',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '库存区域货位关系明细配置表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `store_supply_config`;
+CREATE TABLE `store_supply_config`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `source_area` varchar(20) DEFAULT NULL COMMENT '起始区域',
+  `target_area` varchar(20) DEFAULT NULL COMMENT '目标区域',
+  `is_available` int(11) COMMENT '是否开启（0否 1是）',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '安全库存补货策略配置' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `store_supply_goods_config`;
+CREATE TABLE `store_supply_config`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `store_supply_config_id` int(11) COMMENT '汇总id',
+  `goods_id` int(11) COMMENT '商品id',
+  `qty` int(11) COMMENT '数量',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '安全库存补货商品策略配置' ROW_FORMAT = Dynamic;
