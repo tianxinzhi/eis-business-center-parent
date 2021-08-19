@@ -21,6 +21,11 @@
             <artifactId>eis-service-center-facade</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>route-callback-component</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
