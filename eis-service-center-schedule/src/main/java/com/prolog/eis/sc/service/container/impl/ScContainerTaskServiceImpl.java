@@ -5,9 +5,11 @@ import com.prolog.eis.model.route.task.CarryInterfaceTask;
 import com.prolog.eis.model.route.task.CarryInterfaceTaskCallback;
 import com.prolog.eis.model.sc.containertask.ContainerTask;
 import com.prolog.eis.model.sc.containertask.ContainerTaskDetail;
+import com.prolog.eis.model.sc.containertask.ContainerTaskReport;
 import com.prolog.eis.model.sc.containertask.ContainerTaskStrategy;
 import com.prolog.eis.sc.dao.container.ScContainerTaskDetailMapper;
 import com.prolog.eis.sc.dao.container.ScContainerTaskMapper;
+import com.prolog.eis.sc.dao.container.ScContainerTaskReportMapper;
 import com.prolog.eis.sc.dao.container.ScContainerTaskStrategyMapper;
 import com.prolog.eis.sc.feign.container.CarryInterfaceFeign;
 import com.prolog.eis.sc.service.container.ScContainerTaskService;
@@ -46,6 +48,8 @@ public class ScContainerTaskServiceImpl implements ScContainerTaskService {
     private ScContainerTaskStrategyMapper containerTaskStrategyMapper;
     @Autowired
     private CarryInterfaceCallBackService carryInterfaceCallBackService;
+    @Autowired
+    private ScContainerTaskReportMapper containerTaskReportMapper;
 
     @Override
     public void doContainerTask() {
@@ -140,6 +144,12 @@ public class ScContainerTaskServiceImpl implements ScContainerTaskService {
         containerTaskDetailMapper.toHistory(containerTaskId);
         containerTaskDetailMapper.deleteByMap(MapUtils.put("containerTaskId", containerTaskId).getMap(), ContainerTaskDetail.class);
         //生成容器回告任务
+        ContainerTaskReport containerTaskReport = new ContainerTaskReport();
+        containerTaskReport.setContainerTaskId(containerTaskId);
+        containerTaskReport.setUpperSystemTaskId(containerTask.getUpperSystemTaskId());
+        containerTaskReport.setTypeNo(containerTask.getTypeNo());
+        containerTaskReport.setCreateTime(new Date());
+        containerTaskReportMapper.save(containerTaskReport);
     }
 
     /**
