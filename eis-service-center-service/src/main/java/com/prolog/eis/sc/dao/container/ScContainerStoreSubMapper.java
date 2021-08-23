@@ -14,6 +14,7 @@ import java.util.List;
  * @Version: V1.0
  */
 @Repository
+@Deprecated
 public interface ScContainerStoreSubMapper extends BaseMapper<ContainerStoreSub> {
     /**
      * 找所有子托盘

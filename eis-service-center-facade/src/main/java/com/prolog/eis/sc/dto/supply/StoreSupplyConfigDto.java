@@ -1,6 +1,5 @@
 package com.prolog.eis.sc.dto.supply;
 
-import com.prolog.eis.model.route.supply.StoreSupplyGoodsConfig;
 import lombok.Data;
 
 import java.util.Date;
@@ -42,5 +41,5 @@ public class StoreSupplyConfigDto {
     /**
      * 关系明细配置集合
      */
-    private List<StoreSupplyGoodsConfig> goodsConfigList;
+    private List<StoreSupplyGoodsConfigDto> goodsConfigList;
 }

@@ -525,7 +525,7 @@ CREATE TABLE `store_supply_config`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '安全库存补货策略配置' ROW_FORMAT = Dynamic;
 
 DROP TABLE IF EXISTS `store_supply_goods_config`;
-CREATE TABLE `store_supply_config`  (
+CREATE TABLE `store_supply_goods_config`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `store_supply_config_id` int(11) COMMENT '汇总id',
   `goods_id` int(11) COMMENT '商品id',

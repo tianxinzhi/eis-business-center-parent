@@ -3,6 +3,7 @@ package com.prolog.eis.sc.dto.supply;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: wuxl
@@ -23,9 +24,8 @@ public class SupplyDto {
     private List<StoreSupplyConfigDto> storeSupplyConfigDtoList;
 
     /**
-     * 容器库存集合
+     * 容器库存集合(key=商品id, value=库存集合)
      */
-    //private List<ContainerStoreDto> containerStoreDtoList;
 
-    private List<ContainerStoreSubDto> containerStoreSubList;
+    private Map<Integer, List<ContainerStoreDto>> ContainerStoreMap;
 }
