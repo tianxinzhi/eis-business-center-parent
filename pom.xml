@@ -5,13 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.prolog.eis</groupId>
-    <artifactId>eis-service-center-component</artifactId>
+    <artifactId>eis-business-center-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
+
     <modules>
-        <module>eis-service-center-facade</module>
-        <module>eis-service-center-service</module>
-        <module>eis-service-center-schedule</module>
+        <module>eis-business-center-facade</module>
+        <module>eis-business-center-schedule</module>
+        <module>eis-business-center-service</module>
     </modules>
 
     <properties>
@@ -21,6 +22,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
         <org.projectlombok>1.18.12</org.projectlombok>
+        <eis.source.version>3.0-SNAPSHOT</eis.source.version>
     </properties>
 
 
@@ -37,19 +39,19 @@
             <dependency>
                 <groupId>com.prolog.eis</groupId>
                 <artifactId>eis-core</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${eis.source.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.prolog.eis</groupId>
-                <artifactId>eis-common2</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <artifactId>eis-common</artifactId>
+                <version>${eis.source.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.prolog.eis</groupId>
-                <artifactId>eis-service-center-facade</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <artifactId>eis-business-center-facade</artifactId>
+                <version>${eis.source.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -58,13 +60,8 @@
             </dependency>
             <dependency>
                 <groupId>com.prolog.eis</groupId>
-                <artifactId>eis-service-center-service</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.prolog.eis</groupId>
-                <artifactId>route-callback-component</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <artifactId>eis-business-center-service</artifactId>
+                <version>${eis.source.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
