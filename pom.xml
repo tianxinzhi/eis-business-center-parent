@@ -12,7 +12,6 @@
     <modules>
         <module>eis-business-center-facade</module>
         <module>eis-business-center-schedule</module>
-        <module>eis-business-center-service</module>
     </modules>
 
     <properties>
@@ -50,6 +49,12 @@
 
             <dependency>
                 <groupId>com.prolog.eis</groupId>
+                <artifactId>eis-component-starter-business</artifactId>
+                <version>3.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.prolog.eis</groupId>
                 <artifactId>eis-business-center-facade</artifactId>
                 <version>${eis.source.version}</version>
             </dependency>
@@ -57,11 +62,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${org.projectlombok}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.prolog.eis</groupId>
-                <artifactId>eis-business-center-service</artifactId>
-                <version>${eis.source.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

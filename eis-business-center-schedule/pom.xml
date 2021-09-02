@@ -14,7 +14,12 @@
     <dependencies>
         <dependency>
             <groupId>com.prolog.eis</groupId>
-            <artifactId>eis-business-center-service</artifactId>
+            <artifactId>eis-component-starter-business</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-business-center-facade</artifactId>
         </dependency>
     </dependencies>
 
