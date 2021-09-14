@@ -1,4 +1,4 @@
-package com.prolog.eis.sc.feign.container;
+package com.prolog.eis.bc.feign.container;
 
 import com.prolog.framework.common.message.RestMessage;
 import org.springframework.cloud.openfeign.FeignClient;

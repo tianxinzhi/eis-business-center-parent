@@ -1,4 +1,4 @@
-package com.prolog.eis.sc.service.container;
+package com.prolog.eis.bc.service.container;
 
 /**
  * @Author clarence_she

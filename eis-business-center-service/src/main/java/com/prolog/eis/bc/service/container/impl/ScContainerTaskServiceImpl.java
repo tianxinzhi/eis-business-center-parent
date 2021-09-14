@@ -1,4 +1,4 @@
-package com.prolog.eis.sc.service.container.impl;
+package com.prolog.eis.bc.service.container.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
@@ -11,8 +11,8 @@ import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskDetailM
 import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskMapper;
 import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskReportMapper;
 import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskStrategyMapper;
-import com.prolog.eis.sc.feign.container.CarryInterfaceFeign;
-import com.prolog.eis.sc.service.container.ScContainerTaskService;
+import com.prolog.eis.bc.feign.container.CarryInterfaceFeign;
+import com.prolog.eis.bc.service.container.ScContainerTaskService;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.utils.MapUtils;
 import lombok.extern.slf4j.Slf4j;

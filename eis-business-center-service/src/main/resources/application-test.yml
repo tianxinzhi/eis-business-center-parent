@@ -1,0 +1,56 @@
+#eureka client配置
+eureka.client.serviceUrl.defaultZone: http://127.0.0.1:8761/eureka/
+
+#prolog.tx.url: http://10.13.11.183:7000/tx/manager/
+
+prolog:
+  mcs:
+    host: 127.0.0.1
+    port: 30004
+  gcs:
+    host: 127.0.0.1
+    port: 30003
+  wms:
+    host: 127.0.0.1
+    port: 8088
+    userCode: admin
+    userPass: 1
+
+spring:
+  application.name: service-ai-eis-wcs-center
+  #redis配置
+#  redis:
+#    host: 10.13.11.183
+#    port: 6379
+#    password: prolog-redis-0212
+#    database: 0
+  #链路跟踪
+  zipkin:
+    sender.type: rabbit
+    rabbitmq.queue: trace
+  sleuth:
+    enabled: true
+    sampler:
+      probability: 1.0
+  devtools:
+    restart:
+      enabled: true
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/eis-route?characterEncoding=utf8&useSSL=false
+    username: root
+    password: plk123
+    initialSize: 0 #初始化大小
+    minIdle: 5 #最小空閒
+    maxActive: 50 #最大連接數
+    maxWait: 60000 #最大等待時間
+    minEvictableIdleTimeMillis: 25200000 #最小生存時間
+#  rabbitmq:
+#    addresses: 10.13.11.183:5672
+#    username: eis
+#    password: eis
+#    virtual-host: /eis
+
+logging:
+  config: classpath:log4j2-test.xml
+  level.root: info    

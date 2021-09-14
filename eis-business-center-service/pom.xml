@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>eis-business-center-schedule</artifactId>
+    <artifactId>eis-business-center-service</artifactId>
 
     <dependencies>
         <dependency>
@@ -20,6 +20,11 @@
         <dependency>
             <groupId>com.prolog.eis</groupId>
             <artifactId>eis-business-center-facade</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-component-starter-algorithm</artifactId>
         </dependency>
     </dependencies>
 

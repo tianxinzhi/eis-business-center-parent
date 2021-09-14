@@ -1,0 +1,73 @@
+#eureka client配置
+eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.1.21:6001/eureka/
+
+prolog.tx.url: http://192.168.0.52:7000/tx/manager/
+
+prolog:
+  mcs:
+    host: 192.168.41.179
+    port: 8004
+  gcs:
+    host: 192.168.41.179
+    port: 8005
+  rcs:
+    host: 192.168.41.179
+    port: 8003
+  huaRuiDe:
+    host: 192.168.41.179
+    port: 8010
+  sps:
+    host: 192.168.41.179
+    port: 8010
+  wms:
+    host: 127.0.0.1
+    port: 8088
+    userCode: admin
+    userPass: 1
+
+
+spring:
+  application.name: service-ai-eis-business-center
+  #redis配置0
+  redis:
+    cluster:
+      nodes: 192.168.1.17:6379,192.168.1.17:6380,192.168.1.18:6379,192.168.1.18:6380,192.168.1.19:6379,192.168.1.19:6380
+    password: prolog-redis-0212
+#    host: 192.168.0.52
+#    port: 6379
+#    password: prolog0212
+#    database: 0
+  #链路跟踪  
+  zipkin:
+    sender.type: rabbit
+    rabbitmq.queue: trace
+  sleuth: 
+    enabled: true
+    sampler: 
+      probability: 1.0
+  devtools: 
+    restart: 
+      enabled: true
+      additional-paths: src/main/java
+      exclude: WEB-INF/**
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.1.13:2206/eis_base?characterEncoding=utf8&useSSL=false
+    username: dev
+    password: prolog0212-dev
+    initialSize: 0 #初始化大小
+    minIdle: 5 #最小空閒
+    maxActive: 50 #最大連接數
+    maxWait: 60000 #最大等待時間
+    minEvictableIdleTimeMillis: 25200000 #最小生存時間
+  rabbitmq:
+#    addresses: 192.168.0.52:5672
+#    username: eis
+#    password: eis
+#    virtual-host: /eis
+    addresses: 192.168.1.17:5672,192.168.1.18:5672,192.168.1.19:5672
+    username: admin
+    password: prolog-mq-20191229
+    virtual-host: /upcloud
+logging:
+  config: classpath:log4j2-dev.xml
