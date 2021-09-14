@@ -1,7 +1,8 @@
-package com.prolog.eis.sc.service.supply.impl;
+package com.prolog.eis.bc.service.supply.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
+import com.prolog.eis.bc.feign.container.CarryInterfaceFeign;
 import com.prolog.eis.common.util.PrologStringUtils;
 import com.prolog.eis.common.util.location.LocationConstants;
 import com.prolog.eis.core.dto.business.supply.ContainerStoreDto;
@@ -10,8 +11,6 @@ import com.prolog.eis.core.dto.business.supply.StoreSupplyDto;
 import com.prolog.eis.core.dto.business.supply.SupplyDto;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.fx.component.business.service.supply.StoreSupplyService;
-import com.prolog.eis.sc.feign.container.CarryInterfaceFeign;
-import com.prolog.eis.sc.service.supply.ScStoreSupplyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ScStoreSupplyServiceImpl implements ScStoreSupplyService {
+public class ScStoreSupplyServiceImpl implements com.prolog.eis.sc.service.supply.ScStoreSupplyService {
     @Autowired
     private StoreSupplyService storeSupplyService;
     @Autowired
