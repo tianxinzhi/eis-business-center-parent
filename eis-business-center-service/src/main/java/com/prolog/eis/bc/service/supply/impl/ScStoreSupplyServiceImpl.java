@@ -3,6 +3,7 @@ package com.prolog.eis.bc.service.supply.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.prolog.eis.bc.feign.container.CarryInterfaceFeign;
+import com.prolog.eis.bc.service.supply.ScStoreSupplyService;
 import com.prolog.eis.common.util.PrologStringUtils;
 import com.prolog.eis.common.util.location.LocationConstants;
 import com.prolog.eis.core.dto.business.supply.ContainerStoreDto;
@@ -26,7 +27,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ScStoreSupplyServiceImpl implements com.prolog.eis.sc.service.supply.ScStoreSupplyService {
+public class ScStoreSupplyServiceImpl implements ScStoreSupplyService {
     @Autowired
     private StoreSupplyService storeSupplyService;
     @Autowired
@@ -35,8 +36,8 @@ public class ScStoreSupplyServiceImpl implements com.prolog.eis.sc.service.suppl
     @Override
     public void safeSupplyDispatch() throws Exception {
         //数据初始化
-        SupplyDto supplyDto = storeSupplyService.init();
-        // TODO 需调整为调用WMS服务，需计算 到位+正在过来的-正在离开的（搬运任务）
+        SupplyDto supplyDto = storeSupplyService.safeInit();
+        // TODO 需调整为调用库存服务/仓库服务/路径服务，需计算 到位+正在过来的-正在离开的（搬运任务）
         supplyDto.setContainerStoreMap(Maps.newHashMap());
         List<StoreSupplyDetailDto> supplyDetailList = storeSupplyService.findSupplyDetailList(supplyDto);
         if (CollectionUtils.isEmpty(supplyDetailList)) {

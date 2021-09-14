@@ -1,4 +1,4 @@
-package com.prolog.eis.sc.service.supply;
+package com.prolog.eis.bc.service.supply;
 
 /**
  * @author: wuxl
