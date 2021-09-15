@@ -36,6 +36,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.prolog.upcloud</groupId>
+            <artifactId>upcloud-base-inventory-facade</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

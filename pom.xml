@@ -70,6 +70,12 @@
                 <artifactId>lombok</artifactId>
                 <version>${org.projectlombok}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.prolog.upcloud</groupId>
+                <artifactId>upcloud-base-inventory-facade</artifactId>
+                <version>1.0.0.beta</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
