@@ -1,15 +1,17 @@
 package com.prolog.eis.bc.service.supply.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.prolog.eis.bc.feign.container.CarryInterfaceFeign;
-import com.prolog.eis.bc.service.supply.ScStoreSupplyService;
+import com.prolog.eis.bc.service.supply.SupplyDispatchService;
 import com.prolog.eis.common.util.PrologStringUtils;
 import com.prolog.eis.common.util.location.LocationConstants;
+import com.prolog.eis.component.core.dto.business.order.OutboundTaskDetailDto;
 import com.prolog.eis.component.core.dto.business.supply.ContainerStoreDto;
+import com.prolog.eis.component.core.dto.business.supply.SafeSupplyDto;
 import com.prolog.eis.component.core.dto.business.supply.StoreSupplyDetailDto;
 import com.prolog.eis.component.core.dto.business.supply.StoreSupplyDto;
-import com.prolog.eis.component.core.dto.business.supply.SupplyDto;
+import com.prolog.eis.component.core.dto.business.supply.UrgentSupplyDto;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.fx.component.business.service.supply.StoreSupplyService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ScStoreSupplyServiceImpl implements ScStoreSupplyService {
+public class SupplyDispatchServiceImpl implements SupplyDispatchService {
     @Autowired
     private StoreSupplyService storeSupplyService;
     @Autowired
@@ -36,26 +38,41 @@ public class ScStoreSupplyServiceImpl implements ScStoreSupplyService {
     @Override
     public void safeSupplyDispatch() throws Exception {
         //数据初始化
-        SupplyDto supplyDto = storeSupplyService.safeInit();
+        SafeSupplyDto safeSupplyDto = storeSupplyService.safeInit();
         // TODO 需调整为调用库存服务/仓库服务/路径服务，需计算 到位+正在过来的-正在离开的（搬运任务）
-        supplyDto.setContainerStoreMap(Maps.newHashMap());
-        List<StoreSupplyDetailDto> supplyDetailList = storeSupplyService.findSupplyDetailList(supplyDto);
+        safeSupplyDto.setContainerStoreList(Lists.newArrayList());
+        List<StoreSupplyDetailDto> supplyDetailList = storeSupplyService.findSafeSupplyDetailList(safeSupplyDto);
         if (CollectionUtils.isEmpty(supplyDetailList)) {
             return;
         }
-        StoreSupplyDto supply = storeSupplyService.findSupply(supplyDto.getStoreSupplyDtoList(), supplyDetailList);
+        StoreSupplyDto supply = storeSupplyService.findSafeSupply(safeSupplyDto.getStoreSupplyDtoList(), supplyDetailList);
         if (null == supply) {
             return;
         }
         //找容器
-        ContainerStoreDto container = storeSupplyService.findContainer(supplyDto.getContainerStoreMap(), supply.getSupplyDetailDto().getItemId());
+        ContainerStoreDto container = storeSupplyService.findContainer(safeSupplyDto.getContainerStoreList(), supply.getSupplyDetailDto().getItemId(), supply.getSupplyDetailDto().getLotId());
         //生成搬运任务
         createCarryTask(container.getContainerNo(), container.getContainerNo(), container.getAreaNo(), container.getLocationNo(), supply.getTargetArea());
     }
 
     @Override
     public void urgentSupplyDispatch() throws Exception {
-
+        //数据初始化
+        UrgentSupplyDto urgentSupplyDto = storeSupplyService.urgentInit();
+        // TODO 需调整为调用库存服务/仓库服务/路径服务，需计算 到位+正在过来的-正在离开的（搬运任务）
+        urgentSupplyDto.setContainerStoreList(Lists.newArrayList());
+        List<OutboundTaskDetailDto> urgentSupplyDetailList = storeSupplyService.findUrgentSupplyDetailList(urgentSupplyDto);
+        if (CollectionUtils.isEmpty(urgentSupplyDetailList)) {
+            return;
+        }
+        StoreSupplyDto supply = storeSupplyService.findUrgentSupply(urgentSupplyDto.getStoreSupplyDtoList(), urgentSupplyDetailList);
+        if (null == supply) {
+            return;
+        }
+        //找容器
+        ContainerStoreDto container = storeSupplyService.findContainer(urgentSupplyDto.getContainerStoreList(), supply.getSupplyDetailDto().getItemId(), supply.getSupplyDetailDto().getLotId());
+        //生成搬运任务
+        createCarryTask(container.getContainerNo(), container.getContainerNo(), container.getAreaNo(), container.getLocationNo(), supply.getTargetArea());
     }
 
     /**
