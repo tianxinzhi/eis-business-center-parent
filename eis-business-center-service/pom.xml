@@ -26,6 +26,11 @@
             <groupId>com.prolog.eis</groupId>
             <artifactId>eis-component-starter-algorithm</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-router-center-facade</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

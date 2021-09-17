@@ -24,7 +24,9 @@ prolog:
     port: 8088
     userCode: admin
     userPass: 1
-
+  serivce:
+    inventory: upcloud-base-inventory-mysql
+    route: service-ai-eis-route-center
 
 spring:
   application.name: service-ai-eis-business-center

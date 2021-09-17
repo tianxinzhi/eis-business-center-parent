@@ -76,6 +76,12 @@
                 <artifactId>upcloud-base-inventory-facade</artifactId>
                 <version>1.0.0.beta</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.prolog.eis</groupId>
+                <artifactId>eis-router-center-facade</artifactId>
+                <version>${eis.source.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
