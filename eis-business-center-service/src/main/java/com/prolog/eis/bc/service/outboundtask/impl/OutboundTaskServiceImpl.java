@@ -6,10 +6,16 @@ import com.prolog.eis.bc.service.outboundtask.ContainerOutDispatchService;
 import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.component.algorithm.composeorder.ComposeOrderUtils;
+import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
+import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
+import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 
 /**
  * @Describe
@@ -38,10 +44,21 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
          */
         try {
             OutboundStrategyConfigVo config = outboundStrategyConfigService.findConfigByTypeNo(OutboundStrategyConfigConstant.TYPE_B2C);
-//            ComposeOrderUtils.compose()
+            String outModel = config.getOutModel();
+            if(outModel.equals(OutboundStrategyConfigConstant.OUT_MODEL_PICKING)){
+                String composeOrderConfig = config.getComposeOrderConfig();
+                List<BizOutTask> outTaskList = null;
+                StationDto station = null;
+                WarehouseDto warehouse = null;
+                if(composeOrderConfig.equals(OutboundStrategyConfigConstant.ALGORITHM_COMPOSE_SIMILARITY)) {
+                    List<BizOutTask> bestBizOutTask = ComposeOrderUtils.compose(station, warehouse, outTaskList);
 
+                }
+            }else{
+
+            }
         } catch (Exception ex) {
-            logger.error("组单调度异常 {}", ex, toString());
+            logger.error("组单调度异常 {}", ex.toString());
         }
     }
 }
