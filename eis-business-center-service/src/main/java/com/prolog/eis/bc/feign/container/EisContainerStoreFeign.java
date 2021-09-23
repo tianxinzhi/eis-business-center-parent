@@ -13,7 +13,7 @@ import java.util.List;
  * @Author clarence_she
  * @Date 2021/9/15
  **/
-@FeignClient("${prolog.service.inventory}")
+@FeignClient("${prolog.service.inventory:upcloud-base-inventory-mysql}")
 public interface EisContainerStoreFeign {
 
     @PostMapping("/eisInv/findByItemOrLotId")

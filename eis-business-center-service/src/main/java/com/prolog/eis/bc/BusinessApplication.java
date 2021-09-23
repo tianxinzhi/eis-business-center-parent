@@ -24,6 +24,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class BusinessApplication {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(BusinessApplication.class, args);
+        try {
+            SpringApplication.run(BusinessApplication.class, args);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 }
