@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient("service-ai-eis-route-dispatch")
 public interface CarryInterfaceFeign {
 
-    @PostMapping("/api/v1/route/createCarry")
+    @PostMapping("/api/v1/route/carry/createTask")
     RestMessage<String> createCarry(@RequestBody String json) throws Exception;
 
 }
