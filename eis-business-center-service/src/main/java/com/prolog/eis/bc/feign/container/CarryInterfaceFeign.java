@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @Author clarence_she
  * @Date 2021/8/19
  **/
-@FeignClient("service-ai-eis-route-dispatch")
+@FeignClient(value = "${prolog.service.route:service-ai-eis-route-center}")
 public interface CarryInterfaceFeign {
 
     @PostMapping("/api/v1/route/carry/createTask")
