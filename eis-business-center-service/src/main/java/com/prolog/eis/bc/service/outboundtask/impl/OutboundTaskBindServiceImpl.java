@@ -1,11 +1,13 @@
 package com.prolog.eis.bc.service.outboundtask.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
@@ -78,10 +80,10 @@ public class OutboundTaskBindServiceImpl implements OutboundTaskBindService {
             containerStoreList = Lists.newArrayList();
         }
 
-        
-        
         List<ContainerDto> resultList = Lists.newArrayList();
+        
         for (OutboundTaskBind outboundTaskBind : outboundTaskBindList) {
+            // outbound任务绑定->容器Dto对象
             ContainerDto containerDto = new ContainerDto();
             containerDto.setContainerNo(outboundTaskBind.getContainerNo());
             containerDto.setPickingOrderId(outboundTaskBind.getPickingOrderId());
@@ -100,29 +102,28 @@ public class OutboundTaskBindServiceImpl implements OutboundTaskBindService {
             if (null != relaContainerStore) {
                 relaContainerStoreSubList = relaContainerStore.getContainerStoreSubList();
             }
-            
+            relaContainerStoreSubList = null == relaContainerStoreSubList ? Lists.newArrayList() : relaContainerStoreSubList;
             // 匹配子容器数据
             List<ContainerSubDto> containerSubDtoList = Lists.newArrayList();
-            for (OutboundTaskBindDetail outboundTaskBindDetail : outboundTaskBindDtList) {
-                if (null != outboundTaskBind.getId() && outboundTaskBind.getId().equals(outboundTaskBindDetail.getOutbTaskBindId())) {
-                    ContainerSubDto containerSubDto = new ContainerSubDto();
-                    containerSubDto.setContainerNo(outboundTaskBindDetail.getContainerNo());
-                    containerSubDto.setContainerSubNo(outboundTaskBindDetail.getContainerNoSub());
-
-                    if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_IOT) {
-                        // 按批次出库
-                        containerSubDto.setItemId(outboundTaskBindDetail.getLotId());
-                    } else if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_ITEM) {
-                        // 按商品出库
-                        containerSubDto.setItemId(outboundTaskBindDetail.getItemId());
-                    }
-                    // 容器->商品总数量
-                    containerSubDto.setItemNum(0);
-                    // 容器->子容器绑定的商品数量
-                    containerSubDto.setContainerAndOutDetailBindingMap(null);
-                    containerSubDto.setItemNum(outboundTaskBindDetail.getBindingNum());
-                    containerSubDtoList.add(containerSubDto);
+            for (EisInvContainerStoreSubVo eisInvContainerStoreSubVo : relaContainerStoreSubList) {
+                ContainerSubDto containerSubDto = new ContainerSubDto();
+                containerSubDto.setContainerNo(containerDto.getContainerNo());
+                containerSubDto.setContainerSubNo(eisInvContainerStoreSubVo.getContainerStoreSubNo());
+                if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_IOT) {
+                    // 按批次出库
+                    containerSubDto.setItemId(eisInvContainerStoreSubVo.getLotId());
+                } else if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_ITEM) {
+                    // 按商品出库
+                    containerSubDto.setItemId(eisInvContainerStoreSubVo.getItemId());
                 }
+                containerSubDto.setItemNum((float) eisInvContainerStoreSubVo.getQty());
+                // 取出关联的bindingdt子容器
+                List<OutboundTaskBindDetail> relaOutboundTaskBindDetailList = 
+                        getOutboundTaskBindDetailListByContainerSubNo(outboundTaskBindDtList, containerDto.getContainerNo());
+                // 转化为Map对象 Key=outTaskDetailId,Value=bindingNum
+                Map<String, Float> map = relaOutboundTaskBindDetailList.stream().collect(Collectors.toMap(OutboundTaskBindDetail::getOutbTaskBindId, OutboundTaskBindDetail::getBindingNum));
+                containerSubDto.setContainerAndOutDetailBindingMap(map);
+                containerSubDtoList.add(containerSubDto);
             }
             containerDto.setContainerSubList(containerSubDtoList);
             resultList.add(containerDto);
@@ -130,4 +131,26 @@ public class OutboundTaskBindServiceImpl implements OutboundTaskBindService {
         return resultList;
     }
 
+    /**
+     * 根据子容器号->关联得到子容器绑定详情对象
+     * @param outboundTaskBindDetailList 子容器绑定详情集合
+     * @param containerNoSub 子容器号
+     */
+    private List<OutboundTaskBindDetail> getOutboundTaskBindDetailListByContainerSubNo(
+            List<OutboundTaskBindDetail> outboundTaskBindDetailList,
+            String containerNoSub) {
+        if (CollectionUtils.isEmpty(outboundTaskBindDetailList)) {
+            return Lists.newArrayList();
+        }
+        if (StringUtils.isEmpty(containerNoSub)) {
+            return Lists.newArrayList();
+        }
+        List<OutboundTaskBindDetail> relaOutboundTaskBindDetailList = Lists.newArrayList();
+        for (OutboundTaskBindDetail outboundTaskBindDetail : outboundTaskBindDetailList) {
+            if (containerNoSub.equals(outboundTaskBindDetail.getContainerNoSub())) {
+                relaOutboundTaskBindDetailList.add(outboundTaskBindDetail);
+            }
+        }
+        return relaOutboundTaskBindDetailList;
+    }
 }

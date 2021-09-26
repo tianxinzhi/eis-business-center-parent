@@ -103,8 +103,9 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {
             // 出单任务，从订单池获取biz_eis_out_task表 state=未开始
             List<BizOutTask> outTaskList = this.findAllNoStartTask();
+
+            // 站点，筛选出库站台，通过feign查询出所有的 isLock=0且claim=1索取
             List<Station> stationList = null;
-            // 站点，筛选出库站台，通过feign查询出所有的 isLock=0且claim=索取
             RestMessage<List<Station>> stationResp = null;
             try {
                 stationResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
@@ -117,55 +118,54 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                 log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return error, msg:{}",
                         null == stationResp ? "resp is null" : stationResp.getMessage());
             }
-            if (CollectionUtils.isEmpty(stationList)) {
-                log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return empty");
-                return;
-            }
             List<StationDto> stationDtoList = Lists.newArrayList();
-            for (Station station : stationList) {
-                StationDto stationDto = new StationDto();
-                // 调用远程接口 查询sourceArea且targetArea=站点areaNo的容器数量
-                RestMessage<Long> arriveLxCountResp = null;
-                try {
-                    arriveLxCountResp = eisContainerLocationFeign.findArriveLxCount(station.getAreaNo());
-                } catch (Exception e) {
-                    log.error("eisContainerLocationFeign.findArriveLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
-                }
-                if (null != arriveLxCountResp && arriveLxCountResp.isSuccess()) {
-                    stationDto.setArriveLxCount(arriveLxCountResp.getData().intValue());
-                } else {
-                    log.error("eisContainerLocationFeign.findArriveLxCount() return error, areaNo:{}, msg:{}",
-                            station.getAreaNo(), null == stationResp ? "resp is null" : stationResp.getMessage());
-                    stationDto.setArriveLxCount(0);
-                }
-                // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
-                RestMessage<Long> chuKuLxCountResp = null;
-                try {
-                    chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(station.getAreaNo());
-                } catch (Exception e) {
-                    log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
-                }
-                if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
-                    stationDto.setChuKuLxCount(chuKuLxCountResp.getData().intValue());
-                } else {
-                    log.error("eisContainerLocationFeign.findChuKuLxCount() return error, areaNo:{}, msg:{}",
-                            station.getAreaNo(), null == stationResp ? "resp is null" : stationResp.getMessage());
-                    stationDto.setChuKuLxCount(0);
-                }
-                stationDto.setMaxLxCacheCount(100);
-                stationDto.setMaxOrderNum(config.getMaxOrderNum());
-                stationDto.setMaxOrderSpCount(100);
-                stationDto.setStationId(station.getId());
-                stationDto.setIsClaim(station.getClaim());
-                stationDto.setIsLock(station.getIsLock());
+            if (!CollectionUtils.isEmpty(stationList)) {
+                for (Station station : stationList) {
+                    StationDto stationDto = new StationDto();
+                    // 调用远程接口 查询sourceArea且targetArea=站点areaNo的容器数量
+                    RestMessage<Long> arriveLxCountResp = null;
+                    try {
+                        arriveLxCountResp = eisContainerLocationFeign.findArriveLxCount(station.getAreaNo());
+                    } catch (Exception e) {
+                        log.error("eisContainerLocationFeign.findArriveLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
+                    }
+                    if (null != arriveLxCountResp && arriveLxCountResp.isSuccess()) {
+                        stationDto.setArriveLxCount(arriveLxCountResp.getData().intValue());
+                    } else {
+                        log.error("eisContainerLocationFeign.findArriveLxCount() return error, areaNo:{}, msg:{}",
+                                station.getAreaNo(), null == stationResp ? "resp is null" : stationResp.getMessage());
+                        stationDto.setArriveLxCount(0);
+                    }
+                    // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
+                    RestMessage<Long> chuKuLxCountResp = null;
+                    try {
+                        chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(station.getAreaNo());
+                    } catch (Exception e) {
+                        log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
+                    }
+                    if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
+                        stationDto.setChuKuLxCount(chuKuLxCountResp.getData().intValue());
+                    } else {
+                        log.error("eisContainerLocationFeign.findChuKuLxCount() return error, areaNo:{}, msg:{}",
+                                station.getAreaNo(), null == stationResp ? "resp is null" : stationResp.getMessage());
+                        stationDto.setChuKuLxCount(0);
+                    }
+                    stationDto.setMaxLxCacheCount(100);
+                    stationDto.setMaxOrderNum(config.getMaxOrderNum());
+                    stationDto.setMaxOrderSpCount(100);
+                    stationDto.setStationId(station.getId());
+                    stationDto.setIsClaim(station.getClaim());
+                    stationDto.setIsLock(station.getIsLock());
 
-                // 关联拣货单
-                List<PickingOrderDto> pickingOrderDtoList = pickingOrderService.findByStationId(station.getId(), storeMatchingStrategy);
-                stationDto.setPickingOrderList(pickingOrderDtoList);
-                // 关联Need拣货单
-                stationDto.setNeedPickingOrder(null);
-
-                stationDtoList.add(stationDto);
+                    // 关联拣货单
+                    List<PickingOrderDto> pickingOrderDtoList = pickingOrderService.findByStationId(station.getId(), storeMatchingStrategy);
+                    stationDto.setPickingOrderList(pickingOrderDtoList);
+                    // 关联Need拣货单
+                    stationDto.setNeedPickingOrder(null);
+                    stationDtoList.add(stationDto);
+                }
+            } else {
+                log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return empty");
             }
 
             WarehouseDto warehouse = new WarehouseDto();
@@ -239,8 +239,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     @Override
     public List<BizOutTask> findAllNoStartTask() {
         List<OutboundTask> taskList = outboundTaskMapper.findByMap(MapUtils
-                .put("state", OutboundTaskConstant.STATE_NOSTART).getMap(),
-                OutboundTask.class);
+                .put("state", OutboundTaskConstant.STATE_NOSTART).getMap(), OutboundTask.class);
         return getBizOutTaskListByTaskList(taskList);
     }
 
