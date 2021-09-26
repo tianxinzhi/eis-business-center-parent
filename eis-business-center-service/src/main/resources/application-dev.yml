@@ -14,10 +14,14 @@ spring:
   application.name: service-ai-eis-business-center
   #redis配置0
   redis:
-    host: 192.168.0.52
-    port: 6379
-    password: prolog0212
-    database: 0
+    cluster:
+      nodes: 192.168.1.17:6379,192.168.1.17:6380,192.168.1.18:6379,192.168.1.18:6380,192.168.1.19:6379,192.168.1.19:6380
+    password: prolog-redis-0212
+#  redis:
+#    host: 192.168.0.52
+#    port: 6379
+#    password: prolog0212
+#    database: 0
   #链路跟踪  
   zipkin:
     sender.type: rabbit
