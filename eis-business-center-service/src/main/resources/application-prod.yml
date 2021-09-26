@@ -1,23 +1,17 @@
 #eureka client配置
-eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.0.52:8761/eureka/
+eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.1.21:6001/eureka/
 
 prolog.tx.url: http://192.168.0.52:7000/tx/manager/
 
 prolog:
-  mcs:
-    host: 127.0.0.1
-    port: 80
-  gcs:
-    host: 127.0.0.1
-    port: 80
-  wms:
-    host: 127.0.0.1
-    port: 8088
-    userCode: admin
-    userPass: 1
+  serivce:
+    inventory: upcloud-base-inventory-mysql
+    route: service-ai-eis-route-center
+  serarch:
+    url: http://service-data-api-base-ai/search
 
 spring:
-  application.name: service-ai-eis-wcs-center
+  application.name: service-ai-eis-business-center
   #redis配置
   redis:
     host: 192.168.0.52
@@ -37,9 +31,9 @@ spring:
       enabled: true
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/eis-route?characterEncoding=utf8&useSSL=false
-    username: root
-    password: 123456
+    url: jdbc:mysql://192.168.1.13:2206/eis_base_business?characterEncoding=utf8&useSSL=false
+    username: dev
+    password: prolog0212-dev
     initialSize: 0 #初始化大小
     minIdle: 5 #最小空閒
     maxActive: 50 #最大連接數

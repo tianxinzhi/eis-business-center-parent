@@ -67,3 +67,10 @@ prolog:
     multipart:  #文件上传配置
       maxFileSize: 100MB
       maxRequestSize: 100MB
+    auth:
+      redis:
+        #      timeout: 18000
+        namespace: "upcloud-base:"
+      client-id: platform-admin
+      client-secret: prolog0212
+      permitResource: /*.html,/**/*.css,/**/*.js,/**/*.ico,/**/*.png,/**/*.gif,/**/*.jpg,/**/font/*,/v2/api-docs,/supervisionCodeXml/exportXml
