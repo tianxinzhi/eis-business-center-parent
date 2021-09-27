@@ -22,6 +22,7 @@
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
         <org.projectlombok>1.18.12</org.projectlombok>
         <eis.source.version>3.0-SNAPSHOT</eis.source.version>
+        <prolog.framework.bz>1.0.0.beta</prolog.framework.bz>
     </properties>
 
 
@@ -81,6 +82,12 @@
                 <groupId>com.prolog.eis</groupId>
                 <artifactId>eis-router-center-facade</artifactId>
                 <version>${eis.source.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.prolog.framework</groupId>
+                <artifactId>plg-bz-starter</artifactId>
+                <version>${prolog.framework.bz}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

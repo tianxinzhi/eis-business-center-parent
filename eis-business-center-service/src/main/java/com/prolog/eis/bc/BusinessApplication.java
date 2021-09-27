@@ -1,6 +1,7 @@
 package com.prolog.eis.bc;
 
 import com.prolog.framework.authority.annotation.EnablePrologResourceServer;
+import com.prolog.framework.bz.common.search.EnableSearchApi;
 import com.prolog.framework.microservice.annotation.EnablePrologService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnablePrologService
 @EnableCaching
 @EnableTransactionManagement
+@EnableSearchApi
 public class BusinessApplication {
 
     public static void main(String[] args) {
