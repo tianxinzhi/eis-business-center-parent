@@ -52,8 +52,6 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     private OutboundStrategyConfigService outboundStrategyConfigService;
     @Autowired
     private OutBoundTaskBizService outboundTaskBizService;
-    @Autowired
-    private OutboundTaskService outboundTaskService;
 
     @Autowired
     private PickingOrderService pickingOrderService;
@@ -92,7 +90,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         String composeOrderConfig = config.getComposeOrderConfig();
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {
             // 出单任务，从订单池获取biz_eis_out_task表 state=未开始
-            List<BizOutTask> outTaskList = outboundTaskService.findAllNoStartTask();
+            List<BizOutTask> outTaskList = this.findAllNoStartTask();
 
             log.error("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
 
