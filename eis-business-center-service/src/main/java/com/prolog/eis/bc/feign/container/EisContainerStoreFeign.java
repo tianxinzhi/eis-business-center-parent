@@ -1,11 +1,13 @@
 package com.prolog.eis.bc.feign.container;
 
+import com.prolog.eis.core.model.base.container.ContainerStore;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.upcloud.base.inventory.dto.EisSelectorInv;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -18,5 +20,13 @@ public interface EisContainerStoreFeign {
 
     @PostMapping("/eisInv/findByItemOrLotId")
     RestMessage<List<EisInvContainerStoreVo>> findByItemOrLotId(@RequestBody EisSelectorInv eisSelectorInv);
+
+    /**
+     * 根据容器编号获取库存
+     * @param containerNo
+     * @return
+     */
+    @PostMapping("/eisInv/findByContainerNo")
+    RestMessage<List<EisInvContainerStoreVo>> findByContainerNo(@RequestParam("containerNo") String containerNo);
 
 }

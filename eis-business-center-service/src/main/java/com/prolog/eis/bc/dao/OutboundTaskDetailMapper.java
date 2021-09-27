@@ -1,13 +1,15 @@
 package com.prolog.eis.bc.dao;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-
+import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
 import com.prolog.framework.dao.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+@Repository
 public interface OutboundTaskDetailMapper extends BaseMapper<OutboundTaskDetail> {
 
     @Select("<script>"
@@ -22,17 +24,17 @@ public interface OutboundTaskDetailMapper extends BaseMapper<OutboundTaskDetail>
             + "            #{item,jdbcType=VARCHAR}"
             + "        </foreach>"
             + "    </if>"
-            + "    <if test='lotId != null'>" 
-            + "        and lot_id = #{lotId,jdbcType=VARCHAR}" 
+            + "    <if test='lotId != null'>"
+            + "        and lot_id = #{lotId,jdbcType=VARCHAR}"
             + "    </if>"
-            + "    <if test='itemId != null'>" 
-            + "        and item_id = #{itemId,jdbcType=VARCHAR}" 
+            + "    <if test='itemId != null'>"
+            + "        and item_id = #{itemId,jdbcType=VARCHAR}"
             + "    </if>"
-            + "    <if test='isFinish != null'>" 
-            + "        and is_finish = #{isFinish,jdbcType=INTEGER}" 
+            + "    <if test='isFinish != null'>"
+            + "        and is_finish = #{isFinish,jdbcType=INTEGER}"
             + "    </if>"
-            + "    <if test='isShortPicking != null'>" 
-            + "        and is_short_picking = #{isShortPicking,jdbcType=INTEGER}" 
+            + "    <if test='isShortPicking != null'>"
+            + "        and is_short_picking = #{isShortPicking,jdbcType=INTEGER}"
             + "    </if>"
             + "    order by create_time desc"
             + "</script>")

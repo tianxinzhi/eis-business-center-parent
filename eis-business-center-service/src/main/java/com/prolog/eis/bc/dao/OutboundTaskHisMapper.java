@@ -1,18 +1,16 @@
 package com.prolog.eis.bc.dao;
 
-import org.springframework.stereotype.Repository;
-
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskHis;
 import com.prolog.framework.dao.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
-
 /**
- * 出库任务Mapper
- * @author 金总
- *
+ * @Author: txz
+ * @Date: 2021/9/24 12:02
+ * @Desc:
  */
 @Repository
-public interface OutboundTaskMapper extends BaseMapper<OutboundTask> {
+public interface OutboundTaskHisMapper extends BaseMapper<OutboundTaskHis> {
 
 }

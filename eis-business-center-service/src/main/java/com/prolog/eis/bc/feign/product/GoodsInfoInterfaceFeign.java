@@ -1,6 +1,7 @@
 package com.prolog.eis.bc.feign.product;
 
 import com.prolog.eis.bc.facade.dto.product.GoodsInventoryInfoDto;
+import com.prolog.framework.common.message.RestMessage;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +22,7 @@ public interface GoodsInfoInterfaceFeign {
      * @return GoodsInventoryInfoDto
      */
     @RequestMapping(value = "/getGoodsInfo",method = RequestMethod.POST)
-    GoodsInventoryInfoDto getGoodsInfo(String id);
+    RestMessage<GoodsInventoryInfoDto> getGoodsInfo(String id);
 
     /**
      * 通过批号ID查询库存服务，获取商品批次信息
@@ -29,7 +30,7 @@ public interface GoodsInfoInterfaceFeign {
      * @return getGoodsBatchInfo
      */
     @RequestMapping(value = "/getGoodsBatchInfo",method = RequestMethod.POST)
-    GoodsInventoryInfoDto getGoodsBatchInfo(String batchId);
+    RestMessage<GoodsInventoryInfoDto> getGoodsBatchInfo(String batchId);
 
     /**
      * 通过批号ID+商品ID查询库存服务，获取库存数量
@@ -38,7 +39,7 @@ public interface GoodsInfoInterfaceFeign {
      * @return Integer
      */
     @RequestMapping(value = "/getGoodsStore",method = RequestMethod.POST)
-    Integer getGoodsStore(@RequestParam("batchId")String batchId, @RequestParam("goodsId")String goodsId);
+    RestMessage<Integer> getGoodsStore(@RequestParam("batchId")String batchId, @RequestParam("goodsId")String goodsId);
 
     /**
      * 通过点位查询仓库服务，获取该货位是否锁定，统计该商品+批次的所有容器一共有多少锁定数量=锁定数量
@@ -48,5 +49,5 @@ public interface GoodsInfoInterfaceFeign {
      * @return Integer
      */
     @RequestMapping(value = "/getGoodsLockInfo",method = RequestMethod.POST)
-    Integer getGoodsLockInfo(@RequestParam("sourceLoc") String sourceLoc, @RequestParam("batchId")String batchId, @RequestParam("goodsId")String goodsId);
+    RestMessage<Integer> getGoodsLockInfo(@RequestParam("sourceLoc") String sourceLoc, @RequestParam("batchId")String batchId, @RequestParam("goodsId")String goodsId);
 }
