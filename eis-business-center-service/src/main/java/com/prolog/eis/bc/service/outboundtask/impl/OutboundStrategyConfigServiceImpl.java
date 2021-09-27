@@ -41,7 +41,7 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         OutboundStrategyConfig outboundStrategyConfig = outboundStrategyConfigList.get(0);
         OutboundStrategyConfigVo outboundStrategyConfigVo = copyBean(outboundStrategyConfig);
         List<OutboundStrategySourceAreaConfig> outboundStrategySourceAreaConfigList = outboundStrategySourceAreaConfigMapper.findByMap(MapUtils.put("outStgCfgId", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategySourceAreaConfig.class);
-        List<OutboundStrategyTargetStationConfig> outboundStrategyTargetStationConfigList = outboundStrategyTargetStationConfigMapper.findByMap(MapUtils.put("", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategyTargetStationConfig.class);
+        List<OutboundStrategyTargetStationConfig> outboundStrategyTargetStationConfigList = outboundStrategyTargetStationConfigMapper.findByMap(MapUtils.put("outStgCfgId", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategyTargetStationConfig.class);
         outboundStrategyConfigVo.setOutboundStrategySourceAreaConfigList(outboundStrategySourceAreaConfigList);
         outboundStrategyConfigVo.setOutboundStrategyTargetStationConfigList(outboundStrategyTargetStationConfigList);
         return outboundStrategyConfigVo;

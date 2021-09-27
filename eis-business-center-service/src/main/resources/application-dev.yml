@@ -4,29 +4,11 @@ eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.1.21:6001
 prolog.tx.url: http://192.168.0.52:7000/tx/manager/
 
 prolog:
-  mcs:
-    host: 192.168.41.179
-    port: 8004
-  gcs:
-    host: 192.168.41.179
-    port: 8005
-  rcs:
-    host: 192.168.41.179
-    port: 8003
-  huaRuiDe:
-    host: 192.168.41.179
-    port: 8010
-  sps:
-    host: 192.168.41.179
-    port: 8010
-  wms:
-    host: 127.0.0.1
-    port: 8088
-    userCode: admin
-    userPass: 1
   serivce:
     inventory: upcloud-base-inventory-mysql
     route: service-ai-eis-route-center
+  serarch:
+    url: http://service-data-api-base-ai/search
 
 spring:
   application.name: service-ai-eis-business-center
@@ -35,6 +17,7 @@ spring:
     cluster:
       nodes: 192.168.1.17:6379,192.168.1.17:6380,192.168.1.18:6379,192.168.1.18:6380,192.168.1.19:6379,192.168.1.19:6380
     password: prolog-redis-0212
+#  redis:
 #    host: 192.168.0.52
 #    port: 6379
 #    password: prolog0212
@@ -54,7 +37,7 @@ spring:
       exclude: WEB-INF/**
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.1.13:2206/eis_base?characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://192.168.1.13:2206/eis_base_business?characterEncoding=utf8&useSSL=false
     username: dev
     password: prolog0212-dev
     initialSize: 0 #初始化大小

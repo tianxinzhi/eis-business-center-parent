@@ -11,4 +11,7 @@ public interface OutboundStrategyConfigConstant {
     public static final String OUT_MODEL_PICKING = "PICKING_ORDER_OUT";
 
     public static final String ALGORITHM_COMPOSE_SIMILARITY = "SIMILARITY";
+
+    public static final int STORE_MATCHING_STRATEGY_ITEM = 1;
+    public static final int STORE_MATCHING_STRATEGY_IOT = 2;
 }
