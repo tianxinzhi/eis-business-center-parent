@@ -2,7 +2,6 @@ package com.prolog.eis.bc.service.outboundtask.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,33 +11,25 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
 import com.prolog.eis.bc.constant.OutboundTaskConstant;
 import com.prolog.eis.bc.dao.OutboundTaskBindDtMapper;
 import com.prolog.eis.bc.dao.OutboundTaskDetailMapper;
 import com.prolog.eis.bc.dao.OutboundTaskMapper;
 import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
-import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
-import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
-import com.prolog.eis.bc.feign.container.EisContainerLocationFeign;
 import com.prolog.eis.bc.service.outboundtask.ContainerOutDispatchService;
+import com.prolog.eis.bc.service.outboundtask.OutBoundTaskBizService;
 import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
-import com.prolog.eis.bc.service.outboundtask.OutboundTaskBindDtService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
-import com.prolog.eis.common.util.MathHelper;
 import com.prolog.eis.component.algorithm.composeorder.ComposeOrderUtils;
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTaskDetail;
-import com.prolog.eis.component.algorithm.composeorder.entity.PickingOrderDto;
 import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
-import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
-import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.utils.MapUtils;
@@ -60,7 +51,10 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     @Autowired
     private OutboundStrategyConfigService outboundStrategyConfigService;
     @Autowired
-    private OutboundTaskBindDtService outboundTaskBindDtService;
+    private OutBoundTaskBizService outboundTaskBizService;
+    @Autowired
+    private OutboundTaskService outboundTaskService;
+
     @Autowired
     private PickingOrderService pickingOrderService;
 
@@ -70,13 +64,6 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     private OutboundTaskDetailMapper outboundTaskDetailMapper;
     @Autowired
     private OutboundTaskBindDtMapper outboundTaskBindDtMapper;
-
-    @Autowired
-    private EisWarehouseStationFeign eisWarehouseStationFeign;
-    @Autowired
-    private EisContainerLocationFeign eisContainerLocationFeign;
-    @Autowired
-    private EisInvContainerStoreSubFeign eisInvContainerStoreSubFeign;
 
     @Override
     public void composeAndGenerateOutbound() {
@@ -102,150 +89,17 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return:{}", JSONObject.toJSONString(config));
         
         String outModel = config.getOutModel();
-        int storeMatchingStrategy = config.getStoreMatchingStrategy();
         String composeOrderConfig = config.getComposeOrderConfig();
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {
             // 出单任务，从订单池获取biz_eis_out_task表 state=未开始
-            List<BizOutTask> outTaskList = this.findAllNoStartTask();
+            List<BizOutTask> outTaskList = outboundTaskService.findAllNoStartTask();
 
             log.error("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
 
-            // 站点，筛选出库站台，通过feign查询出所有的 isLock=0且claim=1索取
-            List<Station> stationList = null;
-            RestMessage<List<Station>> stationResp = null;
-            try {
-                stationResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
-            } catch (Exception e) {
-                log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() excp:{}", e.getMessage());
-            }
-
-            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return:{}", JSONObject.toJSONString(stationResp));
-
-            if (null != stationResp && stationResp.isSuccess()) {
-                stationList = stationResp.getData();
-            } else {
-                log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return error, msg:{}",
-                        null == stationResp ? "resp is null" : stationResp.getMessage());
-            }
-            List<StationDto> stationDtoList = Lists.newArrayList();
-            if (!CollectionUtils.isEmpty(stationList)) {
-                for (Station station : stationList) {
-                    StationDto stationDto = new StationDto();
-                    // 调用远程接口 查询sourceArea且targetArea=站点areaNo的容器数量
-                    RestMessage<Long> arriveLxCountResp = null;
-                    try {
-                        arriveLxCountResp = eisContainerLocationFeign.findArriveLxCount(station.getAreaNo());
-                    } catch (Exception e) {
-                        log.error("eisContainerLocationFeign.findArriveLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
-                    }
-
-                    log.error("eisContainerLocationFeign.findArriveLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(arriveLxCountResp));
-
-                    if (null != arriveLxCountResp && arriveLxCountResp.isSuccess()) {
-                        stationDto.setArriveLxCount(arriveLxCountResp.getData().intValue());
-                    } else {
-                        log.error("eisContainerLocationFeign.findArriveLxCount() return error, areaNo:{}, msg:{}",
-                                station.getAreaNo(), null == arriveLxCountResp ? "resp is null" : arriveLxCountResp.getMessage());
-                        stationDto.setArriveLxCount(0);
-                    }
-                    // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
-                    RestMessage<Long> chuKuLxCountResp = null;
-                    try {
-                        chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(station.getAreaNo());
-                    } catch (Exception e) {
-                        log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
-                    }
-
-                    log.error("eisContainerLocationFeign.findChuKuLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(chuKuLxCountResp));
-
-                    if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
-                        stationDto.setChuKuLxCount(chuKuLxCountResp.getData().intValue());
-                    } else {
-                        log.error("eisContainerLocationFeign.findChuKuLxCount() return error, areaNo:{}, msg:{}",
-                                station.getAreaNo(), null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage());
-                        stationDto.setChuKuLxCount(0);
-                    }
-                    stationDto.setMaxLxCacheCount(100);
-                    stationDto.setMaxOrderNum(config.getMaxOrderNum());
-                    stationDto.setMaxOrderSpCount(100);
-                    stationDto.setStationId(station.getId());
-                    stationDto.setIsClaim(station.getClaim());
-                    stationDto.setIsLock(station.getIsLock());
-
-                    // 关联拣货单
-                    List<PickingOrderDto> pickingOrderDtoList = pickingOrderService.findByStationId(station.getId(), storeMatchingStrategy);
-
-                    log.error("pickingOrderService.findByStationId({},{}) return:{}", station.getId(), storeMatchingStrategy, JSONObject.toJSONString(pickingOrderDtoList));
-
-                    stationDto.setPickingOrderList(pickingOrderDtoList);
-                    // 关联Need拣货单
-                    stationDto.setNeedPickingOrder(null);
-                    stationDtoList.add(stationDto);
-                }
-            } else {
-                log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return empty");
-            }
-
-            WarehouseDto warehouse = new WarehouseDto();
-            warehouse.setStationList(stationDtoList);
-            Map<String, Integer> itemUseableMap = Maps.newHashMap();
-            if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_IOT) {
-                // 按批次出库
-                RestMessage<Map<String, Integer>> itemStockMapResp = null;
-                try {
-                    itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByLotId();
-                } catch (Exception e) {
-                    log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() excp:{}", e.getMessage());
-                }
-
-                log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() return:{}", JSONObject.toJSONString(itemStockMapResp));
-
-                if (null != itemStockMapResp && itemStockMapResp.isSuccess()) {
-                    Map<String, Integer> itemTotalMap = itemStockMapResp.getData();
-                    Map<String, Integer> itemBindingMap = outboundTaskBindDtService.findSumBindingNumGroupByLotId();
-
-                    log.error("outboundTaskBindDtService.findSumBindingNumGroupByLotId() return:{}", JSONObject.toJSONString(itemBindingMap));
-
-                    for (String key : itemTotalMap.keySet()) {
-                        itemUseableMap.put(key, MathHelper.getIntegerDiv(itemTotalMap.get(key), itemBindingMap.get(key)));
-                    }
-                } else {
-                    log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() return error, msg:{}",
-                            null == itemStockMapResp ? "resp is null" : itemStockMapResp.getMessage());
-                }
-            } else if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_ITEM) {
-                // 按商品出库
-                RestMessage<Map<String, Integer>> itemStockMapResp = null;
-                try {
-                    itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByItemId();
-                } catch (Exception e) {
-                    log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() excp:{}", e.getMessage());
-                }
-
-                log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() return:{}", JSONObject.toJSONString(itemStockMapResp));
-
-                if (null != itemStockMapResp && itemStockMapResp.isSuccess()) {
-                    Map<String, Integer> itemTotalMap = itemStockMapResp.getData();
-                    Map<String, Integer> itemBindingMap = outboundTaskBindDtService.findSumBindingNumGroupByItemId();
-
-                    log.error("outboundTaskBindDtService.findSumBindingNumGroupByItemId() return:{}", JSONObject.toJSONString(itemBindingMap));
-
-                    for (String key : itemTotalMap.keySet()) {
-                        itemUseableMap.put(key, MathHelper.getIntegerDiv(itemTotalMap.get(key), itemBindingMap.get(key)));
-                    }
-                } else {
-                    log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() return error, msg:{}",
-                            null == itemStockMapResp ? "resp is null" : itemStockMapResp.getMessage());
-                }
-            } else {
-                log.error("config.getStoreMatchingStrategy() is not LOT or ITEM, is:{}", config.getStoreMatchingStrategy());
-                return;
-            }
-            warehouse.setItemStockMap(itemUseableMap);
-            warehouse.setMaxItemCount(100);
-            warehouse.setMaxPoolTaskNum(100);
-
+            WarehouseDto warehouse = outboundTaskBizService.getWarehouseByPickingOrderOutModel(config);
+            List<StationDto> stationDtoList = warehouse.getStationList();
             if (OutboundStrategyConfigConstant.ALGORITHM_COMPOSE_SIMILARITY.equals(composeOrderConfig)) {
+
                 for (StationDto station : stationDtoList) {
                     // 筛选出最合适的任务
                     List<BizOutTask> bestBizOutTask = ComposeOrderUtils.compose(station, warehouse, outTaskList);
