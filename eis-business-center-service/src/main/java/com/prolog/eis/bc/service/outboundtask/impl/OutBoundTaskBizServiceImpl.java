@@ -178,7 +178,6 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
             }
         } else {
             log.error("config.getStoreMatchingStrategy() is not LOT or ITEM, is:{}", config.getStoreMatchingStrategy());
-            return null;
         }
         warehouse.setItemStockMap(itemUseableMap);
         warehouse.setMaxItemCount(100);
