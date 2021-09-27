@@ -13,7 +13,7 @@ public interface PickingOrderService {
      * 生成拣选单
      * @return 拣选单Id
      */
-    String insert(String stationId) throws Exception;
+    String insert(String stationId,List<String> outTaskIdList) throws Exception;
 
     /**
      * 根据站台Id查询关联拣选单(包含其他业务对象)

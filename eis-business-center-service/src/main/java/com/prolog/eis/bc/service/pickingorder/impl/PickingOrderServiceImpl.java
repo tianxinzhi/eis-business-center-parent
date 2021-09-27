@@ -4,9 +4,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.prolog.eis.core.model.biz.outbound.OutboundTask;
+import com.prolog.framework.utils.MapUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -33,10 +37,15 @@ public class PickingOrderServiceImpl implements PickingOrderService {
     @Autowired
     private OutboundTaskService outboundTaskService;
 
+
     @Override
-    public String insert(String stationId) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = Exception.class)
+    public String insert(String stationId,List<String> outTaskIdList) throws Exception {
         if (StringUtils.isEmpty(stationId)) {
             throw new Exception("生成拣选单失败，stationId is null");
+        }
+        if (CollectionUtils.isEmpty(outTaskIdList)) {
+            throw new Exception("出库任务Id集合不能为空");
         }
         PickingOrder insertObj = new PickingOrder();
         insertObj.setStationId(stationId);
@@ -47,6 +56,7 @@ public class PickingOrderServiceImpl implements PickingOrderService {
         if (effectNum != 1) {
             throw new Exception("生成拣选单失败，影响行数:" + effectNum);
         }
+        outboundTaskService.batchUpdatePickingOrderId(outTaskIdList,insertObj.getId());
         return insertObj.getId();
     }
 

@@ -1,9 +1,11 @@
 package com.prolog.eis.bc.service.outboundtask.impl;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.prolog.eis.component.algorithm.composeorder.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,10 +25,6 @@ import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
 import com.prolog.eis.component.algorithm.composeorder.ComposeOrderUtils;
-import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
-import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTaskDetail;
-import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
-import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
@@ -83,9 +81,9 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return null");
             return;
         }
-        
+
         log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return:{}", JSONObject.toJSONString(config));
-        
+
         String outModel = config.getOutModel();
         String composeOrderConfig = config.getComposeOrderConfig();
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {
@@ -95,42 +93,42 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             log.error("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
 
             WarehouseDto warehouse = outboundTaskBizService.getWarehouseByPickingOrderOutModel(config);
-            List<StationDto> stationDtoList = warehouse.getStationList();
             if (OutboundStrategyConfigConstant.ALGORITHM_COMPOSE_SIMILARITY.equals(composeOrderConfig)) {
-
-                for (StationDto station : stationDtoList) {
-                    // 筛选出最合适的任务
-                    List<BizOutTask> bestBizOutTask = ComposeOrderUtils.compose(station, warehouse, outTaskList);
-                    if (CollectionUtils.isEmpty(bestBizOutTask)) {
-                        continue;
-                    }
-                    // 为站点分配拣选单
-                    String pickingOrderId = null;
+                warehouse.getStationList().sort(Comparator.comparingInt(StationDto::computeContainerCount));
+                for (StationDto station : warehouse.getStationList()) {
                     try {
-                        pickingOrderId = pickingOrderService.insert(station.getStationId());
+                        // 筛选出最合适的任务
+                        PickingOrderDto pickingOrderDto = ComposeOrderUtils.compose(station, warehouse, outTaskList);
+                        if (pickingOrderDto == null) {
+                            continue;
+                        }
+                        station.getPickingOrderList().add(pickingOrderDto);
+                        List<String> taskIdList = pickingOrderDto.getOutboundTaskList().stream().map(BizOutTask::getId).collect(Collectors.toList());
+                        String id = pickingOrderService.insert(station.getStationId(), taskIdList);
+                        pickingOrderDto.setId(id);
+                        station.setNeedPickingOrder(pickingOrderDto);
+                        ComposeOrderUtils.removeSelectedDingDan(pickingOrderDto, outTaskList);
                     } catch (Exception e) {
-                        log.error("pickingOrderService.insert, excp:{}", e.getMessage());
-                    }
-
-                    log.error("pickingOrderService.insert({}) return:{}", station.getStationId(), pickingOrderId);
-
-                    if (StringUtils.isEmpty(pickingOrderId)) {
-                        continue;
-                    }
-                    List<String> taskIdList = bestBizOutTask.stream().map(BizOutTask::getId).collect(Collectors.toList());
-                    try {
-                        this.batchUpdatePickingOrderId(taskIdList, pickingOrderId);
-                    } catch (Exception e) {
-                        log.error("outboundTaskService.batchUpdatePickingOrderId, excp:{}", e.getMessage());
+                        log.error("站台绑定订单异常   {}", e.getMessage());
                     }
                 }
-                boolean r = containerOutDispatchService.outContainerForPickingOrder(warehouse, config);
-
-                log.error("containerOutDispatchService.outContainerForPickingOrder({},{}) return:{}", JSONObject.toJSONString(warehouse), JSONObject.toJSONString(config), r);
-
+                this.checkStationNeedOutPickingOrder(warehouse);
+                containerOutDispatchService.outContainerForPickingOrder(warehouse, config);
             }
-        } else {
-            log.error("config.getOutModel() is not PICKING_ORDER_OUT, is:{}", config.getOutModel());
+        }
+    }
+
+    /**
+     *  计算站台需要出库的拣选单
+     */
+    private void checkStationNeedOutPickingOrder(WarehouseDto warehouse) {
+        for (StationDto stationDto : warehouse.getStationList()) {
+            for (PickingOrderDto pickingOrderDto : stationDto.getPickingOrderList()) {
+                if (pickingOrderDto.getIsAllContainerArrive() != 1) {
+                    stationDto.setNeedPickingOrder(pickingOrderDto);
+                    break;
+                }
+            }
         }
     }
 
@@ -142,14 +140,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     }
 
     @Override
-    public void batchUpdatePickingOrderId(List<String> idList,
-            String pickingOrderId) throws Exception {
-        if (CollectionUtils.isEmpty(idList)) {
-            return;
-        }
-        if (null == pickingOrderId) {
-            return;
-        }
+    public void batchUpdatePickingOrderId(List<String> idList, String pickingOrderId) throws Exception {
         Criteria crt = Criteria.forClass(OutboundTask.class);
         crt.setRestriction(Restrictions.in("id", idList.toArray()));
         outboundTaskMapper.updateMapByCriteria(MapUtils.put("pickingOrderId", pickingOrderId).put("startTime", new Date()).getMap(), crt);
@@ -167,20 +158,12 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         return getBizOutTaskListByTaskList(taskList);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     // ==========================================通用工具方法=====================================
+
     /**
      * 将数据库OutboundTask集合转化为BizOutTask集合
+     *
      * @param taskList 数据库OutboundTask集合
      * @return
      */
