@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
@@ -97,12 +98,17 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return null");
             return;
         }
+        
+        log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return:{}", JSONObject.toJSONString(config));
+        
         String outModel = config.getOutModel();
         int storeMatchingStrategy = config.getStoreMatchingStrategy();
         String composeOrderConfig = config.getComposeOrderConfig();
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {
             // 出单任务，从订单池获取biz_eis_out_task表 state=未开始
             List<BizOutTask> outTaskList = this.findAllNoStartTask();
+
+            log.error("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
 
             // 站点，筛选出库站台，通过feign查询出所有的 isLock=0且claim=1索取
             List<Station> stationList = null;
@@ -112,6 +118,9 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             } catch (Exception e) {
                 log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() excp:{}", e.getMessage());
             }
+
+            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return:{}", JSONObject.toJSONString(stationResp));
+
             if (null != stationResp && stationResp.isSuccess()) {
                 stationList = stationResp.getData();
             } else {
@@ -129,11 +138,14 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     } catch (Exception e) {
                         log.error("eisContainerLocationFeign.findArriveLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
                     }
+
+                    log.error("eisContainerLocationFeign.findArriveLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(arriveLxCountResp));
+
                     if (null != arriveLxCountResp && arriveLxCountResp.isSuccess()) {
                         stationDto.setArriveLxCount(arriveLxCountResp.getData().intValue());
                     } else {
                         log.error("eisContainerLocationFeign.findArriveLxCount() return error, areaNo:{}, msg:{}",
-                                station.getAreaNo(), null == stationResp ? "resp is null" : stationResp.getMessage());
+                                station.getAreaNo(), null == arriveLxCountResp ? "resp is null" : arriveLxCountResp.getMessage());
                         stationDto.setArriveLxCount(0);
                     }
                     // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
@@ -143,11 +155,14 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     } catch (Exception e) {
                         log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
                     }
+
+                    log.error("eisContainerLocationFeign.findChuKuLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(chuKuLxCountResp));
+
                     if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
                         stationDto.setChuKuLxCount(chuKuLxCountResp.getData().intValue());
                     } else {
                         log.error("eisContainerLocationFeign.findChuKuLxCount() return error, areaNo:{}, msg:{}",
-                                station.getAreaNo(), null == stationResp ? "resp is null" : stationResp.getMessage());
+                                station.getAreaNo(), null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage());
                         stationDto.setChuKuLxCount(0);
                     }
                     stationDto.setMaxLxCacheCount(100);
@@ -159,6 +174,9 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
 
                     // 关联拣货单
                     List<PickingOrderDto> pickingOrderDtoList = pickingOrderService.findByStationId(station.getId(), storeMatchingStrategy);
+
+                    log.error("pickingOrderService.findByStationId({},{}) return:{}", station.getId(), storeMatchingStrategy, JSONObject.toJSONString(pickingOrderDtoList));
+
                     stationDto.setPickingOrderList(pickingOrderDtoList);
                     // 关联Need拣货单
                     stationDto.setNeedPickingOrder(null);
@@ -173,29 +191,51 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             Map<String, Integer> itemUseableMap = Maps.newHashMap();
             if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_IOT) {
                 // 按批次出库
-                RestMessage<Map<String, Integer>> itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByLotId();
+                RestMessage<Map<String, Integer>> itemStockMapResp = null;
+                try {
+                    itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByLotId();
+                } catch (Exception e) {
+                    log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() excp:{}", e.getMessage());
+                }
+
+                log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() return:{}", JSONObject.toJSONString(itemStockMapResp));
+
                 if (null != itemStockMapResp && itemStockMapResp.isSuccess()) {
                     Map<String, Integer> itemTotalMap = itemStockMapResp.getData();
                     Map<String, Integer> itemBindingMap = outboundTaskBindDtService.findSumBindingNumGroupByLotId();
+
+                    log.error("outboundTaskBindDtService.findSumBindingNumGroupByLotId() return:{}", JSONObject.toJSONString(itemBindingMap));
+
                     for (String key : itemTotalMap.keySet()) {
                         itemUseableMap.put(key, MathHelper.getIntegerDiv(itemTotalMap.get(key), itemBindingMap.get(key)));
                     }
                 } else {
                     log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() return error, msg:{}",
-                            null == stationResp ? "resp is null" : stationResp.getMessage());
+                            null == itemStockMapResp ? "resp is null" : itemStockMapResp.getMessage());
                 }
             } else if (storeMatchingStrategy == OutboundStrategyConfigConstant.STORE_MATCHING_STRATEGY_ITEM) {
                 // 按商品出库
-                RestMessage<Map<String, Integer>> itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByItemId();
+                RestMessage<Map<String, Integer>> itemStockMapResp = null;
+                try {
+                    itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByItemId();
+                } catch (Exception e) {
+                    log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() excp:{}", e.getMessage());
+                }
+
+                log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() return:{}", JSONObject.toJSONString(itemStockMapResp));
+
                 if (null != itemStockMapResp && itemStockMapResp.isSuccess()) {
                     Map<String, Integer> itemTotalMap = itemStockMapResp.getData();
                     Map<String, Integer> itemBindingMap = outboundTaskBindDtService.findSumBindingNumGroupByItemId();
+
+                    log.error("outboundTaskBindDtService.findSumBindingNumGroupByItemId() return:{}", JSONObject.toJSONString(itemBindingMap));
+
                     for (String key : itemTotalMap.keySet()) {
                         itemUseableMap.put(key, MathHelper.getIntegerDiv(itemTotalMap.get(key), itemBindingMap.get(key)));
                     }
                 } else {
                     log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() return error, msg:{}",
-                            null == stationResp ? "resp is null" : stationResp.getMessage());
+                            null == itemStockMapResp ? "resp is null" : itemStockMapResp.getMessage());
                 }
             } else {
                 log.error("config.getStoreMatchingStrategy() is not LOT or ITEM, is:{}", config.getStoreMatchingStrategy());
@@ -219,6 +259,9 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     } catch (Exception e) {
                         log.error("pickingOrderService.insert, excp:{}", e.getMessage());
                     }
+
+                    log.error("pickingOrderService.insert({}) return:{}", station.getStationId(), pickingOrderId);
+
                     if (StringUtils.isEmpty(pickingOrderId)) {
                         continue;
                     }
@@ -229,7 +272,10 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                         log.error("outboundTaskService.batchUpdatePickingOrderId, excp:{}", e.getMessage());
                     }
                 }
-                containerOutDispatchService.outContainerForPickingOrder(warehouse, config);
+                boolean r = containerOutDispatchService.outContainerForPickingOrder(warehouse, config);
+
+                log.error("containerOutDispatchService.outContainerForPickingOrder({},{}) return:{}", JSONObject.toJSONString(warehouse), JSONObject.toJSONString(config), r);
+
             }
         } else {
             log.error("config.getOutModel() is not PICKING_ORDER_OUT, is:{}", config.getOutModel());

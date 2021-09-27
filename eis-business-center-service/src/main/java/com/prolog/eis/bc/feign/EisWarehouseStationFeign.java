@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.framework.common.message.RestMessage;
 
-@FeignClient(value = "upcloud-base-warehouse-mysql")
+@FeignClient(value = "upcloud-base-wh-dev-mysql")
 public interface EisWarehouseStationFeign {
 
     @GetMapping("/station/findAllUnlockAndClaimStation")
