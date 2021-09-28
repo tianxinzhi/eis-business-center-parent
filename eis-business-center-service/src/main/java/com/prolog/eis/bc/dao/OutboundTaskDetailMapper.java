@@ -13,7 +13,7 @@ import java.util.List;
 public interface OutboundTaskDetailMapper extends BaseMapper<OutboundTaskDetail> {
 
     @Select("<script>"
-            + "    select id id, out_task_id outTaskId, lot_id lotId, item_id itemId, plan_num planNum "
+            + "    select id id, out_task_id outTaskId, lot_id lotId, item_id itemId, plan_num planNum ,"
             + "        actual_num actualNum, is_finish isFinish, "
             + "        is_short_picking isShortPicking, priority priority, expire_date expireDate,"
             + "        create_time createTime, start_time startTime, finish_time finishTime "
