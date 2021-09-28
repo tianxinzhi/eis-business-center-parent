@@ -56,6 +56,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
             stationResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
         } catch (Exception e) {
             log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() excp:{}", e.getMessage());
+            throw e;
         }
 
         log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return:{}", JSONObject.toJSONString(stationResp));
@@ -76,6 +77,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                     arriveLxCountResp = eisContainerLocationFeign.findArriveLxCount(station.getAreaNo());
                 } catch (Exception e) {
                     log.error("eisContainerLocationFeign.findArriveLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
+                    throw e;
                 }
 
                 log.error("eisContainerLocationFeign.findArriveLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(arriveLxCountResp));
@@ -93,6 +95,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                     chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(station.getAreaNo());
                 } catch (Exception e) {
                     log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
+                    throw e;
                 }
 
                 log.error("eisContainerLocationFeign.findChuKuLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(chuKuLxCountResp));
@@ -135,6 +138,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                 itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByLotId();
             } catch (Exception e) {
                 log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() excp:{}", e.getMessage());
+                throw e;
             }
 
             log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() return:{}", JSONObject.toJSONString(itemStockMapResp));
@@ -159,6 +163,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                 itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByItemId();
             } catch (Exception e) {
                 log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() excp:{}", e.getMessage());
+                throw e;
             }
 
             log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() return:{}", JSONObject.toJSONString(itemStockMapResp));
