@@ -24,6 +24,7 @@ import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
 import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.framework.common.message.RestMessage;
+import com.prolog.framework.core.exception.BizException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,8 +65,9 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
         if (null != stationResp && stationResp.isSuccess()) {
             stationList = stationResp.getData();
         } else {
-            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return error, msg:{}",
-                    null == stationResp ? "resp is null" : stationResp.getMessage());
+            String message = null == stationResp ? "resp is null" : stationResp.getMessage();
+            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return error, msg:{}", message);
+            throw new BizException(message);
         }
         List<StationDto> stationDtoList = Lists.newArrayList();
         if (!CollectionUtils.isEmpty(stationList)) {
@@ -85,8 +87,8 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                 if (null != arriveLxCountResp && arriveLxCountResp.isSuccess()) {
                     stationDto.setArriveLxCount(arriveLxCountResp.getData().intValue());
                 } else {
-                    log.error("eisContainerLocationFeign.findArriveLxCount() return error, areaNo:{}, msg:{}",
-                            station.getAreaNo(), null == arriveLxCountResp ? "resp is null" : arriveLxCountResp.getMessage());
+                    String message = null == arriveLxCountResp ? "resp is null" : arriveLxCountResp.getMessage();
+                    log.error("eisContainerLocationFeign.findArriveLxCount({}) return error, msg:{}", station.getAreaNo(), message);
                     stationDto.setArriveLxCount(0);
                 }
                 // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
@@ -103,8 +105,8 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                 if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
                     stationDto.setChuKuLxCount(chuKuLxCountResp.getData().intValue());
                 } else {
-                    log.error("eisContainerLocationFeign.findChuKuLxCount() return error, areaNo:{}, msg:{}",
-                            station.getAreaNo(), null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage());
+                    String message = null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage();
+                    log.error("eisContainerLocationFeign.findChuKuLxCount({}) return error, msg:{}", station.getAreaNo(), message);
                     stationDto.setChuKuLxCount(0);
                 }
                 stationDto.setMaxLxCacheCount(100);
