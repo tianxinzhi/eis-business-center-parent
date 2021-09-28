@@ -1,5 +1,6 @@
 package com.prolog.eis.bc.dao.ssc;
 
+import com.prolog.eis.bc.facade.dto.policy.OutSplitStgDto;
 import com.prolog.eis.bc.facade.dto.product.GoodsInventoryInfoDto;
 import com.prolog.eis.bc.facade.dto.product.GoodsInventoryWarnDefineDto;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
@@ -20,5 +21,18 @@ import java.util.List;
  */
 @Repository
 public interface OutboundSplitStrategyConfigMapper extends BaseMapper<OutboundSplitStrategyConfig> {
+
+	@Select("<script>" +
+            "select id,strategy_name as strategyName,strategy_type_no as strategyTypeNo" +
+            " from ctrl_eis_out_split_stg_cfg" +
+            " where 1=1" +
+            " <if test='strategyName != null and strategyName != \"\"'>" +
+            " and strategy_name like concat('%',#{strategyName},'%')" +
+            " </if>" +
+            " <if test='strategyTypeNo != null and strategyTypeNo != \"\"'>" +
+            " and strategy_type_no like concat('%',#{strategyTypeNo},'%')" +
+            " </if>" +
+            "</script>")
+	List<OutboundSplitStrategyConfig> getOutSplitStg(OutSplitStgDto dto);
 
 }

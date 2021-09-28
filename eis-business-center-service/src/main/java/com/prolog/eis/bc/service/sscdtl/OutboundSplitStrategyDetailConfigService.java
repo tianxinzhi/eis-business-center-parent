@@ -1,8 +1,10 @@
 package com.prolog.eis.bc.service.sscdtl;
 
-import com.prolog.eis.core.model.ctrl.outbound.OutboundSplitStrategyDetailConfig;
-
 import java.util.List;
+
+import com.prolog.eis.bc.facade.dto.policy.OutSplitStgDto;
+import com.prolog.eis.bc.facade.dto.policy.OutStgDto;
+import com.prolog.eis.core.model.ctrl.outbound.OutboundSplitStrategyDetailConfig;
 
 /**
  * @Author: txz
@@ -17,4 +19,10 @@ public interface OutboundSplitStrategyDetailConfigService {
      */
 
     List<OutboundSplitStrategyDetailConfig> getDtlsByOutSplitStgCfgId(String cfgId) throws Exception;
+    
+    //修改明细	by HZW
+  	void editOutSplit(OutSplitStgDto dto);
+
+  	//查询明细	by HZW
+  	List<OutboundSplitStrategyDetailConfig> detailOutSplit(OutSplitStgDto dto);
 }
