@@ -7,11 +7,12 @@ prolog:
   serivce:
     inventory: upcloud-base-inventory-mysql
     route: service-ai-eis-route-center
+    warehouse: upcloud-base-wh-dev-mysql
   serarch:
     url: http://service-data-api-base-ai/search
 
 spring:
-  application.name: service-ai-eis-business-center
+  application.name: service-ai-eis-business-center-szz
   #redis配置0
   redis:
     cluster:
