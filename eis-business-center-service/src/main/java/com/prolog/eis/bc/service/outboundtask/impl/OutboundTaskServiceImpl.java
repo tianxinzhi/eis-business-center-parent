@@ -175,7 +175,9 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         }
         // 查询关联的task_detail数据
         List<String> taskIdList = taskList.stream().map(OutboundTask::getId).collect(Collectors.toList());
-        List<OutboundTaskDetail> taskDtList = outboundTaskDetailMapper.find(taskIdList, null, null, null, null);
+        Criteria outboundTaskDtCrt = Criteria.forClass(OutboundTaskDetail.class);
+        outboundTaskDtCrt.setRestriction(Restrictions.in("outTaskId", taskIdList.toArray()));
+        List<OutboundTaskDetail> taskDtList = outboundTaskDetailMapper.findByCriteria(outboundTaskDtCrt);
         // 查询关联的task_bind数据
         List<String> taskDetailIdList = taskDtList.stream().map(OutboundTaskDetail::getId).collect(Collectors.toList());
         List<OutboundTaskBindDetail> taskBindDtList = outboundTaskBindDtMapper.findSumBindingNumGroupByOutTaskDetailId(taskDetailIdList);
