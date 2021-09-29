@@ -1,7 +1,7 @@
-package com.prolog.eis.bc.dao.businesscenter;
+package com.prolog.eis.bc.dao;
 
-import com.prolog.eis.bc.facade.dto.businesscenter.BusiContainerTaskDto;
-import com.prolog.eis.core.model.biz.container.ContainerTask;
+import com.prolog.eis.core.model.biz.container.ContainerTaskHis;
+import com.prolog.eis.bc.facade.dto.businesscenter.BusiContainerTaskHisDto;
 import com.prolog.framework.dao.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
@@ -11,18 +11,14 @@ import org.apache.ibatis.type.JdbcType;
 
 import java.util.List;
 
-/**
- * @Describe
- * @Author clarence_she
- * @Date 2021/9/29
- **/
-public interface BusiContainerTaskMapper extends BaseMapper<ContainerTask> {
+
+public interface BusiContainerTaskHisMapper extends BaseMapper<ContainerTaskHis> {
     @Select("<script>" +
-            "SELECT biz_eis_container_task.*, DT.count FROM biz_eis_container_task " +
-            "LEFT JOIN (SELECT  container_task_id,COUNT(container_task_id) AS count FROM biz_eis_container_task_dt GROUP BY container_task_id) DT " +
-            "ON DT.container_task_id = biz_eis_container_task.id " +
+            "SELECT biz_eis_container_task_his.*, DT.count FROM biz_eis_container_task_his " +
+            "LEFT JOIN (SELECT  container_task_id,COUNT(container_task_id) AS count FROM biz_eis_container_task_dt_his GROUP BY container_task_id) DT " +
+            "ON DT.container_task_id = biz_eis_container_task_his.id " +
             "WHERE 1= 1 " +
-            "<if test='dto.upperSystemTaskId !=null    and dto.upperSystemTaskId != \"\"'>"+
+            "<if test='dto.upperSystemTaskId !=null  and dto.upperSystemTaskId != \"\"'>" +
             " and upper_system_task_id LIKE CONCAT('%',#{dto.upperSystemTaskId},'%')" +
             "</if >" +
             "<if test='dto.typeNo !=null  and dto.typeNo != \"\"'>"+
@@ -47,5 +43,5 @@ public interface BusiContainerTaskMapper extends BaseMapper<ContainerTask> {
             @Result(column = "task_start_time", property = "taskStartTime", jdbcType = JdbcType.DATE),
             @Result(column = "task_finish_time", property = "taskFinishTime", jdbcType = JdbcType.DATE),
             @Result(column = "count", property = "detailCount", jdbcType = JdbcType.VARCHAR)})
-    List<BusiContainerTaskDto> getBusiContainerTaskPage(@Param("dto") BusiContainerTaskDto dto);
+    public List<BusiContainerTaskHisDto> getBusiContainerTaskHisPage(@Param("dto") BusiContainerTaskHisDto dto);
 }

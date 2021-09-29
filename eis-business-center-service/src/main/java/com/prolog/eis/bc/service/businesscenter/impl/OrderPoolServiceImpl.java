@@ -2,7 +2,7 @@ package com.prolog.eis.bc.service.businesscenter.impl;
 
 import com.prolog.eis.bc.service.businesscenter.OrderPoolService;
 import com.prolog.eis.core.model.biz.outbound.OrderPool;
-import com.prolog.eis.bc.dao.businesscenter.OrderPoolMapper;
+import com.prolog.eis.bc.dao.OrderPoolMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.OrderPoolDto;
 import com.prolog.framework.core.pojo.Page;
 import com.prolog.framework.core.restriction.Criteria;

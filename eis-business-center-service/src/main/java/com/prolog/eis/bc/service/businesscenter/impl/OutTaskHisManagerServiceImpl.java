@@ -1,6 +1,6 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
-import com.prolog.eis.bc.dao.businesscenter.OutTaskManagerHisDefineMapper;
+import com.prolog.eis.bc.dao.OutTaskManagerHisDefineMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskHisDto;
 import com.prolog.eis.bc.service.businesscenter.OutTaskHisManagerService;
 import com.prolog.framework.core.pojo.Page;

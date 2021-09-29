@@ -5,18 +5,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
 import com.prolog.eis.component.algorithm.composeorder.entity.*;
 import com.prolog.framework.core.exception.PrologException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
 import com.prolog.eis.bc.constant.OutboundTaskConstant;
-import com.prolog.eis.bc.dao.OutboundTaskBindDtMapper;
 import com.prolog.eis.bc.dao.OutboundTaskDetailMapper;
 import com.prolog.eis.bc.dao.OutboundTaskMapper;
 import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
@@ -60,7 +59,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     @Autowired
     private OutboundTaskDetailMapper outboundTaskDetailMapper;
     @Autowired
-    private OutboundTaskBindDtMapper outboundTaskBindDtMapper;
+    private OutboundTaskBindDetailMapper outboundTaskBindDtMapper;
 
     @Override
     public void composeAndGenerateOutbound() {

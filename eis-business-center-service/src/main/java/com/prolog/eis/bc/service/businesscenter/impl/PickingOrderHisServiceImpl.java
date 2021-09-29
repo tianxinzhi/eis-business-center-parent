@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.prolog.eis.bc.dao.businesscenter.PickingOrderHisMapper;
+import com.prolog.eis.bc.dao.PickingOrderHisMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.PickingOrderDto2;
 import com.prolog.eis.bc.service.businesscenter.PickingOrderHisService;
 import com.prolog.eis.core.model.biz.outbound.PickingOrderHis;

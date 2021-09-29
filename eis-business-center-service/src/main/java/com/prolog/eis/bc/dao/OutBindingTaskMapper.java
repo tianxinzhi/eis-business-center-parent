@@ -1,7 +1,7 @@
-package com.prolog.eis.bc.dao.businesscenter;
+package com.prolog.eis.bc.dao;
 
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindHis;
-import com.prolog.eis.bc.facade.dto.businesscenter.OutBindingTaskHisDto;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskBind;
+import com.prolog.eis.bc.facade.dto.businesscenter.OutBindingTaskDto;
 import com.prolog.framework.dao.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
@@ -11,20 +11,20 @@ import org.apache.ibatis.type.JdbcType;
 
 import java.util.List;
 
-public interface OutBindingTaskHisMapper   extends BaseMapper<OutboundTaskBindHis> {
+public interface OutBindingTaskMapper  extends BaseMapper<OutboundTaskBind> {
 
     @Select("<script>" +
-            "SELECT biz_eis_out_task_bind_his.*, DT.count FROM biz_eis_out_task_bind_his " +
-            "LEFT JOIN (SELECT  outb_task_bind_id,COUNT(outb_task_bind_id) AS count FROM biz_eis_out_task_bind_dt_his GROUP BY outb_task_bind_id) DT " +
-            "ON DT.outb_task_bind_id = biz_eis_out_task_bind_his.id " +
+            "SELECT biz_eis_out_task_bind.*, DT.count FROM biz_eis_out_task_bind " +
+            "LEFT JOIN (SELECT  outb_task_bind_id,COUNT(outb_task_bind_id) AS count FROM biz_eis_out_task_bind_dt GROUP BY outb_task_bind_id) DT " +
+            "ON DT.outb_task_bind_id = biz_eis_out_task_bind.id " +
             "WHERE 1= 1 " +
-            "<if test='dto.containerNo !=null    and dto.containerNo != \"\"'>"+
+            "<if test='dto.containerNo !=null   and dto.containerNo != \"\"'>"+
             " and container_no LIKE CONCAT('%',#{dto.containerNo},'%')" +
             "</if >" +
-            "<if test='dto.pickingOrderId !=null  and dto.pickingOrderId != \"\"'>"+
+            "<if test='dto.pickingOrderId !=null   and dto.pickingOrderId != \"\"'>"+
             " and picking_order_id LIKE CONCAT('%',#{dto.pickingOrderId},'%')" +
             "</if >" +
-            "<if test='dto.orderPoolId !=null  and dto.orderPoolId != \"\"'>"+
+            "<if test='dto.orderPoolId !=null   and dto.orderPoolId != \"\"'>"+
             " and order_pool_id =#{dto.orderPoolId} " +
             "</if >" +
             "<if test='dto.createTimeFrom !=null  '>" +
@@ -42,5 +42,6 @@ public interface OutBindingTaskHisMapper   extends BaseMapper<OutboundTaskBindHi
             @Result(column = "create_time", property = "createTime", jdbcType = JdbcType.DATE),
             @Result(column = "finish_time", property = "finishTime", jdbcType = JdbcType.DATE),
             @Result(column = "count", property = "detailCount", jdbcType = JdbcType.VARCHAR)})
-    public List<OutBindingTaskHisDto> outboundTaskHisPage(@Param("dto") OutBindingTaskHisDto dto);
+    public List<OutBindingTaskDto> outboundTaskDetailDtoPage(@Param("dto") OutBindingTaskDto dto);
 }
+

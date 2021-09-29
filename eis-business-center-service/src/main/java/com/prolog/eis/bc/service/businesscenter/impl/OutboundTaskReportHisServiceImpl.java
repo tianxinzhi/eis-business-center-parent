@@ -2,7 +2,7 @@ package com.prolog.eis.bc.service.businesscenter.impl;
 
 import com.prolog.eis.bc.service.businesscenter.OutboundTaskReportHisService;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskReportHis;
-import com.prolog.eis.bc.dao.businesscenter.OutboundTaskReportHisMapper;
+import com.prolog.eis.bc.dao.OutboundTaskReportHisMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskReportHisDto;
 import com.prolog.framework.core.pojo.Page;
 import com.prolog.framework.core.restriction.Criteria;

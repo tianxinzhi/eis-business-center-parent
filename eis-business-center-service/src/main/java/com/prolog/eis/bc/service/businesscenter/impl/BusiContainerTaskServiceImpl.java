@@ -1,13 +1,12 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
-import com.prolog.eis.bc.dao.OutboundTaskMapper;
-import com.prolog.eis.bc.dao.businesscenter.BusiContainerTaskMapper;
+import com.prolog.eis.bc.dao.BizContainerTaskDetailMapper;
+import com.prolog.eis.bc.dao.BusiContainerTaskMapper;
 import com.prolog.eis.core.model.base.area.WhSubArea;
 import com.prolog.eis.core.model.biz.container.ContainerTask;
 import com.prolog.eis.bc.facade.dto.businesscenter.BusiContainerTaskDto;
 import com.prolog.eis.bc.service.businesscenter.BusiContainerTaskService;
 import com.prolog.eis.core.model.biz.container.ContainerTaskDetail;
-import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskMapper;
 import com.prolog.framework.core.pojo.Page;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.FieldSelector;
@@ -66,14 +65,14 @@ public class BusiContainerTaskServiceImpl implements BusiContainerTaskService {
     public Page<ContainerTaskDetail> findDetailById(String id, String containerNo, int pageNum, int pageSize) {
         PageUtils.startPage(pageNum,pageSize);
 
-        Criteria criteria = Criteria.forClass(WhSubArea.class);
+        Criteria criteria = Criteria.forClass(ContainerTaskDetail.class);
         if(StringUtils.isBlank(id)){
             throw new RuntimeException("汇总ID不能为空");
         }
         if(StringUtils.isBlank(containerNo)){
             containerNo = "";
         }
-        Restriction r1 = Restrictions.likeAll("id",id);
+        Restriction r1 = Restrictions.likeAll("containerTaskId",id);
         Restriction r2 = Restrictions.likeAll("containerNo",containerNo);
         criteria.setRestriction(Restrictions.and(r1,r2));
         List<ContainerTaskDetail> byCriteria = bizContainerTaskDetailMapper.findByCriteria(criteria);

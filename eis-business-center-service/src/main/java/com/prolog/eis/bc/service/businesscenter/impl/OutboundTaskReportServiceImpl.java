@@ -1,7 +1,7 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
-import com.prolog.eis.bc.dao.businesscenter.OutboundTaskReportMapper;
+import com.prolog.eis.bc.dao.OutboundTaskReportMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskReportDto;
 import com.prolog.eis.bc.service.businesscenter.OutboundTaskReportService;
 import com.prolog.framework.core.pojo.Page;

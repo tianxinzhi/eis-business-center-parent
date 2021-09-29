@@ -3,6 +3,7 @@ package com.prolog.eis.bc.service.pickingorder;
 import java.util.List;
 
 import com.prolog.eis.bc.facade.dto.businesscenter.PickingOrderDto2;
+import com.prolog.eis.bc.facade.vo.OutboundTaskBindVo;
 import com.prolog.eis.component.algorithm.composeorder.entity.PickingOrderDto;
 import com.prolog.eis.core.model.biz.outbound.PickingOrder;
 import com.prolog.framework.core.pojo.Page;
@@ -28,4 +29,7 @@ public interface PickingOrderService {
             int storeMatchingStrategy);
     
     Page<PickingOrder> getPickingOrderPage(PickingOrderDto2 dto);
+
+
+    List<OutboundTaskBindVo> getContainerByPickingOrderId(String id);
 }

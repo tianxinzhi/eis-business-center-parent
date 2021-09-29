@@ -2,6 +2,7 @@ package com.prolog.eis.bc.service.outboundtask;
 
 import java.util.List;
 
+import com.prolog.eis.bc.facade.vo.OutboundTaskBindVo;
 import com.prolog.eis.component.algorithm.composeorder.entity.ContainerDto;
 
 /**
@@ -19,4 +20,11 @@ public interface OutboundTaskBindService {
      */
     List<ContainerDto> findByPickingOrderIdList(List<String> pickingOrderIdList,
             int storeMatchingStrategy);
+
+    /**
+     * 根据拣选单Id查询出库任务
+     * @param id
+     * @return
+     */
+    List<OutboundTaskBindVo> findByPickingOrderId(String id);
 }

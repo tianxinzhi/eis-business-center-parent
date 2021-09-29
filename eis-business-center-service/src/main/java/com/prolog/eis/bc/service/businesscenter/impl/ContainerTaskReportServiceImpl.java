@@ -1,6 +1,6 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
-import com.prolog.eis.bc.dao.businesscenter.ContainerTaskReportMapper;
+import com.prolog.eis.bc.dao.ContainerTaskReportMapper;
 import com.prolog.eis.bc.service.businesscenter.ContainerTaskReportService;
 import com.prolog.eis.core.model.biz.container.ContainerTaskReport;
 import com.prolog.eis.bc.facade.dto.businesscenter.ContainerTaskReportDto;
@@ -9,6 +9,7 @@ import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restriction;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
+import com.prolog.framework.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,8 @@ import java.util.List;
 public class ContainerTaskReportServiceImpl   implements ContainerTaskReportService {
     @Autowired
     private ContainerTaskReportMapper containerTaskReportMapper;
+
+    @Override
     public Page<ContainerTaskReport> getContainerTaskReportPage(ContainerTaskReportDto dto){
         PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
         Criteria criteria = new Criteria(ContainerTaskReport.class);
@@ -31,13 +34,13 @@ public class ContainerTaskReportServiceImpl   implements ContainerTaskReportServ
         Restriction r3 = null;
         Restriction r4 = null;
         Restriction r5 = null;
-        if (dto.getContainerTaskId() != null) {
+        if (!StringUtils.isBlank(dto.getContainerTaskId())) {
             r1 = Restrictions.eq("containerTaskId", dto.getContainerTaskId());
         }
-        if (dto.getTypeNo() != null) {
+        if (!StringUtils.isBlank(dto.getTypeNo())) {
             r2 = Restrictions.eq("typeNo", dto.getTypeNo());
         }
-        if (dto.getUpperSystemTaskId() != null) {
+        if (!StringUtils.isBlank(dto.getUpperSystemTaskId())) {
             r3 = Restrictions.eq("upperSystemTaskId", dto.getUpperSystemTaskId());
         }
         if (dto.getCreateTimeFrom() != null) {

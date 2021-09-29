@@ -1,7 +1,7 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
 import com.prolog.eis.core.model.biz.container.ContainerTaskReportHis;
-import com.prolog.eis.bc.dao.businesscenter.ContainerTaskReportHisMapper;
+import com.prolog.eis.bc.dao.ContainerTaskReportHisMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.ContainerTaskReportHisDto;
 import com.prolog.eis.bc.service.businesscenter.ContainerTaskReportHisService;
 import com.prolog.framework.core.pojo.Page;

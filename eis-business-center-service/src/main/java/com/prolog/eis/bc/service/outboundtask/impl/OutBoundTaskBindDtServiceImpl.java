@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Maps;
-import com.prolog.eis.bc.dao.OutboundTaskBindDtMapper;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskBindDtService;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 
@@ -17,7 +17,7 @@ import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 public class OutBoundTaskBindDtServiceImpl implements OutboundTaskBindDtService {
 
     @Autowired
-    private OutboundTaskBindDtMapper outboundTaskBindDtMapper;
+    private OutboundTaskBindDetailMapper outboundTaskBindDtMapper;
 
     @Override
     public Map<String, Integer> findSumBindingNumGroupByLotId() {

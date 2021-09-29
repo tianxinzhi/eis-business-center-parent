@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.prolog.eis.bc.facade.vo.OutboundTaskBindVo;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -132,6 +133,11 @@ public class PickingOrderServiceImpl implements PickingOrderService {
 
         List<PickingOrder> list = pickingOrderMapper.findByCriteria(criteria);
         return PageUtils.getPage(list);
+    }
+
+    @Override
+    public List<OutboundTaskBindVo> getContainerByPickingOrderId(String id) {
+        return outboundTaskBindService.findByPickingOrderId(id);
     }
 
 }

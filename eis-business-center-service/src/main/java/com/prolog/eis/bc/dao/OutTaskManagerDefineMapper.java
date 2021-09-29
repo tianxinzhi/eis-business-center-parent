@@ -1,4 +1,4 @@
-package com.prolog.eis.bc.dao.businesscenter;
+package com.prolog.eis.bc.dao;
 
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskDto;
@@ -20,6 +20,9 @@ public interface OutTaskManagerDefineMapper extends BaseMapper<OutboundTask> {
             "WHERE 1= 1 " +
             "<if test='dto.outTaskSmyId !=null     and dto.outTaskSmyId != \"\"'>"+
             " and out_task_smy_id LIKE CONCAT('%',#{dto.outTaskSmyId},'%')" +
+            "</if >" +
+            "<if test='dto.pickingOrderId !=null     and dto.pickingOrderId != \"\"'>"+
+            " and picking_order_id LIKE CONCAT('%',#{dto.pickingOrderId},'%')" +
             "</if >" +
             "<if test='dto.upperSystemTaskId !=null     and dto.upperSystemTaskId != \"\"'>"+
             " and upper_system_task_id LIKE CONCAT('%',#{dto.upperSystemTaskId},'%')" +

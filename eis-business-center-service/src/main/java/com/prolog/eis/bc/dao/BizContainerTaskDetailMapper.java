@@ -1,4 +1,4 @@
-package com.prolog.eis.bc.service.businesscenter.impl;
+package com.prolog.eis.bc.dao;
 
 import com.prolog.eis.core.model.biz.container.ContainerTaskDetail;
 import com.prolog.framework.dao.mapper.BaseMapper;

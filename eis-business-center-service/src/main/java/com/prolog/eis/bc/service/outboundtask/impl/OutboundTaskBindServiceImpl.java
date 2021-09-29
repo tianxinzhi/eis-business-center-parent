@@ -1,9 +1,13 @@
 package com.prolog.eis.bc.service.outboundtask.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
+import com.prolog.eis.bc.facade.vo.OutboundTaskBindVo;
+import com.prolog.framework.utils.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -11,7 +15,6 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
-import com.prolog.eis.bc.dao.OutboundTaskBindDtMapper;
 import com.prolog.eis.bc.dao.OutboundTaskBindMapper;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskBindService;
@@ -36,7 +39,7 @@ public class OutboundTaskBindServiceImpl implements OutboundTaskBindService {
     private OutboundTaskBindMapper outboundTaskBindMapper;
 
     @Autowired
-    private OutboundTaskBindDtMapper outboundTaskBindDtMapper;
+    private OutboundTaskBindDetailMapper outboundTaskBindDtMapper;
 
     @Autowired
     private EisInvContainerStoreSubFeign eisInvContainerStoreSubFeign;
@@ -129,6 +132,27 @@ public class OutboundTaskBindServiceImpl implements OutboundTaskBindService {
             resultList.add(containerDto);
         }
         return resultList;
+    }
+
+    @Override
+    public List<OutboundTaskBindVo> findByPickingOrderId(String id) {
+        List<OutboundTaskBind> outboundTaskBindList = outboundTaskBindMapper.findByMap(MapUtils.put("pickingOrderId", id).getMap(), OutboundTaskBind.class);
+        List<OutboundTaskBindVo> outboundTaskBindVoList = new ArrayList<>();
+        for (OutboundTaskBind outboundTaskBind : outboundTaskBindList){
+            OutboundTaskBindVo outboundTaskBindVo = new OutboundTaskBindVo();
+            outboundTaskBindVo.setContainerNo(outboundTaskBind.getContainerNo());
+            outboundTaskBindVo.setCreateTime(outboundTaskBind.getCreateTime());
+            outboundTaskBindVo.setPickingOrderId(outboundTaskBind.getPickingOrderId());
+            outboundTaskBindVo.setStationId(outboundTaskBind.getStationId());
+            outboundTaskBindVo.setId(outboundTaskBind.getId());
+            outboundTaskBindVo.setFinishTime(outboundTaskBind.getFinishTime());
+            outboundTaskBindVo.setOrderPoolId(outboundTaskBind.getOrderPoolId());
+            List<OutboundTaskBindDetail> byMap = outboundTaskBindDtMapper.findByMap(MapUtils.put("outbTaskBindId", outboundTaskBind.getId()).getMap(), OutboundTaskBindDetail.class);
+            outboundTaskBindVo.setOutboundTaskBindDetailList(byMap);
+            outboundTaskBindVo.setDetailSize(byMap.size());
+            outboundTaskBindVoList.add(outboundTaskBindVo);
+        }
+        return outboundTaskBindVoList;
     }
 
     /**
