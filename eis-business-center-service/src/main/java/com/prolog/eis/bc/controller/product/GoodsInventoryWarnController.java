@@ -2,7 +2,6 @@ package com.prolog.eis.bc.controller.product;
 
 
 import com.prolog.eis.bc.facade.dto.product.GoodsInventoryInfoDto;
-import com.prolog.eis.bc.facade.dto.product.GoodsInventoryWarnDefineDto;
 import com.prolog.eis.bc.service.product.GoodsInventoryWarnService;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.pojo.Page;
@@ -31,9 +30,14 @@ public class GoodsInventoryWarnController {
     @ApiOperation(value = "库存预警查询", notes = "库存预警查询")
     @PostMapping("/get-Goods-Inventory")
     @ApiImplicitParams({@ApiImplicitParam(name = "GoodsInventoryWarnDefineDto", value = "分页", required = false)})
-    public RestMessage<Page<GoodsInventoryInfoDto>> page(@RequestBody GoodsInventoryWarnDefineDto dto){
-        Page<GoodsInventoryInfoDto> page = goodsInventoryWarnService.page(dto);
-        return RestMessage.newInstance(true,"成功",page);
+    public RestMessage<Page<GoodsInventoryInfoDto>> page(@RequestBody GoodsInventoryInfoDto dto){
+        try {
+            Page<GoodsInventoryInfoDto> page = goodsInventoryWarnService.page(dto);
+            return RestMessage.newInstance(true,"成功",page);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestMessage.error(e.getMessage());
+        }
 
     }
 

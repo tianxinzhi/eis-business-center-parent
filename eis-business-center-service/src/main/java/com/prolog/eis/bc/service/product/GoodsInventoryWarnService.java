@@ -1,7 +1,6 @@
 package com.prolog.eis.bc.service.product;
 
 import com.prolog.eis.bc.facade.dto.product.GoodsInventoryInfoDto;
-import com.prolog.eis.bc.facade.dto.product.GoodsInventoryWarnDefineDto;
 import com.prolog.framework.core.pojo.Page;
 
 /**
@@ -16,5 +15,5 @@ public interface GoodsInventoryWarnService {
      * @param dto
      * @return
      */
-    Page<GoodsInventoryInfoDto> page(GoodsInventoryWarnDefineDto dto);
+    Page<GoodsInventoryInfoDto> page(GoodsInventoryInfoDto dto) throws Exception;
 }

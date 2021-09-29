@@ -1,7 +1,6 @@
 package com.prolog.eis.bc.dao.product;
 
 import com.prolog.eis.bc.facade.dto.product.GoodsInventoryInfoDto;
-import com.prolog.eis.bc.facade.dto.product.GoodsInventoryWarnDefineDto;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
 import com.prolog.framework.dao.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Result;
@@ -35,5 +34,5 @@ public interface GoodsInventoryWarnMapper extends BaseMapper<ContainerLocation> 
             "left join biz_eis_route_container_loc t2\n" +
             "on t1.container_no = t2.container_no"+
             "</script>")
-    List<GoodsInventoryInfoDto> page(GoodsInventoryWarnDefineDto dto);
+    List<GoodsInventoryInfoDto> page(GoodsInventoryInfoDto dto);
 }

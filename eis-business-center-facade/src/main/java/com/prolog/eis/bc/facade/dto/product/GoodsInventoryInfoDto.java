@@ -34,17 +34,23 @@ public class GoodsInventoryInfoDto {
     private String  batchNum;
 
     @ApiModelProperty("库存数量")
-    private Integer  storeQty;
+    private Double  storeQty;
 
     @ApiModelProperty("订单数量")
-    private Integer  orderQty;
+    private Double  orderQty;
 
     @ApiModelProperty("缺货数量")
-    private Integer  stockoutQty;
+    private Double  stockoutQty;
 
     @ApiModelProperty("锁定数量")
-    private Integer  lockQty;
+    private Double  lockQty;
 
     @ApiModelProperty("锁定缺货数量")
-    private Integer  lockStockoutQty;
+    private Double  lockStockoutQty;
+
+    @ApiModelProperty("当前页")
+    private Integer pageNum;
+
+    @ApiModelProperty("每页行数")
+    private Integer pageSize;
 }
