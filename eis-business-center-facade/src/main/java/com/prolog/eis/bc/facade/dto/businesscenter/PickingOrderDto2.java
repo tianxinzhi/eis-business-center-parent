@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class PickingOrderDto {
+public class PickingOrderDto2 {
     @ApiModelProperty("创建时间-开始时间")
     private Date createTimeFrom;
 

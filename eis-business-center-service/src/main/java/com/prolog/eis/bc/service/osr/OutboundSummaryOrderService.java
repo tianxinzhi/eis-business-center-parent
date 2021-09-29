@@ -1,6 +1,9 @@
 package com.prolog.eis.bc.service.osr;
 
+import com.prolog.eis.bc.facade.dto.businesscenter.OutboundSummaryOrderDto;
 import com.prolog.eis.bc.facade.dto.osr.OutSummaryOrderInfoDto;
+import com.prolog.eis.core.model.biz.outbound.OutboundSummaryOrder;
+import com.prolog.framework.core.pojo.Page;
 
 /**
  * @Author: txz
@@ -14,4 +17,6 @@ public interface OutboundSummaryOrderService {
      * @return
      */
     String createOutOrder(OutSummaryOrderInfoDto dto) throws Exception;
+    
+    Page<OutboundSummaryOrder> getutboundSummaryOrderPage(OutboundSummaryOrderDto dto);
 }

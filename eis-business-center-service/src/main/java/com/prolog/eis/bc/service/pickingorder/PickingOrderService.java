@@ -2,7 +2,10 @@ package com.prolog.eis.bc.service.pickingorder;
 
 import java.util.List;
 
+import com.prolog.eis.bc.facade.dto.businesscenter.PickingOrderDto2;
 import com.prolog.eis.component.algorithm.composeorder.entity.PickingOrderDto;
+import com.prolog.eis.core.model.biz.outbound.PickingOrder;
+import com.prolog.framework.core.pojo.Page;
 
 /**
  * 拣选单服务层
@@ -23,4 +26,6 @@ public interface PickingOrderService {
      */
     List<PickingOrderDto> findByStationId(String stationId,
             int storeMatchingStrategy);
+    
+    Page<PickingOrder> getPickingOrderPage(PickingOrderDto2 dto);
 }

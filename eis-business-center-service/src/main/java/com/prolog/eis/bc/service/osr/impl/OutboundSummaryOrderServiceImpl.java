@@ -1,6 +1,30 @@
 package com.prolog.eis.bc.service.osr.impl;
 
-import com.prolog.eis.bc.dao.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
+import com.prolog.eis.bc.dao.OutboundSummaryOrderHisMapper;
+import com.prolog.eis.bc.dao.OutboundSummaryOrderMapper;
+import com.prolog.eis.bc.dao.OutboundTaskBindDetailHisMapper;
+import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
+import com.prolog.eis.bc.dao.OutboundTaskBindHisMapper;
+import com.prolog.eis.bc.dao.OutboundTaskBindMapper;
+import com.prolog.eis.bc.dao.OutboundTaskDetailHisMapper;
+import com.prolog.eis.bc.dao.OutboundTaskDetailMapper;
+import com.prolog.eis.bc.dao.OutboundTaskHisMapper;
+import com.prolog.eis.bc.dao.OutboundTaskMapper;
+import com.prolog.eis.bc.facade.dto.businesscenter.OutboundSummaryOrderDto;
 import com.prolog.eis.bc.facade.dto.osr.OutSummaryOrderInfoDto;
 import com.prolog.eis.bc.facade.dto.osr.SplitStrategyResultDto;
 import com.prolog.eis.bc.feign.container.EisContainerLocationFeign;
@@ -9,21 +33,25 @@ import com.prolog.eis.bc.service.osr.OutboundSummaryOrderService;
 import com.prolog.eis.bc.service.osr.SplitStrategy;
 import com.prolog.eis.bc.service.ssc.OutboundSplitStrategyConfigService;
 import com.prolog.eis.bc.service.sscdtl.OutboundSplitStrategyDetailConfigService;
-import com.prolog.eis.core.model.biz.outbound.*;
+import com.prolog.eis.core.model.biz.outbound.OutboundSummaryOrder;
+import com.prolog.eis.core.model.biz.outbound.OutboundSummaryOrderHis;
+import com.prolog.eis.core.model.biz.outbound.OutboundTask;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskBind;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetailHis;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindHis;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetailHis;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskHis;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundSplitStrategyConfig;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundSplitStrategyDetailConfig;
-import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreSubVo;
+import com.prolog.framework.core.pojo.Page;
+import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Restriction;
+import com.prolog.framework.core.restriction.Restrictions;
+import com.prolog.framework.dao.util.PageUtils;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Author: txz
@@ -229,5 +257,34 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
         }
 
         return summaryOrder.getId();
+    }
+    
+    @Autowired
+    private OutboundSummaryOrderMapper outboundSummaryOrderMapper;
+    public Page<OutboundSummaryOrder> getutboundSummaryOrderPage(OutboundSummaryOrderDto dto){
+        PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
+        Criteria criteria = new Criteria(OutboundSummaryOrder.class);
+        Restriction r1 = null;
+        Restriction r2 = null;
+        Restriction r3 = null;
+        Restriction r4 = null;
+
+        if (!StringUtils.isEmpty(dto.getTypeNo())) {
+            r1 = Restrictions.eq("outTaskId", dto.getTypeNo());
+        }
+        if (!StringUtils.isEmpty(dto.getState())) {
+            r2 = Restrictions.eq("state", dto.getState());
+        }
+
+        if (dto.getCreateTimeFrom() != null) {
+            r3 = Restrictions.ge("createTime", dto.getCreateTimeFrom());
+        }
+        if (dto.getCreateTimeTo() != null) {
+            r4 = Restrictions.le("createTime", dto.getCreateTimeTo());
+        }
+
+        criteria.setRestriction(Restrictions.and(r1,r2,r3,r4));
+        List<OutboundSummaryOrder> list = outboundSummaryOrderMapper.findByCriteria(criteria);
+        return PageUtils.getPage(list);
     }
 }

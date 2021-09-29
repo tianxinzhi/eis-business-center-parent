@@ -1,18 +1,19 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
-import com.prolog.eis.core.model.biz.outbound.PickingOrderHis;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.prolog.eis.bc.dao.businesscenter.PickingOrderHisMapper;
-import com.prolog.eis.bc.facade.dto.businesscenter.PickingOrderDto;
+import com.prolog.eis.bc.facade.dto.businesscenter.PickingOrderDto2;
 import com.prolog.eis.bc.service.businesscenter.PickingOrderHisService;
+import com.prolog.eis.core.model.biz.outbound.PickingOrderHis;
 import com.prolog.framework.core.pojo.Page;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restriction;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * PickingOrderHisServiceImpl  拣选单历史管理
@@ -24,7 +25,7 @@ public class PickingOrderHisServiceImpl implements PickingOrderHisService {
     @Autowired
     private PickingOrderHisMapper pickingOrderHisMapper;
 
-    public Page<PickingOrderHis> getPickingOrderHisPage(PickingOrderDto dto){
+    public Page<PickingOrderHis> getPickingOrderHisPage(PickingOrderDto2 dto){
         PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
         Criteria criteria = new Criteria(PickingOrderHis.class);
         Restriction r1 = null;

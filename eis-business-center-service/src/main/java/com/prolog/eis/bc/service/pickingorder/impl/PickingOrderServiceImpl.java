@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.prolog.eis.core.model.biz.outbound.OutboundTask;
-import com.prolog.framework.utils.MapUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.prolog.eis.bc.dao.PickingOrderMapper;
+import com.prolog.eis.bc.facade.dto.businesscenter.PickingOrderDto2;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskBindService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
@@ -23,7 +22,11 @@ import com.prolog.eis.component.algorithm.composeorder.entity.ContainerDto;
 import com.prolog.eis.component.algorithm.composeorder.entity.PickingOrderDto;
 import com.prolog.eis.core.model.biz.outbound.PickingOrder;
 import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Restriction;
 import com.prolog.framework.core.restriction.Restrictions;
+import com.prolog.framework.dao.util.PageUtils;
+import com.prolog.framework.core.pojo.Page;
+
 
 @Service
 public class PickingOrderServiceImpl implements PickingOrderService {
@@ -110,6 +113,25 @@ public class PickingOrderServiceImpl implements PickingOrderService {
             pickingOrderDtoList.add(pickingOrderDto);
         }
         return pickingOrderDtoList;
+    }
+    
+    public Page<PickingOrder> getPickingOrderPage(PickingOrderDto2 dto){
+        PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
+        Criteria criteria = new Criteria(PickingOrder.class);
+        Restriction r1 = null;
+        Restriction r2 = null;
+
+        if (dto.getCreateTimeFrom() != null) {
+            r1 = Restrictions.ge("createTime", dto.getCreateTimeFrom());
+        }
+        if (dto.getCreateTimeTo() != null) {
+            r2 = Restrictions.le("createTime", dto.getCreateTimeTo());
+        }
+
+        criteria.setRestriction(Restrictions.and(r1,r2));
+
+        List<PickingOrder> list = pickingOrderMapper.findByCriteria(criteria);
+        return PageUtils.getPage(list);
     }
 
 }
