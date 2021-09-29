@@ -1,7 +1,7 @@
 package com.prolog.eis.bc.dao.businesscenter;
 
-import com.prolog.eis.core.model.biz.container.ContainerTask;
 import com.prolog.eis.bc.facade.dto.businesscenter.BusiContainerTaskDto;
+import com.prolog.eis.core.model.biz.container.ContainerTask;
 import com.prolog.framework.dao.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
@@ -11,7 +11,12 @@ import org.apache.ibatis.type.JdbcType;
 
 import java.util.List;
 
-public interface BusiContainerTaskMapper extends BaseMapper<ContainerTask>  {
+/**
+ * @Describe
+ * @Author clarence_she
+ * @Date 2021/9/29
+ **/
+public interface BusiContainerTaskMapper extends BaseMapper<ContainerTask> {
     @Select("<script>" +
             "SELECT biz_eis_container_task.*, DT.count FROM biz_eis_container_task " +
             "LEFT JOIN (SELECT  container_task_id,COUNT(container_task_id) AS count FROM biz_eis_container_task_dt GROUP BY container_task_id) DT " +
@@ -42,5 +47,5 @@ public interface BusiContainerTaskMapper extends BaseMapper<ContainerTask>  {
             @Result(column = "task_start_time", property = "taskStartTime", jdbcType = JdbcType.DATE),
             @Result(column = "task_finish_time", property = "taskFinishTime", jdbcType = JdbcType.DATE),
             @Result(column = "count", property = "detailCount", jdbcType = JdbcType.VARCHAR)})
-    public List<BusiContainerTaskDto> getBusiContainerTaskPage(@Param("dto") BusiContainerTaskDto dto);
+    List<BusiContainerTaskDto> getBusiContainerTaskPage(@Param("dto") BusiContainerTaskDto dto);
 }

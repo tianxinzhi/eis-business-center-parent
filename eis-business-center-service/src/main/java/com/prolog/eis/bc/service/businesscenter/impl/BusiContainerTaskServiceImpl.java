@@ -1,15 +1,20 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
-import com.prolog.eis.core.model.biz.container.ContainerTask;
+import com.prolog.eis.bc.dao.OutboundTaskMapper;
 import com.prolog.eis.bc.dao.businesscenter.BusiContainerTaskMapper;
+import com.prolog.eis.core.model.base.area.WhSubArea;
+import com.prolog.eis.core.model.biz.container.ContainerTask;
 import com.prolog.eis.bc.facade.dto.businesscenter.BusiContainerTaskDto;
 import com.prolog.eis.bc.service.businesscenter.BusiContainerTaskService;
+import com.prolog.eis.core.model.biz.container.ContainerTaskDetail;
+import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskMapper;
 import com.prolog.framework.core.pojo.Page;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.FieldSelector;
 import com.prolog.framework.core.restriction.Restriction;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
+import com.prolog.framework.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +29,10 @@ import java.util.List;
 public class BusiContainerTaskServiceImpl implements BusiContainerTaskService {
     @Autowired
     private BusiContainerTaskMapper containerTaskMapper;
+
+    @Autowired
+    private BizContainerTaskDetailMapper bizContainerTaskDetailMapper;
+
     /*
      * 获取容器任务单
      * */
@@ -52,4 +61,24 @@ public class BusiContainerTaskServiceImpl implements BusiContainerTaskService {
         containerTask.setPriority(priority);
         containerTaskMapper.updateFieldsByCriteria(containerTask, field, criteria);
     }
+
+    @Override
+    public Page<ContainerTaskDetail> findDetailById(String id, String containerNo, int pageNum, int pageSize) {
+        PageUtils.startPage(pageNum,pageSize);
+
+        Criteria criteria = Criteria.forClass(WhSubArea.class);
+        if(StringUtils.isBlank(id)){
+            throw new RuntimeException("汇总ID不能为空");
+        }
+        if(StringUtils.isBlank(containerNo)){
+            containerNo = "";
+        }
+        Restriction r1 = Restrictions.likeAll("id",id);
+        Restriction r2 = Restrictions.likeAll("containerNo",containerNo);
+        criteria.setRestriction(Restrictions.and(r1,r2));
+        List<ContainerTaskDetail> byCriteria = bizContainerTaskDetailMapper.findByCriteria(criteria);
+
+        return PageUtils.getPage(byCriteria);
+    }
+
 }

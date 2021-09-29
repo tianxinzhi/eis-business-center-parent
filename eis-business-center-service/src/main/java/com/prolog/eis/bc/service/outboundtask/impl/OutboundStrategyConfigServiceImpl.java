@@ -8,6 +8,7 @@ import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyConfig;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategySourceAreaConfig;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyTargetStationConfig;
+import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.utils.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,13 +31,13 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
     private OutboundStrategyTargetStationConfigMapper outboundStrategyTargetStationConfigMapper;
 
     @Override
-    public OutboundStrategyConfigVo findConfigByTypeNo(String typeNo) throws Exception {
+    public OutboundStrategyConfigVo findConfigByTypeNo(String typeNo) throws PrologException {
         List<OutboundStrategyConfig> outboundStrategyConfigList = outboundStrategyConfigMapper.findByMap(MapUtils.put("typeNo", typeNo).getMap(), OutboundStrategyConfig.class);
         if (outboundStrategyConfigList.isEmpty()) {
-            throw new Exception(String.format("出库策略配置类型[%s]不存在,请配置", typeNo));
+            throw new PrologException(String.format("出库策略配置类型[%s]不存在,请配置", typeNo));
         }
         if (outboundStrategyConfigList.size() > 1) {
-            throw new Exception(String.format("出库策略配置类型[%s]存在多个,请检查配置", typeNo));
+            throw new PrologException(String.format("出库策略配置类型[%s]存在多个,请检查配置", typeNo));
         }
         OutboundStrategyConfig outboundStrategyConfig = outboundStrategyConfigList.get(0);
         OutboundStrategyConfigVo outboundStrategyConfigVo = copyBean(outboundStrategyConfig);

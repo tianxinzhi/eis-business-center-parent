@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.prolog.eis.component.algorithm.composeorder.entity.*;
+import com.prolog.framework.core.exception.PrologException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -74,7 +75,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         OutboundStrategyConfigVo config = null;
         try {
             config = outboundStrategyConfigService.findConfigByTypeNo(OutboundStrategyConfigConstant.TYPE_B2C);
-        } catch (Exception ex) {
+        } catch (PrologException ex) {
             log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) throw excp", ex.toString());
         }
         if (null == config) {

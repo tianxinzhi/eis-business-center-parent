@@ -1,5 +1,6 @@
 package com.prolog.eis.bc.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @Api(tags = "拣货单")
 @RequestMapping("/outboundtask")
+@Slf4j
 public class OutboundTaskController {
 
     @Autowired
@@ -22,8 +24,13 @@ public class OutboundTaskController {
     @ApiOperation(value = "生成拣选单", notes = "生成拣选单")
     @GetMapping("/composeAndGenerateOutbound")
     public RestMessage<Boolean> composeAndGenerateOutbound() {
-        outboundTaskService.composeAndGenerateOutbound();
-        return RestMessage.newInstance(true, "成功", Boolean.TRUE);
+        try {
+            outboundTaskService.composeAndGenerateOutbound();
+            return RestMessage.newInstance(true, "成功", Boolean.TRUE);
+        }catch (Exception ex){
+            log.error(ex.toString());
+            return RestMessage.newInstance(false, ex.toString());
+        }
     }
 
 }

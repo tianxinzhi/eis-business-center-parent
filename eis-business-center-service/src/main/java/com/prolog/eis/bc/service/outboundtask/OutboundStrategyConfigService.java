@@ -1,6 +1,7 @@
 package com.prolog.eis.bc.service.outboundtask;
 
 import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
+import com.prolog.framework.core.exception.PrologException;
 
 /**
  * @Author clarence_she
@@ -13,5 +14,5 @@ public interface OutboundStrategyConfigService {
      * @return
      * @throws Exception
      */
-    OutboundStrategyConfigVo findConfigByTypeNo(String typeNo)throws Exception;
+    OutboundStrategyConfigVo findConfigByTypeNo(String typeNo)throws PrologException;
 }
