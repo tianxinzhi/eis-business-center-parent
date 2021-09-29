@@ -52,6 +52,7 @@ public class PickingOrderServiceImpl implements PickingOrderService {
         // 默认为0=容器未全部到达
         insertObj.setIsAllArrive(0);
         insertObj.setStartTime(new Date());
+        insertObj.setCreateTime(new Date());
         long effectNum = pickingOrderMapper.save(insertObj);
         if (effectNum != 1) {
             throw new Exception("生成拣选单失败，影响行数:" + effectNum);
