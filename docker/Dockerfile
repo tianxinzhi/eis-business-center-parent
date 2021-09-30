@@ -1,4 +1,4 @@
-FROM 192.168.1.20:5000/public/plg-jdkj9:1.0
+FROM 192.168.1.60:5000/oracle/serverjre:1.8.0_241-b07
 MAINTAINER www.prolog-int.com
 ARG RUN_ENV
 ENV RUN_ENV=$RUN_ENV
