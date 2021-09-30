@@ -136,51 +136,51 @@ public class SplitStrategy {
         return sus;
     }
 
-    public static void main(String[] args) {
-        OutSummaryOrderInfoDto.OutSummaryOrderDetailInfoDto dtl = new OutSummaryOrderInfoDto.OutSummaryOrderDetailInfoDto();
-        dtl.setOrderQty(1500d);
-        OutSummaryOrderInfoDto order = new OutSummaryOrderInfoDto("",null,null,null,null,null,null);
-        order.setDtls(Arrays.asList(dtl));
-
-        List<EisInvContainerStoreVo> vos = new LinkedList<>();
-        EisInvContainerStoreVo vo = new EisInvContainerStoreVo();
-        vo.setContainerNo("001");
-
-        EisInvContainerStoreSubVo subC1 = new EisInvContainerStoreSubVo();
-        subC1.setQty(20);
-        subC1.setContainerStoreSubNo("001_001");
-
-        EisInvContainerStoreSubVo subC2 = new EisInvContainerStoreSubVo();
-        subC2.setQty(30);
-        subC2.setContainerStoreSubNo("001_002");
-        vo.setContainerStoreSubList(Arrays.asList(subC1,subC2));
-
-        EisInvContainerStoreVo vo2 = new EisInvContainerStoreVo();
-        vo2.setContainerNo("002");
-        EisInvContainerStoreSubVo subC3 = new EisInvContainerStoreSubVo();
-        subC3.setQty(50);
-        subC3.setContainerStoreSubNo("002_001");
-        EisInvContainerStoreSubVo subC4 = new EisInvContainerStoreSubVo();
-        subC4.setQty(60);
-        subC4.setContainerStoreSubNo("002_002");
-        vo2.setContainerStoreSubList(Arrays.asList(subC3,subC4));
-
-        vos.add(vo);
-        vos.add(vo2);
-
-//        for (EisInvContainerStoreVo containerStoreVo : vos) {
-//            System.out.println(containerStoreVo);
-//        }
+//    public static void main(String[] args) {
+//        OutSummaryOrderInfoDto.OutSummaryOrderDetailInfoDto dtl = new OutSummaryOrderInfoDto.OutSummaryOrderDetailInfoDto();
+//        dtl.setOrderQty(1500d);
+//        OutSummaryOrderInfoDto order = new OutSummaryOrderInfoDto("",null,null,null,null,null,null);
+//        order.setDtls(Arrays.asList(dtl));
 //
-//        boolean remove = vos.remove(vos.get(vos.size() - 1));
+//        List<EisInvContainerStoreVo> vos = new LinkedList<>();
+//        EisInvContainerStoreVo vo = new EisInvContainerStoreVo();
+//        vo.setContainerNo("001");
 //
-//        System.out.println("isRemove: "+remove);
-//        for (EisInvContainerStoreVo containerStoreVo : vos) {
-//            System.out.println(containerStoreVo);
-//        }
-
-        SplitStrategyResultDto splitStrategyParamDtos = pinXiangStrategy(170, vos);
-        System.out.println(splitStrategyParamDtos);
-    }
+//        EisInvContainerStoreSubVo subC1 = new EisInvContainerStoreSubVo();
+//        subC1.setQty(20);
+//        subC1.setContainerStoreSubNo("001_001");
+//
+//        EisInvContainerStoreSubVo subC2 = new EisInvContainerStoreSubVo();
+//        subC2.setQty(30);
+//        subC2.setContainerStoreSubNo("001_002");
+//        vo.setContainerStoreSubList(Arrays.asList(subC1,subC2));
+//
+//        EisInvContainerStoreVo vo2 = new EisInvContainerStoreVo();
+//        vo2.setContainerNo("002");
+//        EisInvContainerStoreSubVo subC3 = new EisInvContainerStoreSubVo();
+//        subC3.setQty(50);
+//        subC3.setContainerStoreSubNo("002_001");
+//        EisInvContainerStoreSubVo subC4 = new EisInvContainerStoreSubVo();
+//        subC4.setQty(60);
+//        subC4.setContainerStoreSubNo("002_002");
+//        vo2.setContainerStoreSubList(Arrays.asList(subC3,subC4));
+//
+//        vos.add(vo);
+//        vos.add(vo2);
+//
+////        for (EisInvContainerStoreVo containerStoreVo : vos) {
+////            System.out.println(containerStoreVo);
+////        }
+////
+////        boolean remove = vos.remove(vos.get(vos.size() - 1));
+////
+////        System.out.println("isRemove: "+remove);
+////        for (EisInvContainerStoreVo containerStoreVo : vos) {
+////            System.out.println(containerStoreVo);
+////        }
+//
+//        SplitStrategyResultDto splitStrategyParamDtos = pinXiangStrategy(170, vos);
+//        System.out.println(splitStrategyParamDtos);
+//    }
 
 }
