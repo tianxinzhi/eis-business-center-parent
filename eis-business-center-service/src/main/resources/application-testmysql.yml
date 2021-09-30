@@ -14,9 +14,10 @@ spring:
   application.name: service-ai-eis-business-center
   #redis配置
   redis:
-    cluster:
-      nodes: 192.168.1.17:6379,192.168.1.17:6380,192.168.1.18:6379,192.168.1.18:6380,192.168.1.19:6379,192.168.1.19:6380
-    password: prolog-redis-0212
+    host: 192.168.1.52
+    port: 6379
+    password: prolog0212
+    database: 0
   #链路跟踪
   zipkin:
     sender.type: rabbit
@@ -39,10 +40,11 @@ spring:
     maxWait: 60000 #最大等待時間
     minEvictableIdleTimeMillis: 25200000 #最小生存時間
   rabbitmq:
-    addresses: 192.168.1.17:5672,192.168.1.18:5672,192.168.1.19:5672
-    username: common
-    password: prolog-mq-20191229
-    virtual-host: /upcloud
+    host: 192.168.1.52
+    port: 5672
+    username: admin
+    password: prolog0212
+    virtual-host: /
 
 logging:
   config: classpath:log4j2-test.xml
