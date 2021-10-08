@@ -27,7 +27,19 @@ public class OutboundTaskController {
         try {
             outboundTaskService.composeAndGenerateOutbound();
             return RestMessage.newInstance(true, "成功", Boolean.TRUE);
-        }catch (Exception ex){
+        } catch (Exception ex) {
+            log.error(ex.toString());
+            return RestMessage.newInstance(false, ex.toString());
+        }
+    }
+
+    @ApiOperation(value = "生成拣选单回告和历史", notes = "生成拣选单回告和历史")
+    @GetMapping("/genOutboundRpAndHis")
+    public RestMessage<Boolean> genOutboundRpAndHis() {
+        try {
+            outboundTaskService.genOutboundRpAndHis();
+            return RestMessage.newInstance(true, "成功", Boolean.TRUE);
+        } catch (Exception ex) {
             log.error(ex.toString());
             return RestMessage.newInstance(false, ex.toString());
         }
