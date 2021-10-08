@@ -20,12 +20,12 @@ import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
 import com.prolog.eis.bc.dao.OutboundTaskDetailMapper;
 import com.prolog.eis.bc.dao.OutboundTaskMapper;
 import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
+import com.prolog.eis.bc.service.businesscenter.OutboundTaskReportService;
 import com.prolog.eis.bc.service.outboundtask.ContainerOutDispatchService;
 import com.prolog.eis.bc.service.outboundtask.OutBoundTaskBizService;
 import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskDetailHistoryService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskHistoryService;
-import com.prolog.eis.bc.service.outboundtask.OutboundTaskReportService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
 import com.prolog.eis.component.algorithm.composeorder.ComposeOrderUtils;
@@ -253,6 +253,8 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         // 按照PickingOrderId分类
         Map<String, List<OutboundTask>> taskListGroupByPickingOrderIdMap = filterTaskList
                 .stream().collect(Collectors.groupingBy(OutboundTask::getPickingOrderId));
+        log.error("outboundTaskMapper.findByCriteria return:{}", JSONObject.toJSONString(taskList));
+        log.error("taskListGroupByPickingOrderIdMap:{}", JSONObject.toJSONString(taskListGroupByPickingOrderIdMap));
         for (String pickingOrderId : taskListGroupByPickingOrderIdMap.keySet()) {
             // 根据pickingOrderId， 判断关联的outboundTask完成情况，进行后续操作
             List<OutboundTask> pickingOrderIdTaskList = taskListGroupByPickingOrderIdMap.get(pickingOrderId);

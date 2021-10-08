@@ -1,6 +1,8 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
+import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
+import com.google.common.collect.Lists;
 import com.prolog.eis.bc.dao.OutboundTaskReportMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskReportDto;
 import com.prolog.eis.bc.service.businesscenter.OutboundTaskReportService;
@@ -11,8 +13,10 @@ import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -55,4 +59,23 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
         List<OutboundTaskReport> list = outboundTaskReportMapper.findByCriteria(criteria);
         return PageUtils.getPage(list);
     }
+
+    @Override
+    public void batchConvertAndInsert(List<OutboundTask> outboundTaskList)
+            throws Exception {
+        if (CollectionUtils.isEmpty(outboundTaskList)) {
+            return;
+        }
+        List<OutboundTaskReport> insertObjList = Lists.newArrayList();
+        for (OutboundTask outboundTask : outboundTaskList) {
+            OutboundTaskReport insertObj = new OutboundTaskReport();
+            insertObj.setOutTaskId(outboundTask.getId());
+            insertObj.setOutboundTaskTypeNo(outboundTask.getOutboundTaskTypeNo());
+            insertObj.setUpperSystemTaskId(outboundTask.getUpperSystemTaskId());
+            insertObj.setCreateTime(new Date());
+            insertObjList.add(insertObj);
+        }
+        outboundTaskReportMapper.saveBatch(insertObjList);
+    }
+
 }
