@@ -36,6 +36,7 @@
             <groupId>com.prolog.framework</groupId>
             <artifactId>plg-bz-starter</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
