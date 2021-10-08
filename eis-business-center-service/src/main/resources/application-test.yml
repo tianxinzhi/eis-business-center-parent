@@ -5,13 +5,13 @@ prolog.tx.url: http://192.168.0.52:7000/tx/manager/
 
 prolog:
   serivce:
-    inventory: upcloud-base-inventory-mysql
-    route: service-ai-eis-route-center
+    inventory: upcloud-base-inventory-mysql-eistest
+    route: service-ai-eis-route-center-eistest
   serarch:
     url: http://service-data-api-base-ai/search
 
 spring:
-  application.name: service-ai-eis-business-center
+  application.name: service-ai-eis-business-center-eistest
   #redis配置
   redis:
     cluster:
