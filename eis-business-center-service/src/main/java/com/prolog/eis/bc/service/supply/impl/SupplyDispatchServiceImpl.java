@@ -2,6 +2,7 @@ package com.prolog.eis.bc.service.supply.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.service.supply.SupplyDispatchService;
 import com.prolog.eis.common.util.PrologStringUtils;
 import com.prolog.eis.common.util.location.LocationConstants;
@@ -32,7 +33,7 @@ public class SupplyDispatchServiceImpl implements SupplyDispatchService {
     @Autowired
     private StoreSupplyService storeSupplyService;
     @Autowired
-    private CarryInterfaceFeign carryInterfaceFeign;
+    private EisContainerRouteClient containerRouteClient;
 
     @Override
     public void safeSupplyDispatch() throws Exception {
@@ -97,7 +98,7 @@ public class SupplyDispatchServiceImpl implements SupplyDispatchService {
         carryTask.setCreateTime(new Date());
         try {
             String json = JSONObject.toJSONString(carryTask);
-            carryInterfaceFeign.createCarry(json);
+            containerRouteClient.createCarry(json);
         } catch (Exception e) {
             e.printStackTrace();
         }
