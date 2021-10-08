@@ -253,7 +253,6 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         // 按照PickingOrderId分类
         Map<String, List<OutboundTask>> taskListGroupByPickingOrderIdMap = filterTaskList
                 .stream().collect(Collectors.groupingBy(OutboundTask::getPickingOrderId));
-        log.error("outboundTaskMapper.findByCriteria return:{}", JSONObject.toJSONString(taskList));
         log.error("taskListGroupByPickingOrderIdMap:{}", JSONObject.toJSONString(taskListGroupByPickingOrderIdMap));
         for (String pickingOrderId : taskListGroupByPickingOrderIdMap.keySet()) {
             // 根据pickingOrderId， 判断关联的outboundTask完成情况，进行后续操作
@@ -271,6 +270,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             }
             // 全部已完成->生成回执->转入历史
             if (isPickingOrderIdTaskListStateAllFinish) {
+                log.error("找到已全部完成的outboundTask, 对应拣选单Id:{}, 准备生成回告，历史，并删除原数据", pickingOrderId);
                 // PickingOrderIdTaskList转Id集合
                 List<String> pickingOrderIdTaskIdList = pickingOrderIdTaskList.stream().map(OutboundTask::getId).collect(Collectors.toList());
                 // 生成回执
@@ -290,6 +290,8 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     // 删除出货单明细
                     outboundTaskDetailMapper.deleteByIds(relaTaskDtIdList.toArray(), OutboundTaskDetail.class);
                 }
+            } else {
+                log.error("找到没有全部完成的outboundTask, 对应拣选单Id:{}, 不执行操作", pickingOrderId);
             }
         }
     }
