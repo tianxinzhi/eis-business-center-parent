@@ -36,4 +36,9 @@ public interface OutboundTaskService {
      */
     List<BizOutTask> findByPickingOrderIdList(List<String> pickingOrderIdList);
 
+    /**
+     * 生成拣选单回告和历史
+     */
+    void genOutboundRpAndHis() throws Exception;
+
 }

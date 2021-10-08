@@ -3,34 +3,45 @@ package com.prolog.eis.bc.service.outboundtask.impl;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
-import com.prolog.eis.component.algorithm.composeorder.entity.*;
-import com.prolog.framework.core.exception.PrologException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
 import com.prolog.eis.bc.constant.OutboundTaskConstant;
+import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
 import com.prolog.eis.bc.dao.OutboundTaskDetailMapper;
 import com.prolog.eis.bc.dao.OutboundTaskMapper;
 import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
 import com.prolog.eis.bc.service.outboundtask.ContainerOutDispatchService;
 import com.prolog.eis.bc.service.outboundtask.OutBoundTaskBizService;
 import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
+import com.prolog.eis.bc.service.outboundtask.OutboundTaskDetailHistoryService;
+import com.prolog.eis.bc.service.outboundtask.OutboundTaskHistoryService;
+import com.prolog.eis.bc.service.outboundtask.OutboundTaskReportService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
 import com.prolog.eis.component.algorithm.composeorder.ComposeOrderUtils;
+import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
+import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTaskDetail;
+import com.prolog.eis.component.algorithm.composeorder.entity.PickingOrderDto;
+import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
+import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
+import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.utils.MapUtils;
+import com.prolog.framework.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -211,6 +222,74 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             bizOutTaskList.add(bizTask);
         }
         return bizOutTaskList;
+    }
+
+    @Autowired
+    private OutboundTaskReportService outboundTaskReportService;
+    @Autowired
+    private OutboundTaskHistoryService outboundTaskHistoryService;
+    @Autowired
+    private OutboundTaskDetailHistoryService outboundTaskDetailHistoryService;
+
+    @Async
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void genOutboundRpAndHis() throws Exception {
+        Criteria crtTask = Criteria.forClass(OutboundTask.class);
+        List<OutboundTask> taskList = outboundTaskMapper.findByCriteria(crtTask);
+        if (CollectionUtils.isEmpty(taskList)) {
+            return;
+        }
+        // 过滤掉PickingOrderId字段为Null或者为""的数据
+        List<OutboundTask> filterTaskList = taskList.stream()
+                .filter(s -> !StringUtils.isEmpty(s.getPickingOrderId()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(filterTaskList)) {
+            return;
+        }
+        // 查询出货单详情数据
+        Criteria outboundTaskDtCrt = Criteria.forClass(OutboundTaskDetail.class);
+        List<OutboundTaskDetail> taskDtList = outboundTaskDetailMapper.findByCriteria(outboundTaskDtCrt);
+        // 按照PickingOrderId分类
+        Map<String, List<OutboundTask>> taskListGroupByPickingOrderIdMap = filterTaskList
+                .stream().collect(Collectors.groupingBy(OutboundTask::getPickingOrderId));
+        for (String pickingOrderId : taskListGroupByPickingOrderIdMap.keySet()) {
+            // 根据pickingOrderId， 判断关联的outboundTask完成情况，进行后续操作
+            List<OutboundTask> pickingOrderIdTaskList = taskListGroupByPickingOrderIdMap.get(pickingOrderId);
+            if (CollectionUtils.isEmpty(pickingOrderIdTaskList)) {
+                continue;
+            }
+            // 某个拣货单下的出单任务全部已完成
+            boolean isPickingOrderIdTaskListStateAllFinish = true;
+            for (OutboundTask pickingOrderIdTask : pickingOrderIdTaskList) {
+                if (pickingOrderIdTask.getState() != OutboundTaskConstant.STATE_FINISH) {
+                    isPickingOrderIdTaskListStateAllFinish = false;
+                    break;
+                }
+            }
+            // 全部已完成->生成回执->转入历史
+            if (isPickingOrderIdTaskListStateAllFinish) {
+                // PickingOrderIdTaskList转Id集合
+                List<String> pickingOrderIdTaskIdList = pickingOrderIdTaskList.stream().map(OutboundTask::getId).collect(Collectors.toList());
+                // 生成回执
+                outboundTaskReportService.batchConvertAndInsert(pickingOrderIdTaskList);
+                // 出货单转历史
+                outboundTaskHistoryService.batchConvertAndInsert(pickingOrderIdTaskList);
+                // 删除出货单
+                outboundTaskMapper.deleteByIds(pickingOrderIdTaskIdList.toArray(), OutboundTask.class);
+
+                // 过滤关联的出货单明细
+                List<OutboundTaskDetail> relaTaskDtList = taskDtList.stream().filter(s -> pickingOrderIdTaskIdList.contains(s.getOutTaskId())).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(relaTaskDtList)) {
+                    // 关联的出货单明细Id
+                    List<String> relaTaskDtIdList = relaTaskDtList.stream().map(OutboundTaskDetail::getId).collect(Collectors.toList());
+                    // 出货单明细转历史
+                    outboundTaskDetailHistoryService.batchConvertAndInsert(relaTaskDtList);
+                    // 删除出货单明细
+                    outboundTaskDetailMapper.deleteByIds(relaTaskDtIdList.toArray(), OutboundTaskDetail.class);
+                }
+            }
+        }
     }
 
 }
