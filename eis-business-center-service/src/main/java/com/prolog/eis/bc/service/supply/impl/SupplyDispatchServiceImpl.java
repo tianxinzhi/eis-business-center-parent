@@ -2,7 +2,6 @@ package com.prolog.eis.bc.service.supply.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.prolog.eis.bc.feign.container.CarryInterfaceFeign;
 import com.prolog.eis.bc.service.supply.SupplyDispatchService;
 import com.prolog.eis.common.util.PrologStringUtils;
 import com.prolog.eis.common.util.location.LocationConstants;

@@ -1,6 +1,9 @@
 package com.prolog.eis.bc.service.container.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
+import com.prolog.eis.common.util.PrologStringUtils;
+import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.core.model.biz.carry.CarryTaskCallback;
 import com.prolog.eis.core.model.biz.container.ContainerTask;
@@ -11,7 +14,6 @@ import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskDetailM
 import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskMapper;
 import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskReportMapper;
 import com.prolog.eis.fx.component.business.dao.container.ScContainerTaskStrategyMapper;
-import com.prolog.eis.bc.feign.container.CarryInterfaceFeign;
 import com.prolog.eis.bc.service.container.ScContainerTaskService;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.utils.MapUtils;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
 public class ScContainerTaskServiceImpl implements ScContainerTaskService {
 
     @Autowired
-    private CarryInterfaceFeign carryInterfaceFeign;
+    private EisContainerRouteClient containerRouteClient;
     @Autowired
     private ScContainerTaskMapper containerTaskMapper;
     @Autowired
@@ -67,7 +69,7 @@ public class ScContainerTaskServiceImpl implements ScContainerTaskService {
                     throw new RuntimeException(String.format("容器任务{%s}的任务类型不在配置中", typeNo));
                 }
                 CarryTask carryInterfaceTask = new CarryTask();
-                carryInterfaceTask.setId(String.valueOf(containerTaskDetail.getId()));
+                carryInterfaceTask.setId(containerTaskDetail.getId());
                 carryInterfaceTask.setContainerNo(containerTaskDetail.getContainerNo());
                 carryInterfaceTask.setTaskType(20);
                 carryInterfaceTask.setStartLocation(containerTaskDetail.getSourceArea());
@@ -76,7 +78,7 @@ public class ScContainerTaskServiceImpl implements ScContainerTaskService {
                 carryInterfaceTask.setEndLocation(containerTaskDetail.getTargetLocation());
                 carryInterfaceTask.setPriority(containerTask.getPriority() != 0 ? containerTask.getPriority() : containerTaskStrategy.getPriority());
                 String json = JSONObject.toJSONString(carryInterfaceTask);
-                RestMessage<String> carry = carryInterfaceFeign.createCarry(json);
+                RestMessage<String> carry = containerRouteClient.createCarry(json);
                 if (carry.isSuccess()) {
                     if (containerTask.getStatus() != ContainerTask.STATUS_ING) {
                         containerTask.setStatus(ContainerTask.STATUS_ING);
@@ -104,18 +106,26 @@ public class ScContainerTaskServiceImpl implements ScContainerTaskService {
          * 2.关联已开始的容器任务明细的ID，如果存在则进行修改完成处理
          * 3.查询容器任务表的明细，如果全部已完成，则转到回告表中进行处理
          */
-        List<CarryTaskCallback> containerTaskListIds = containerTaskMapper.findUnFinishTasks();
-        if (CollectionUtils.isEmpty(containerTaskListIds)) {
+        RestMessage<List<CarryTaskCallbackDto>> carryTaskCallbackRest = containerRouteClient.findAllCallback();
+        if(!carryTaskCallbackRest.isSuccess()){
+            log.error(carryTaskCallbackRest.getMessage());
             return;
         }
+        List<CarryTaskCallbackDto> carryTaskCallbackDtoList = carryTaskCallbackRest.getData();
+        if (CollectionUtils.isEmpty(carryTaskCallbackDtoList)) {
+            return;
+        }
+        List<String> containerTaskListIds = carryTaskCallbackDtoList.stream().map(p -> p.getId()).collect(Collectors.toList());
         String ids = StringUtils.join(containerTaskListIds, ',');
         List<ContainerTaskDetail> containerTaskDetailList = containerTaskDetailMapper.findByIdStr(ids);
         List<String> containerTaskDetailListIds = containerTaskDetailList.stream().map(p -> p.getId()).collect(Collectors.toList());
         String containerTaskDetailListIdString = StringUtils.join(containerTaskDetailListIds, ',');
         containerTaskDetailMapper.updateBatchByIds(containerTaskDetailListIdString, new Date());
+        /**
+         * 调用路径任务的搬运任务回告转历史
+         */
+        containerRouteClient.toCallbackHisList(carryTaskCallbackDtoList);
         //搬运任务回告转历史
-
-
         List<String> containerTaskIds = containerTaskDetailList.stream().map(p -> p.getContainerTaskId()).collect(Collectors.toList());
         for (String containerTaskId : containerTaskIds) {
             if (checkTaskFinish(containerTaskId)) {
@@ -123,6 +133,7 @@ public class ScContainerTaskServiceImpl implements ScContainerTaskService {
                 finishAndToHistory(containerTaskId);
             }
         }
+
     }
 
     /**
