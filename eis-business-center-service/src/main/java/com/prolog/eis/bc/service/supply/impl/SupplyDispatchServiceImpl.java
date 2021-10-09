@@ -1,7 +1,6 @@
 package com.prolog.eis.bc.service.supply.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.service.supply.SupplyDispatchService;
 import com.prolog.eis.common.util.PrologStringUtils;
@@ -14,6 +13,7 @@ import com.prolog.eis.component.core.dto.business.supply.StoreSupplyDto;
 import com.prolog.eis.component.core.dto.business.supply.UrgentSupplyDto;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.fx.component.business.service.supply.StoreSupplyService;
+import com.prolog.framework.bz.common.search.SearchApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,13 +34,16 @@ public class SupplyDispatchServiceImpl implements SupplyDispatchService {
     private StoreSupplyService storeSupplyService;
     @Autowired
     private EisContainerRouteClient containerRouteClient;
+    @Autowired
+    private SearchApi searchApi;
 
     @Override
     public void safeSupplyDispatch() throws Exception {
         //数据初始化
         SafeSupplyDto safeSupplyDto = storeSupplyService.safeInit();
         // TODO 需调整为调用库存服务/仓库服务/路径服务，需计算 到位+正在过来的-正在离开的（搬运任务）
-        safeSupplyDto.setContainerStoreList(Lists.newArrayList());
+        List<ContainerStoreDto> containerStoreList = searchApi.search("getContainerStore", null, ContainerStoreDto.class);
+        safeSupplyDto.setContainerStoreList(containerStoreList);
         List<StoreSupplyDetailDto> supplyDetailList = storeSupplyService.findSafeSupplyDetailList(safeSupplyDto);
         if (CollectionUtils.isEmpty(supplyDetailList)) {
             return;
@@ -60,7 +63,8 @@ public class SupplyDispatchServiceImpl implements SupplyDispatchService {
         //数据初始化
         UrgentSupplyDto urgentSupplyDto = storeSupplyService.urgentInit();
         // TODO 需调整为调用库存服务/仓库服务/路径服务，需计算 到位+正在过来的-正在离开的（搬运任务）
-        urgentSupplyDto.setContainerStoreList(Lists.newArrayList());
+        List<ContainerStoreDto> containerStoreList = searchApi.search("getContainerStore", null, ContainerStoreDto.class);
+        urgentSupplyDto.setContainerStoreList(containerStoreList);
         List<OutboundTaskDetailDto> urgentSupplyDetailList = storeSupplyService.findUrgentSupplyDetailList(urgentSupplyDto);
         if (CollectionUtils.isEmpty(urgentSupplyDetailList)) {
             return;
