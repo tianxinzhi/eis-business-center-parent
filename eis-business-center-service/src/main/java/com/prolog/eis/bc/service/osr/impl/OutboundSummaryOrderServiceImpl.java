@@ -1,5 +1,6 @@
 package com.prolog.eis.bc.service.osr.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.prolog.eis.bc.dao.*;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundSummaryOrderDto;
 import com.prolog.eis.bc.facade.dto.osr.OutSummaryOrderInfoDto;
@@ -81,14 +82,17 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
         //2.根据拆单策略明细中的区域编号去找区域中的容器编号
         List<ContainerLocation> locationList = new LinkedList<>();
         strategyDtls.stream().map(d ->{
-            List<ContainerLocation> cls = containerLocationFeign.findByAreaNo("sourceArea",d.getAreaNo()).getData();
+            JSONObject json = new JSONObject();
+            json.put("areaKey","sourceArea");
+            json.put("keyValue",d.getAreaNo());
+            List<ContainerLocation> cls = containerLocationFeign.findByAreaNo(json.toJSONString()).getData();
             locationList.addAll(cls);
             return locationList;
         });
         Assert.notEmpty(locationList,"未找到容器位置信息");
 
         //3.根据容器编号去统计子容器可装载库存数量
-        List<String> containerNoS = locationList.stream().map(ContainerLocation::getContainerNo).collect(Collectors.toList()); //容器
+        List<String> containerNoS = locationList.stream().map(ContainerLocation::getContainerNo).collect(Collectors.toList());
         List<EisInvContainerStoreVo> containerStoreS = storeFeign.findByContainerNos(containerNoS).getData();
         Assert.notEmpty(containerStoreS,"未找到容器库存信息");
 
