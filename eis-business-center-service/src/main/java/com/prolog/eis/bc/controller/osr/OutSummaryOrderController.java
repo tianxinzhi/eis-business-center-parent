@@ -3,7 +3,6 @@ package com.prolog.eis.bc.controller.osr;
 
 import com.prolog.eis.bc.facade.dto.osr.OutSummaryOrderInfoDto;
 import com.prolog.eis.bc.service.osr.OutboundSummaryOrderService;
-import com.prolog.eis.bc.service.osr.impl.OutboundSummaryOrderServiceImpl;
 import com.prolog.framework.common.message.RestMessage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,7 +34,7 @@ public class OutSummaryOrderController {
     @ApiOperation(value = "出库汇总任务单", notes = "出库汇总任务单")
     @PostMapping("/save-OutSummary-Order")
     @ApiImplicitParams({@ApiImplicitParam(name = "OutSummaryOrderInfoDto", value = "外来单据", required = false)})
-    public RestMessage<String> page(@RequestBody @Validated OutSummaryOrderInfoDto dto){
+    public RestMessage<String> createOutOrder(@RequestBody @Validated OutSummaryOrderInfoDto dto){
         try {
             return RestMessage.success("创建成功",service.createOutOrder(dto));
         } catch (Exception e) {

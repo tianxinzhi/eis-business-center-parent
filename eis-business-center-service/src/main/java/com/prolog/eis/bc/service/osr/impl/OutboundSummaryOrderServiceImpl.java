@@ -1,29 +1,6 @@
 package com.prolog.eis.bc.service.osr.impl;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
-import com.prolog.eis.bc.dao.OutboundSummaryOrderHisMapper;
-import com.prolog.eis.bc.dao.OutboundSummaryOrderMapper;
-import com.prolog.eis.bc.dao.OutboundTaskBindDetailHisMapper;
-import com.prolog.eis.bc.dao.OutboundTaskBindDetailMapper;
-import com.prolog.eis.bc.dao.OutboundTaskBindHisMapper;
-import com.prolog.eis.bc.dao.OutboundTaskBindMapper;
-import com.prolog.eis.bc.dao.OutboundTaskDetailHisMapper;
-import com.prolog.eis.bc.dao.OutboundTaskDetailMapper;
-import com.prolog.eis.bc.dao.OutboundTaskHisMapper;
-import com.prolog.eis.bc.dao.OutboundTaskMapper;
+import com.prolog.eis.bc.dao.*;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundSummaryOrderDto;
 import com.prolog.eis.bc.facade.dto.osr.OutSummaryOrderInfoDto;
 import com.prolog.eis.bc.facade.dto.osr.SplitStrategyResultDto;
@@ -33,16 +10,7 @@ import com.prolog.eis.bc.service.osr.OutboundSummaryOrderService;
 import com.prolog.eis.bc.service.osr.SplitStrategy;
 import com.prolog.eis.bc.service.ssc.OutboundSplitStrategyConfigService;
 import com.prolog.eis.bc.service.sscdtl.OutboundSplitStrategyDetailConfigService;
-import com.prolog.eis.core.model.biz.outbound.OutboundSummaryOrder;
-import com.prolog.eis.core.model.biz.outbound.OutboundSummaryOrderHis;
-import com.prolog.eis.core.model.biz.outbound.OutboundTask;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskBind;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetailHis;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindHis;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetailHis;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskHis;
+import com.prolog.eis.core.model.biz.outbound.*;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundSplitStrategyConfig;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundSplitStrategyDetailConfig;
@@ -52,6 +20,14 @@ import com.prolog.framework.core.restriction.Restriction;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author: txz
@@ -91,8 +67,8 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
     @Autowired
     private OutboundTaskBindDetailHisMapper taskBindDetailHisMapper;
 
-    private static final int Strategy_All = 1;//整拖
-    private static final int Strategy_Lfz = 2;//零发整
+    private static final String Strategy_All = "All";//整拖
+    private static final String Strategy_Lfz = "Px";//零发整
 
     @Override
     @Transactional
@@ -100,42 +76,46 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
         //1.根据订单类型查找对应拆单策略及明细
         OutboundSplitStrategyConfig strategy = splitStrategyConfigService.getByStrategyTypeNo(dto.getOrderType());
         List<OutboundSplitStrategyDetailConfig> strategyDtls = splitStrategyDetailService.getDtlsByOutSplitStgCfgId(strategy.getId()).stream().sorted(Comparator.comparing(OutboundSplitStrategyDetailConfig::getSortIndex)).collect(Collectors.toList());
+        Assert.notEmpty(strategyDtls,"未找到拆单策略信息");
+
         //2.根据拆单策略明细中的区域编号去找区域中的容器编号
         List<ContainerLocation> locationList = new LinkedList<>();
-        for (OutboundSplitStrategyDetailConfig strategyDtl : strategyDtls) {
-//            strategyDtl.getSortIndex()
-            List<ContainerLocation> byAreaNo = containerLocationFeign.findByAreaNo("sourceArea",strategyDtl.getAreaNo()).getData();
-            locationList.addAll(byAreaNo);
-        }
+        strategyDtls.stream().map(d ->{
+            List<ContainerLocation> cls = containerLocationFeign.findByAreaNo("sourceArea",d.getAreaNo()).getData();
+            locationList.addAll(cls);
+            return locationList;
+        });
         Assert.notEmpty(locationList,"未找到容器位置信息");
 
         //3.根据容器编号去统计子容器可装载库存数量
-        List<EisInvContainerStoreVo> containerS = new LinkedList<>(); //容器
-        for (ContainerLocation containerLocation : locationList) {
-            List<EisInvContainerStoreVo> data = storeFeign.findByContainerNo(containerLocation.getContainerNo()).getData();
-            containerS.add((EisInvContainerStoreVo) data);
-        }
-        Assert.notEmpty(containerS,"未找到容器库存信息");
+        List<String> containerNoS = locationList.stream().map(ContainerLocation::getContainerNo).collect(Collectors.toList()); //容器
+        List<EisInvContainerStoreVo> containerStoreS = storeFeign.findByContainerNos(containerNoS).getData();
+        Assert.notEmpty(containerStoreS,"未找到容器库存信息");
 
         //4.根据策略排序查找最适合单据数量的容器，一般遵循整托，零发整，拆零的优先策略
         double orderQty = dto.getDtls().stream().collect(Collectors.summingDouble(x -> x.getOrderQty()));
         List<SplitStrategyResultDto> tis = new ArrayList<>();
         for (OutboundSplitStrategyDetailConfig strategyDtl : strategyDtls) {
-            if(strategyDtl.getOutSplitStgCfgId().equals(Strategy_All)){
-                SplitStrategyResultDto resultDto = SplitStrategy.zhengTuoStrategy(orderQty, containerS);
-                tis.add(resultDto);
-            }if(strategyDtl.getOutSplitStgCfgId().equals(Strategy_Lfz)){
-                SplitStrategyResultDto resultDto = SplitStrategy.pinXiangStrategy(orderQty, containerS);
-                tis.add(resultDto);
+            if (orderQty > 0) {
+                if(strategyDtl.getSplitStrategy().equals(Strategy_All)){
+                    SplitStrategyResultDto resultDto = SplitStrategy.zhengTuoStrategy(orderQty, containerStoreS);
+                    orderQty = resultDto.getRemainOrderQty();
+                    tis.add(resultDto);
+                }else if(strategyDtl.getSplitStrategy().equals(Strategy_Lfz)){
+                    SplitStrategyResultDto resultDto = SplitStrategy.pinXiangStrategy(orderQty, containerStoreS);
+                    orderQty = resultDto.getRemainOrderQty();
+                    tis.add(resultDto);
+                }
             }
         }
+
         //5.生成任务汇总单，任务单表，任务单表明细
         String summaryId = saveData(dto, tis);
         return "创建成功,汇总单号: "+summaryId;
     }
 
     /**
-     * 数据存储
+     * 数据存储(出库汇总单，任务单表及明细，容器绑定及明细，任务单回告)
      * @param dto
      * @param tis
      * @return
@@ -148,11 +128,11 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
         summaryOrder.setState("未开始");
         summaryOrder.setCreateTime(new Date());
 
-        OutboundSummaryOrderHis summaryOrderHis = new OutboundSummaryOrderHis();
-        BeanUtils.copyProperties(summaryOrder,summaryOrderHis);
+        //OutboundSummaryOrderHis summaryOrderHis = new OutboundSummaryOrderHis();
+        //BeanUtils.copyProperties(summaryOrder,summaryOrderHis);
 
         long id = mapper.save(summaryOrder);
-        hisMapper.save(summaryOrderHis);
+        //hisMapper.save(summaryOrderHis);
 
         Date date = new Date();
         for (OutSummaryOrderInfoDto.OutSummaryOrderDetailInfoDto dtl : dto.getDtls()) {
@@ -170,11 +150,11 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
             //task.setCargoOwnerId("");
             //task.setWarehouseId("");
 
-            OutboundTaskHis taskHis = new OutboundTaskHis();
-            BeanUtils.copyProperties(task,taskHis);
+            //OutboundTaskHis taskHis = new OutboundTaskHis();
+            //BeanUtils.copyProperties(task,taskHis);
 
             long taskId = taskMapper.save(task);
-            taskHisMapper.save(taskHis);
+            //taskHisMapper.save(taskHis);
 
             //List<OutboundTaskDetail> taskDetails = new LinkedList<>();
             for (SplitStrategyResultDto ti : tis) {
@@ -190,12 +170,12 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
                 taskDetail.setIsShortPicking(0);
                 taskDetail.setCreateTime(date);
 
-                OutboundTaskDetailHis taskDetailHis = new OutboundTaskDetailHis();
-                BeanUtils.copyProperties(taskDetail,taskDetailHis);
+                //OutboundTaskDetailHis taskDetailHis = new OutboundTaskDetailHis();
+                //BeanUtils.copyProperties(taskDetail,taskDetailHis);
 
 
                 long taskDetailId = taskDetailMapper.save(taskDetail);
-                taskDetailHisMapper.save(taskDetailHis);
+                //taskDetailHisMapper.save(taskDetailHis);
 
 
                 for (int i = 0;i<ti.getContainerNos().size();i++) {
@@ -212,14 +192,14 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
                     //bind.setCargoOwnerId("");
                     //bind.setWarehouseId("");
 
-                    OutboundTaskBindHis bindHis = new OutboundTaskBindHis();
-                    BeanUtils.copyProperties(bind,bindHis);
+                    //OutboundTaskBindHis bindHis = new OutboundTaskBindHis();
+                    //BeanUtils.copyProperties(bind,bindHis);
 
                     long taskBindId = taskBindMapper.save(bind);
-                    taskBindHisMapper.save(bindHis);
+                    //taskBindHisMapper.save(bindHis);
 
                     List<OutboundTaskBindDetail> bindDetails = new LinkedList<>();
-                    List<OutboundTaskBindDetailHis> bindDetailHiss = new LinkedList<>();
+                    //List<OutboundTaskBindDetailHis> bindDetailHiss = new LinkedList<>();
                     for (int j = 0; j < ti.getSubContainerNos().size(); j++) {
                         List<String> strings = ti.getSubContainerNos().get(j);
                         List<Double> doubles = ti.getSubConQtys().get(j);
@@ -243,24 +223,23 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
                             //bindDetail.setCargoOwnerId("");
                             //bindDetail.setWarehouseId("");
 
-                            OutboundTaskBindDetailHis bindDetailHis = new OutboundTaskBindDetailHis();
-                            BeanUtils.copyProperties(bindDetail,bindDetailHis);
+                            //OutboundTaskBindDetailHis bindDetailHis = new OutboundTaskBindDetailHis();
+                            //BeanUtils.copyProperties(bindDetail,bindDetailHis);
 
                             bindDetails.add(bindDetail);
-                            bindDetailHiss.add(bindDetailHis);
+                            //bindDetailHiss.add(bindDetailHis);
                         }
                     }
                    taskBindDetailMapper.saveBatch(bindDetails);
-                   taskBindDetailHisMapper.saveBatch(bindDetailHiss);
+                   //taskBindDetailHisMapper.saveBatch(bindDetailHiss);
                 }
             }
         }
 
         return summaryOrder.getId();
     }
-    
-    @Autowired
-    private OutboundSummaryOrderMapper outboundSummaryOrderMapper;
+
+    @Override
     public Page<OutboundSummaryOrder> getutboundSummaryOrderPage(OutboundSummaryOrderDto dto){
         PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
         Criteria criteria = new Criteria(OutboundSummaryOrder.class);
@@ -284,7 +263,7 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
         }
 
         criteria.setRestriction(Restrictions.and(r1,r2,r3,r4));
-        List<OutboundSummaryOrder> list = outboundSummaryOrderMapper.findByCriteria(criteria);
+        List<OutboundSummaryOrder> list = mapper.findByCriteria(criteria);
         return PageUtils.getPage(list);
     }
 }

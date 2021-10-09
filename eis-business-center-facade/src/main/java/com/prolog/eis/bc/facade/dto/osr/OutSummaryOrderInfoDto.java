@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -18,6 +19,7 @@ import java.util.List;
 @Data
 @ApiModel
 @AllArgsConstructor
+@NoArgsConstructor
 public class OutSummaryOrderInfoDto {
 
     @ApiModelProperty("订单类型")//匹配策略编号

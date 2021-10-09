@@ -1,6 +1,5 @@
 package com.prolog.eis.bc.feign.container;
 
-import com.prolog.eis.core.model.base.container.ContainerStore;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.upcloud.base.inventory.dto.EisSelectorInv;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
@@ -23,10 +22,10 @@ public interface EisContainerStoreFeign {
 
     /**
      * 根据容器编号获取库存
-     * @param containerNo
+     * @param containerNos
      * @return
      */
-    @PostMapping("/eisInv/findByContainerNo")
-    RestMessage<List<EisInvContainerStoreVo>> findByContainerNo(@RequestParam("containerNo") String containerNo);
+    @PostMapping("/eisInv/findByContainerNos")
+    RestMessage<List<EisInvContainerStoreVo>> findByContainerNos(@RequestParam("containerNos") List<String> containerNos);
 
 }
