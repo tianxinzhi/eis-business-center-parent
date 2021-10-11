@@ -24,6 +24,7 @@ import java.util.List;
 public class OrderPoolServiceImpl implements OrderPoolService {
     @Autowired
     private OrderPoolMapper orderPoolMapper;
+    @Override
     public Page<OrderPool> getOrderPoolPage(OrderPoolDto dto){
         PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
         Criteria criteria = new Criteria(OrderPool.class);
@@ -49,6 +50,7 @@ public class OrderPoolServiceImpl implements OrderPoolService {
         List<OrderPool> list = orderPoolMapper.findByCriteria(criteria);
         return PageUtils.getPage(list);
     }
+    @Override
     public long modify(OrderPool orderPool){
         {
             if(StringUtils.isEmpty(orderPool)) {
@@ -61,12 +63,13 @@ public class OrderPoolServiceImpl implements OrderPoolService {
                 throw new RuntimeException("请选择出库任务单类型编号");
             }
 
-            if(StringUtils.isEmpty(orderPool.getMaxOrderNum())) {
-                throw new RuntimeException("请输入最大汇单数量");
-            }
+//            if(StringUtils.isEmpty(orderPool.getMaxOrderNum())) {
+//                throw new RuntimeException("请输入最大汇单数量");
+//            }
             return orderPoolMapper.update(orderPool);
         }
     }
+    @Override
     public long add(OrderPool orderPool){
         if(StringUtils.isEmpty(orderPool)) {
             throw new RuntimeException("请传入对应的参数");
@@ -78,11 +81,12 @@ public class OrderPoolServiceImpl implements OrderPoolService {
             throw new RuntimeException("请选择出库任务单类型编号");
         }
 
-        if(StringUtils.isEmpty(orderPool.getMaxOrderNum())) {
-            throw new RuntimeException("请输入最大汇单数量");
-        }
+//        if(StringUtils.isEmpty(orderPool.getMaxOrderNum())) {
+//            throw new RuntimeException("请输入最大汇单数量");
+//        }
         return  orderPoolMapper.save(orderPool);
     }
+    @Override
     public void deleted(Integer id){
         if(StringUtils.isEmpty(id)) {
             throw new RuntimeException("请选择对应的参数后删除");
