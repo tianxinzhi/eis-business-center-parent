@@ -24,7 +24,7 @@ public class OutboundSplitStrategyConfigServiceImpl implements OutboundSplitStra
 
     @Override
     public OutboundSplitStrategyConfig getByStrategyTypeNo(String strategyTypeNo) throws Exception{
-//        Assert.notNull(strategyTypeNo,"出库拆单策略类型编号不可为空");
+        Assert.notNull(strategyTypeNo,"出库拆单策略类型编号不可为空");
         Criteria criteria = new Criteria(OutboundSplitStrategyConfig.class);
         criteria.setRestriction(Restrictions.eq("strategyTypeNo",strategyTypeNo));
         List<OutboundSplitStrategyConfig> strategies = mapper.findByCriteria(criteria);

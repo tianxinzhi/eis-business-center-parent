@@ -104,12 +104,14 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             log.error("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
 
             WarehouseDto warehouse = outboundTaskBizService.getWarehouseByPickingOrderOutModel(config);
+            log.error("outboundTaskBizService.getWarehouseByPickingOrderOutModel({}) return:{}", JSONObject.toJSONString(config), JSONObject.toJSONString(warehouse));
             if (OutboundStrategyConfigConstant.ALGORITHM_COMPOSE_SIMILARITY.equals(composeOrderConfig)) {
                 warehouse.getStationList().sort(Comparator.comparingInt(StationDto::computeContainerCount));
                 for (StationDto station : warehouse.getStationList()) {
                     try {
                         // 筛选出最合适的任务
                         PickingOrderDto pickingOrderDto = ComposeOrderUtils.compose(station, warehouse, outTaskList);
+                        log.error("ComposeOrderUtils.compose({},{},{}) return:{}", JSONObject.toJSONString(station), JSONObject.toJSONString(warehouse), JSONObject.toJSONString(outTaskList), JSONObject.toJSONString(pickingOrderDto));
                         if (pickingOrderDto == null) {
                             continue;
                         }
