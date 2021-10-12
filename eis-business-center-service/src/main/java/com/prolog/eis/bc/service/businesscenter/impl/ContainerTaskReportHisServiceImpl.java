@@ -32,19 +32,19 @@ public class ContainerTaskReportHisServiceImpl implements ContainerTaskReportHis
         Restriction r3 = null;
         Restriction r4 = null;
         Restriction r5 = null;
-        if (StringUtils.isEmpty(dto.getContainerTaskId())) {
+        if (!StringUtils.isEmpty(dto.getContainerTaskId())) {
             r1 = Restrictions.eq("containerTaskId", dto.getContainerTaskId());
         }
-        if (StringUtils.isEmpty(dto.getTypeNo())) {
+        if (!StringUtils.isEmpty(dto.getTypeNo())) {
             r2 = Restrictions.eq("typeNo", dto.getTypeNo());
         }
-        if (dto.getUpperSystemTaskId() != null) {
+        if (!StringUtils.isEmpty(dto.getUpperSystemTaskId())) {
             r3 = Restrictions.eq("upperSystemTaskId", dto.getUpperSystemTaskId());
         }
-        if (dto.getCreateTimeFrom() != null ) {
+        if (!StringUtils.isEmpty(dto.getCreateTimeFrom())) {
             r4 = Restrictions.ge("createTime", dto.getCreateTimeFrom());
         }
-        if (dto.getCreateTimeTo() != null) {
+        if (!StringUtils.isEmpty(dto.getCreateTimeTo())) {
             r5 = Restrictions.le("createTime", dto.getCreateTimeTo());
         }
 
