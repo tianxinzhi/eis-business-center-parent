@@ -11,6 +11,7 @@ import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -31,16 +32,16 @@ public class ContainerTaskReportHisServiceImpl implements ContainerTaskReportHis
         Restriction r3 = null;
         Restriction r4 = null;
         Restriction r5 = null;
-        if (dto.getContainerTaskId() != null) {
+        if (StringUtils.isEmpty(dto.getContainerTaskId())) {
             r1 = Restrictions.eq("containerTaskId", dto.getContainerTaskId());
         }
-        if (dto.getTypeNo() != null) {
+        if (StringUtils.isEmpty(dto.getTypeNo())) {
             r2 = Restrictions.eq("typeNo", dto.getTypeNo());
         }
         if (dto.getUpperSystemTaskId() != null) {
             r3 = Restrictions.eq("upperSystemTaskId", dto.getUpperSystemTaskId());
         }
-        if (dto.getCreateTimeFrom() != null) {
+        if (dto.getCreateTimeFrom() != null ) {
             r4 = Restrictions.ge("createTime", dto.getCreateTimeFrom());
         }
         if (dto.getCreateTimeTo() != null) {
