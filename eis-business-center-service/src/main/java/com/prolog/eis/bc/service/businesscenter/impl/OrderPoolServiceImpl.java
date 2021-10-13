@@ -32,16 +32,16 @@ public class OrderPoolServiceImpl implements OrderPoolService {
         Restriction r2 = null;
         Restriction r3 = null;
         Restriction r4 = null;
-        if (dto.getName() != null) {
+        if (!StringUtils.isEmpty(dto.getName())) {
             r1 = Restrictions.eq("name", dto.getName());
         }
-        if (dto.getTypeNo() != null) {
+        if (!StringUtils.isEmpty(dto.getTypeNo())) {
             r2 = Restrictions.eq("typeNo", dto.getTypeNo());
         }
-        if (dto.getCreateTimeFrom() != null) {
+        if (!StringUtils.isEmpty(dto.getCreateTimeFrom())) {
             r3 = Restrictions.ge("createTime", dto.getCreateTimeFrom());
         }
-        if (dto.getCreateTimeTo() != null) {
+        if (!StringUtils.isEmpty(dto.getCreateTimeTo())) {
             r4 = Restrictions.le("createTime", dto.getCreateTimeTo());
         }
 
@@ -87,7 +87,7 @@ public class OrderPoolServiceImpl implements OrderPoolService {
         return  orderPoolMapper.save(orderPool);
     }
     @Override
-    public void deleted(Integer id){
+    public void deleted(String id){
         if(StringUtils.isEmpty(id)) {
             throw new RuntimeException("请选择对应的参数后删除");
         }

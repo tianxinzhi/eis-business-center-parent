@@ -8,5 +8,5 @@ public interface OrderPoolService {
     Page<OrderPool> getOrderPoolPage(OrderPoolDto dto);
     long add(OrderPool orderPool);
     long modify(OrderPool orderPool);
-    void deleted(Integer id);
+    void deleted(String id);
 }

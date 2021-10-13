@@ -59,7 +59,7 @@ public class OrderPoolController {
     @ApiOperation(value = "实时汇总单删除", notes = "实时汇总单删除")
     @GetMapping("/deleted-orderpool")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "主键id", required = false)})
-    public RestMessage<OrderPool> deleted(@RequestParam(value = "id", required = true) Integer id){
+    public RestMessage<OrderPool> deleted(@RequestParam(value = "id", required = true) String id){
         orderPoolService.deleted(id);
         return RestMessage.newInstance(true,"成功", null);
     }
