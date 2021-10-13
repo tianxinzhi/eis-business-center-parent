@@ -9,7 +9,7 @@ prolog:
     route: service-ai-eis-route-center
     warehouse: upcloud-base-wh-dev-mysql
   serarch:
-    url: http://service-data-api-base-ai/search
+    url: http://service-data-api-base/search
 
 spring:
   application.name: service-ai-eis-business-center-szz
