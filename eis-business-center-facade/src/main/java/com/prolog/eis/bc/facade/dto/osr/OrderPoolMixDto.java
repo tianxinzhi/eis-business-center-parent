@@ -15,7 +15,7 @@ public class OrderPoolMixDto {
     private String outTaskId;
     @ApiModelProperty("出库模式")
     private String outModel;
-    @ApiModelProperty("按品或批统计的商品数量")
+    @ApiModelProperty("按品或批统计 1按品 2按批")
     private int matchStrategy;
     @ApiModelProperty("汇总单id")
     private String smyId;

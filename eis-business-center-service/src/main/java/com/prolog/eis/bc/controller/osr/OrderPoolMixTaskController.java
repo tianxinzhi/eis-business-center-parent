@@ -12,15 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
  * @Desc:
  */
 @RestController
-@RequestMapping
+@RequestMapping("api/v1/orderPool")
 public class OrderPoolMixTaskController {
 
     @Autowired
     private OrderPoolMixTaskService service;
 
-    @RequestMapping("geneOrder")
+    @RequestMapping("/mixToSummaryOrder")
     public RestMessage hd(){
-        String s = service.geneOrderPoolToOutSummaryOrder();
-        return RestMessage.newInstance(true,"ok",s);
+        try {
+            String s = service.geneOrderPoolToOutSummaryOrder();
+            return RestMessage.newInstance(true,"ok",s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestMessage.error("汇单失败");
+        }
     }
 }
