@@ -1,6 +1,5 @@
 package com.prolog.eis.bc.service.osr;
 
-import com.prolog.eis.bc.facade.dto.osr.OutSummaryOrderInfoDto;
 import com.prolog.eis.bc.facade.dto.osr.SplitStrategyResultDto;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreSubVo;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
@@ -26,32 +25,43 @@ public class SplitStrategy {
      */
     public static SplitStrategyResultDto zhengTuoStrategy(double orderQty, List<EisInvContainerStoreVo> vos){
         SplitStrategyResultDto reSplit = new SplitStrategyResultDto();
-
+        //容器按子容器总数量排列
+        vos = vos.stream().map(v -> {
+            Double collect = v.getContainerStoreSubList().stream().collect(Collectors.summingDouble(store -> store.getQty()));
+            v.setTotalQty(collect);
+            return v;
+        }).sorted(Comparator.comparing(EisInvContainerStoreVo::getTotalQty).reversed()).collect(Collectors.toList());
 
         for (int i = vos.size() - 1; i >= 0; i--) {
             EisInvContainerStoreVo container = vos.get(i);
 
-            double totalSubQty = 0;
-            List<String> subNos = new LinkedList<>();//子容器号
-            List<Double> subQtys = new LinkedList<>();
-            for (int i1 = container.getContainerStoreSubList().size() - 1; i1 >= 0; i1--) {
-                EisInvContainerStoreSubVo subCon = container.getContainerStoreSubList().get(i1);
-                totalSubQty += subCon.getQty();
-                subNos.add(subCon.getContainerStoreSubNo());
-                subQtys.add(subCon.getQty());
-            }
-            //找到合适的容器，记录子容器，并移除对应容器
-            if(totalSubQty >= orderQty){
-                reSplit.setContainerNos(Arrays.asList(container.getContainerNo()));
-                //reSplit.setOrderTotalQty(totalSubQty-orderTotalQty);
+            //取第一个大于订单数量的容器为最优,找到合适的容器，记录子容器，并移除对应容器
+            if(container.getTotalQty() >= orderQty){
+                List<EisInvContainerStoreSubVo> subCons = container.getContainerStoreSubList().stream().sorted(Comparator.comparing(EisInvContainerStoreSubVo::getQty).reversed()).collect(Collectors.toList());
+                double alHasQty = 0;//汇总单已加入总数量
+                List<String> subNos = new LinkedList<>();//子容器号
+                List<Double> subQtys = new LinkedList<>();//子容器数量
+                for (int i1 = subCons.size() - 1; i1 >= 0; i1--) {
+                    EisInvContainerStoreSubVo subCon = subCons.get(i1);
+                    //加入容器的数量已超过订单数量
+                    if (alHasQty > orderQty) {
+                        break;
+                    } else {
+                        //加入容器的数量未超过订单数量
+                        alHasQty += subCon.getQty();
+                        //if(alHasQty > subCon.getQty()){}
+                        subNos.add(subCon.getContainerStoreSubNo());
+                        subQtys.add(subCon.getQty());
+                    }
+                }
+
                 reSplit.setSubContainerNos(Arrays.asList(subNos));
                 reSplit.setSubConQtys(Arrays.asList(subQtys));
-
                 vos.remove(container);
+                reSplit.setRemainContainerStoreVos(vos);
                 break;
             }
         }
-
         return reSplit;
     }
 
@@ -74,11 +84,9 @@ public class SplitStrategy {
             List<EisInvContainerStoreSubVo> subCons = container.getContainerStoreSubList().stream().sorted(Comparator.comparing(EisInvContainerStoreSubVo::getQty)).collect(Collectors.toList());
             LinkedList<Double> subQty = new LinkedList<>();
             LinkedList<String> subConNo = new LinkedList<>();
-
-
+            //找最优子容器
             strategy = findZs(strategy,subQty,subConNo,  subCons);
             containNos.add(container.getContainerNo());
-
         }
         strategy.setContainerNos(containNos);
         strategy.setSubContainerNos(subContainNos);
@@ -107,7 +115,6 @@ public class SplitStrategy {
 
                 sQs.add(sus.getRemainOrderQty());
                 sus.setRemainOrderQty(0d);
-
                 sNos.add(subContainer.getContainerStoreSubNo());
                 isFind = true;
                 iterator.remove();

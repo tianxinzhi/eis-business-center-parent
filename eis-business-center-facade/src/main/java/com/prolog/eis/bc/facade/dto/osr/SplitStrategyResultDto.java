@@ -26,5 +26,6 @@ public class SplitStrategyResultDto {
     private List<List<String>> subContainerNos;
     @ApiModelProperty("子容器数量")
     private List<List<Double>> subConQtys;
-
+    @ApiModelProperty("剩余可用容器")
+    private List<EisInvContainerStoreVo> remainContainerStoreVos;
 }

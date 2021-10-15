@@ -9,9 +9,12 @@ import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyConfig;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategySourceAreaConfig;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyTargetStationConfig;
 import com.prolog.framework.core.exception.PrologException;
+import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.utils.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -46,6 +49,15 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         outboundStrategyConfigVo.setOutboundStrategySourceAreaConfigList(outboundStrategySourceAreaConfigList);
         outboundStrategyConfigVo.setOutboundStrategyTargetStationConfigList(outboundStrategyTargetStationConfigList);
         return outboundStrategyConfigVo;
+    }
+
+    @Override
+    public List<OutboundStrategyConfig> getByOutModel(String outModel) throws PrologException {
+        Assert.notNull(outModel,"出库模式不能为空");
+        Criteria criteria = new Criteria(OutboundStrategyConfig.class);
+        criteria.setRestriction(Restrictions.eq("outModel",outModel));
+        List<OutboundStrategyConfig> confs = outboundStrategyConfigMapper.findByCriteria(criteria);
+        return confs;
     }
 
     private OutboundStrategyConfigVo copyBean(OutboundStrategyConfig outboundStrategyConfig) {
