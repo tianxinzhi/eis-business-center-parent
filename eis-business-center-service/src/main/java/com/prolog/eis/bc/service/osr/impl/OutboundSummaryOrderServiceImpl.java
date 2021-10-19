@@ -282,7 +282,7 @@ public class OutboundSummaryOrderServiceImpl implements OutboundSummaryOrderServ
         Restriction r4 = null;
 
         if (!StringUtils.isEmpty(dto.getTypeNo())) {
-            r1 = Restrictions.eq("outTaskId", dto.getTypeNo());
+            r1 = Restrictions.eq("typeNo", dto.getTypeNo());
         }
         if (!StringUtils.isEmpty(dto.getState())) {
             r2 = Restrictions.eq("state", dto.getState());

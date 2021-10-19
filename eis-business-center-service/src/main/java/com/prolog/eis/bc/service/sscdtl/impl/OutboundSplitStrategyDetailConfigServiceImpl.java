@@ -47,8 +47,9 @@ public class OutboundSplitStrategyDetailConfigServiceImpl implements OutboundSpl
 				data.setOutSplitStgCfgId(dto.getId());
 				data.setAreaNo(area.get("areaNo").toString());
 				data.setSplitStrategy(area.get("splitStrategy").toString());
-				data.setSortIndex(area.get("sortIndex").toString());
 				data.setTaskConfigTypeNo(area.get("taskConfigTypeNo").toString());
+				data.setSortIndex(Integer.valueOf(area.get("sortIndex").toString()));
+				//data.setAvgOutboundTime(area.get("avgOutboundTime").toString());
 				data.setCargoOwnerId(dto.getCargoOwnerId());
 				data.setEnterpriseId(dto.getEnterpriseId());
 				data.setWarehouseId(dto.getWarehouseId());
