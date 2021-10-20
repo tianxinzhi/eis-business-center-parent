@@ -9,6 +9,7 @@ import com.prolog.eis.inter.dto.mcs.ZxMcsInBoundResponseDto;
 import com.prolog.framework.core.pojo.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: wuxl
@@ -69,4 +70,12 @@ public interface InboundTaskService {
      * @param vo
      */
     void createInboundTask(InboundTaskVo vo);
+
+    /**
+     * 修改
+     *
+     * @param id
+     * @param map
+     */
+    long updateById(String id, Map<String, Object> map);
 }

@@ -9,7 +9,7 @@ import lombok.Data;
  * @Version: V1.0
  */
 @Data
-public class WmsInboundTaskDto {
+public class MasterInboundTaskDto {
 
     @ApiModelProperty("上游系统任务单id")
     private String upperSystemTaskId;
@@ -18,7 +18,7 @@ public class WmsInboundTaskDto {
     private String containerNo;
 
     @ApiModelProperty("容器类型(-1空托剁、0非整托、1整托)")
-    private String containerType;
+    private int containerType;
 
     @ApiModelProperty("商品id")
     private String itemId;
@@ -28,4 +28,7 @@ public class WmsInboundTaskDto {
 
     @ApiModelProperty("数量")
     private float qty;
+
+    @ApiModelProperty("业务属性")
+    private String businessProperty;
 }

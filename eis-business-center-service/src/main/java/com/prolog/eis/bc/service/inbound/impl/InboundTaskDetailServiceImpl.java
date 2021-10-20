@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: wuxl
@@ -77,5 +78,10 @@ public class InboundTaskDetailServiceImpl implements InboundTaskDetailService {
     @Override
     public long save(InboundTaskDetail detail) {
         return inboundTaskDetailMapper.save(detail);
+    }
+
+    @Override
+    public long updateById(String id, Map<String, Object> map) {
+        return inboundTaskDetailMapper.updateMapById(id, map, InboundTaskDetail.class);
     }
 }

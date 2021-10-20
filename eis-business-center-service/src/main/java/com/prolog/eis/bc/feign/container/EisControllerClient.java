@@ -22,4 +22,13 @@ public interface EisControllerClient {
      */
     @PostMapping("/eisPortInfoService/getPortByArea")
     RestMessage<PortInfo> getPortByArea(@RequestParam(value = "areaNo", required = false) String areaNo);
+
+    /**
+     * 获取系统参数
+     *
+     * @param regCode
+     * @return
+     */
+    @PostMapping("/registry/value")
+    RestMessage<String> getValueByCode(@RequestParam(value = "regCode", required = false) String regCode);
 }

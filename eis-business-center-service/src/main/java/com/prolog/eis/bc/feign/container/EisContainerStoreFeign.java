@@ -21,10 +21,20 @@ public interface EisContainerStoreFeign {
 
     /**
      * 根据容器编号获取库存
+     *
      * @param containerNos
      * @return
      */
     @PostMapping("/eisInv/findByContainerNos")
     RestMessage<List<EisInvContainerStoreVo>> findByContainerNos(@RequestBody List<String> containerNos);
+
+    /**
+     * 生成库存
+     *
+     * @param containerStoreVo
+     * @return
+     */
+    @PostMapping("/eisInv/saveStore")
+    RestMessage<String> saveContainerStore(@RequestBody EisInvContainerStoreVo containerStoreVo);
 
 }

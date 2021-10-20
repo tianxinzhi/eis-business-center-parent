@@ -4,6 +4,7 @@ import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportDto;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportHisDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskReportHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskReportVo;
+import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.framework.core.pojo.Page;
 
 /**
@@ -28,4 +29,11 @@ public interface InboundTaskReportService {
      * @return
      */
     Page<InboundTaskReportHisVo> listInboundTaskReportHisByPage(InboundTaskReportHisDto dto);
+
+    /**
+     * 转回告
+     *
+     * @param inboundTask
+     */
+    void toReport(InboundTask inboundTask);
 }
