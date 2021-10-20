@@ -5,6 +5,7 @@ import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetail;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: wuxl
@@ -47,4 +48,12 @@ public interface InboundTaskDetailService {
      * @param detail
      */
     long save(InboundTaskDetail detail);
+
+    /**
+     * 修改
+     *
+     * @param id
+     * @param map
+     */
+    long updateById(String id, Map<String, Object> map);
 }

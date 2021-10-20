@@ -200,6 +200,11 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         }
     }
 
+    @Override
+    public long updateById(String id, Map<String, Object> map) {
+        return inboundTaskMapper.updateMapById(id, map, InboundTask.class);
+    }
+
     /**
      * 校验
      *
