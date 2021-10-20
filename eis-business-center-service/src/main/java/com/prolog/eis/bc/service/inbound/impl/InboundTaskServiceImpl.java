@@ -4,8 +4,11 @@ import com.google.common.collect.Lists;
 import com.prolog.eis.bc.dao.inbound.InboundTaskHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskMapper;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
+import com.prolog.eis.bc.facade.dto.inbound.InboundTaskHisDto;
 import com.prolog.eis.bc.facade.dto.inbound.WmsInboundTaskDto;
+import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
+import com.prolog.eis.bc.facade.vo.inbound.InboundTaskHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
@@ -87,6 +90,31 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     }
 
     @Override
+    public Page<InboundTaskHisVo> listInboundTaskHisByPage(InboundTaskHisDto dto) {
+        PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
+        List<InboundTaskHisVo> inboundTaskHisVoList = inboundTaskHisMapper.findByParam(dto);
+        List<InboundTaskDetailHisVo> inboundTaskDetailHisVoList = inboundTaskDetailService.listInboundTaskDetailHisByParam(null);
+        inboundTaskHisVoList.forEach(vo -> {
+            List<InboundTaskDetailHisVo> where = ListHelper.where(inboundTaskDetailHisVoList, d -> vo.getId().equals(d.getInboundTaskId()));
+            vo.setDetailSize(where.size());
+            vo.setInboundTaskDetailHisVoList(where);
+        });
+        return PageUtils.getPage(inboundTaskHisVoList);
+    }
+
+    @Override
+    public List<InboundTaskVo> listInboundTask(InboundTaskDto dto) {
+        List<InboundTaskVo> inboundTaskVoList = inboundTaskMapper.findByParam(dto);
+        List<InboundTaskDetailVo> inboundTaskDetailVoList = inboundTaskDetailService.listInboundTaskDetailByParam(null);
+        inboundTaskVoList.forEach(vo -> {
+            List<InboundTaskDetailVo> where = ListHelper.where(inboundTaskDetailVoList, d -> vo.getId().equals(d.getInboundTaskId()));
+            vo.setDetailSize(where.size());
+            vo.setInboundTaskDetailVoList(where);
+        });
+        return inboundTaskVoList;
+    }
+
+    @Override
     public void cancelTask(InboundTask dto) throws Exception {
         InboundTask inboundTask = inboundTaskMapper.findByMap(
                 MapUtils.put("upperSystemTaskId", dto.getUpperSystemTaskId()).getMap(), InboundTask.class)
@@ -148,7 +176,6 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         }
         InboundTask inboundTask = new InboundTask();
         BeanUtils.copyProperties(vo, inboundTask);
-        inboundTask.setStatus(InboundTask.TASK_STATUS_NOTSTART);
         inboundTask.setCreateTime(new Date());
         inboundTaskMapper.save(inboundTask);
 
@@ -158,7 +185,6 @@ public class InboundTaskServiceImpl implements InboundTaskService {
             BeanUtils.copyProperties(detailVo, inboundTaskDetail);
             inboundTaskDetail.setInboundTaskId(inboundTask.getId());
             inboundTaskDetail.setTaskId(PrologStringUtils.newGUID());
-            inboundTaskDetail.setDetailStatus(InboundTask.TASK_STATUS_NOTSTART);
             inboundTaskDetail.setCreateTime(new Date());
             inboundTaskDetailService.save(inboundTaskDetail);
 
@@ -230,6 +256,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     private InboundTaskVo convertDto(ZxMcsInBoundResponseDto dto, PortInfo portInfo, WmsInboundTaskDto wmsInboundTaskDto) {
         InboundTaskVo vo = new InboundTaskVo();
         vo.setUpperSystemTaskId(wmsInboundTaskDto.getUpperSystemTaskId());
+        vo.setStatus(InboundTask.TASK_STATUS_GOINGON);
         //明细
         InboundTaskDetailVo detailVo = new InboundTaskDetailVo();
         detailVo.setContainerNo(dto.getStockId());
@@ -238,6 +265,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         detailVo.setSourceArea(portInfo.getAreaNo());
         detailVo.setSourceLocation(dto.getSource());
         detailVo.setWeight(Double.valueOf(dto.getWeight()));
+        detailVo.setDetailStatus(InboundTask.TASK_STATUS_GOINGON);
         detailVo.setHeight(Double.valueOf(dto.getHeight()));
         //子任务
         InboundTaskDetailSub sub = new InboundTaskDetailSub();

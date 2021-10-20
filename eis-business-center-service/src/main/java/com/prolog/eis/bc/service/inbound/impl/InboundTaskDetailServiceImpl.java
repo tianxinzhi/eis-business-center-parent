@@ -2,6 +2,7 @@ package com.prolog.eis.bc.service.inbound.impl;
 
 import com.prolog.eis.bc.dao.inbound.InboundTaskDetailHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskDetailMapper;
+import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailService;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailSubService;
@@ -9,6 +10,7 @@ import com.prolog.eis.common.util.ListHelper;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetail;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailHis;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSub;
+import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSubHis;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -42,6 +44,18 @@ public class InboundTaskDetailServiceImpl implements InboundTaskDetailService {
             vo.setInboundTaskDetailSubList(where);
         });
         return inboundTaskDetailVoList;
+    }
+
+    @Override
+    public List<InboundTaskDetailHisVo> listInboundTaskDetailHisByParam(String inboundTaskId) {
+        List<InboundTaskDetailHisVo> inboundTaskDetailHisVoList = inboundTaskDetailHisMapper.findByParam(inboundTaskId);
+        List<InboundTaskDetailSubHis> inboundTaskDetailSubHisList = inboundTaskDetailSubService.listInboundTaskDetailSubHisByParam(null);
+        inboundTaskDetailHisVoList.forEach(vo -> {
+            List<InboundTaskDetailSubHis> where = ListHelper.where(inboundTaskDetailSubHisList, s -> vo.getId().equals(s.getInboundTaskDetailId()));
+            vo.setSubSize(where.size());
+            vo.setInboundTaskDetailSubHisList(where);
+        });
+        return inboundTaskDetailHisVoList;
     }
 
     @Override

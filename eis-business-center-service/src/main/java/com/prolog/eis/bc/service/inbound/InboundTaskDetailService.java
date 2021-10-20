@@ -1,5 +1,6 @@
 package com.prolog.eis.bc.service.inbound;
 
+import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetail;
 
@@ -18,6 +19,13 @@ public interface InboundTaskDetailService {
      * @return
      */
     List<InboundTaskDetailVo> listInboundTaskDetailByParam(String inboundTaskId);
+
+    /**
+     * 查询所有明细
+     *
+     * @return
+     */
+    List<InboundTaskDetailHisVo> listInboundTaskDetailHisByParam(String inboundTaskId);
 
     /**
      * 转历史

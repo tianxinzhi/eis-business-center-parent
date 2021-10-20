@@ -1,10 +1,14 @@
 package com.prolog.eis.bc.service.inbound;
 
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
+import com.prolog.eis.bc.facade.dto.inbound.InboundTaskHisDto;
+import com.prolog.eis.bc.facade.vo.inbound.InboundTaskHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.inter.dto.mcs.ZxMcsInBoundResponseDto;
 import com.prolog.framework.core.pojo.Page;
+
+import java.util.List;
 
 /**
  * @author: wuxl
@@ -20,6 +24,22 @@ public interface InboundTaskService {
      * @return
      */
     Page<InboundTaskVo> listInboundTaskByPage(InboundTaskDto dto);
+
+    /**
+     * 前端分页查询
+     *
+     * @param dto
+     * @return
+     */
+    Page<InboundTaskHisVo> listInboundTaskHisByPage(InboundTaskHisDto dto);
+
+    /**
+     * 入库任务单查询
+     *
+     * @param dto
+     * @return
+     */
+    List<InboundTaskVo> listInboundTask(InboundTaskDto dto);
 
     /**
      * 任务取消

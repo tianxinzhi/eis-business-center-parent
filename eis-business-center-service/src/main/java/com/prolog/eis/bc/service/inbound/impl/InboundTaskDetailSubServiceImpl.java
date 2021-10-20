@@ -5,6 +5,7 @@ import com.prolog.eis.bc.dao.inbound.InboundTaskDetailSubHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskDetailSubMapper;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailSubService;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSub;
+import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSubHis;
 import com.prolog.framework.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,15 @@ public class InboundTaskDetailSubServiceImpl implements InboundTaskDetailSubServ
             map.put("inboundTaskDetailId", inboundTaskDetailId);
         }
         return inboundTaskDetailSubMapper.findByMap(map, InboundTaskDetailSub.class);
+    }
+
+    @Override
+    public List<InboundTaskDetailSubHis> listInboundTaskDetailSubHisByParam(String inboundTaskDetailId) {
+        Map<String, Object> map = Maps.newHashMap();
+        if (!StringUtils.isEmpty(inboundTaskDetailId)) {
+            map.put("inboundTaskDetailId", inboundTaskDetailId);
+        }
+        return inboundTaskDetailSubHisMapper.findByMap(map, InboundTaskDetailSubHis.class);
     }
 
     @Override

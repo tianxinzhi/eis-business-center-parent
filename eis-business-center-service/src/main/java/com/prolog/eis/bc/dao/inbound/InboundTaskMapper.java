@@ -30,7 +30,7 @@ public interface InboundTaskMapper extends BaseMapper<InboundTask> {
             "from biz_eis_inbound_task t \r\n" +
             "where 1 = 1 \r\n" +
             "<if test='dto.upperSystemTaskId!=null and dto.upperSystemTaskId!=\"\"'> \r\n" +
-            "   and upper_system_task_id LIKE CONCAT('%',#{dto.upperSystemTaskId},'%') \r\n" +
+            "   and t.upper_system_task_id LIKE CONCAT('%',#{dto.upperSystemTaskId},'%') \r\n" +
             "</if> \r\n" +
             "<if test='dto.status!=null'> \r\n" +
             "   and t.status = #{dto.status} \r\n" +

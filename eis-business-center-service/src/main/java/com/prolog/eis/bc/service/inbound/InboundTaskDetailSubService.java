@@ -1,6 +1,7 @@
 package com.prolog.eis.bc.service.inbound;
 
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSub;
+import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSubHis;
 
 import java.util.List;
 
@@ -18,6 +19,14 @@ public interface InboundTaskDetailSubService {
      * @return
      */
     List<InboundTaskDetailSub> listInboundTaskDetailSubByParam(String inboundTaskDetailId);
+
+    /**
+     * 根据任务单明细ID查询所有子任务
+     *
+     * @param inboundTaskDetailId
+     * @return
+     */
+    List<InboundTaskDetailSubHis> listInboundTaskDetailSubHisByParam(String inboundTaskDetailId);
 
     /**
      * 转历史
