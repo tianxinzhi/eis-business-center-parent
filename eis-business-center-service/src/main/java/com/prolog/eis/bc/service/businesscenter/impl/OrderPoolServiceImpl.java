@@ -33,10 +33,10 @@ public class OrderPoolServiceImpl implements OrderPoolService {
         Restriction r3 = null;
         Restriction r4 = null;
         if (!StringUtils.isEmpty(dto.getName())) {
-            r1 = Restrictions.eq("name", dto.getName());
+            r1 = Restrictions.likeAll("name", dto.getName());
         }
         if (!StringUtils.isEmpty(dto.getTypeNo())) {
-            r2 = Restrictions.eq("typeNo", dto.getTypeNo());
+            r2 = Restrictions.likeAll("typeNo", dto.getTypeNo());
         }
         if (!StringUtils.isEmpty(dto.getCreateTimeFrom())) {
             r3 = Restrictions.ge("createTime", dto.getCreateTimeFrom());
