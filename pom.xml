@@ -62,6 +62,12 @@
 
             <dependency>
                 <groupId>com.prolog.eis</groupId>
+                <artifactId>eis-interface-center-facade</artifactId>
+                <version>${eis.source.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.prolog.eis</groupId>
                 <artifactId>eis-component-starter-algorithm</artifactId>
                 <version>${eis.source.version}</version>
             </dependency>
