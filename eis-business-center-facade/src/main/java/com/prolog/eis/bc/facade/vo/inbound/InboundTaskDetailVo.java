@@ -20,4 +20,7 @@ public class InboundTaskDetailVo extends InboundTaskDetail {
 
     @ApiModelProperty("子任务数量")
     private int subSize;
+
+    @ApiModelProperty("业务属性")
+    private String businessProperty;
 }

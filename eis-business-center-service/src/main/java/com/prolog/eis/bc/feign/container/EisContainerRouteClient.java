@@ -1,5 +1,7 @@
 package com.prolog.eis.bc.feign.container;
 
+import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaParamDto;
+import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaResultDto;
 import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
 import com.prolog.eis.router.vo.ContainerLocationVo;
 import com.prolog.framework.common.message.RestMessage;
@@ -40,4 +42,7 @@ public interface EisContainerRouteClient {
 
     @PostMapping("/api/v1/route/location/findContainerLocation")
     RestMessage<String> findContainerLocation(@RequestBody String json) throws Exception;
+
+    @PostMapping("/api/v1/route/inbound/findArea")
+    RestMessage<InboundAllotAreaResultDto> getAllotArea(@RequestBody InboundAllotAreaParamDto dto);
 }

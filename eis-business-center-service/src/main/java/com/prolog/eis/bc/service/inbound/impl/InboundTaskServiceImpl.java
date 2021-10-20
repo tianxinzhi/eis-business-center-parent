@@ -5,14 +5,14 @@ import com.prolog.eis.bc.dao.inbound.InboundTaskHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskMapper;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskHisDto;
-import com.prolog.eis.bc.facade.dto.inbound.WmsInboundTaskDto;
+import com.prolog.eis.bc.facade.dto.inbound.MasterInboundTaskDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
-import com.prolog.eis.bc.feign.WmsInboundFeign;
+import com.prolog.eis.bc.feign.MasterInboundFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.feign.container.EisControllerClient;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailService;
@@ -74,7 +74,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     @Autowired
     private EisControllerClient eisControllerClient;
     @Autowired
-    private WmsInboundFeign wmsInboundFeign;
+    private MasterInboundFeign masterInboundFeign;
 
     @Override
     public Page<InboundTaskVo> listInboundTaskByPage(InboundTaskDto dto) {
@@ -155,16 +155,17 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         PortInfo portInfo = validated(dto);
         //TODO 请求WMS拿数据
         Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
-        RestMessage<WmsInboundTaskDto> wmsRest = wmsInboundFeign.inboundTask(JsonHelper.toJson(map));
-        if (!wmsRest.isSuccess()) {
-            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), wmsRest.getMessage()));
+        RestMessage<MasterInboundTaskDto> masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
+        if (!masterRest.isSuccess()) {
+            log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
+            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
         }
-        WmsInboundTaskDto wmsInboundTaskDto = wmsRest.getData();
-        if (null == wmsInboundTaskDto) {
+        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
+        if (null == masterInboundTaskDto) {
             throw new PrologException(String.format("容器{%}入库申请失败，WMS返回数据为空", dto.getStockId()));
         }
         //生成标准入库单
-        InboundTaskVo inboundTaskVo = convertDto(dto, portInfo, wmsInboundTaskDto);
+        InboundTaskVo inboundTaskVo = convertDto(dto, portInfo, masterInboundTaskDto);
         createInboundTask(inboundTaskVo);
     }
 
@@ -208,6 +209,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         //调用库存服务，找容器是否存在
         RestMessage<List<EisInvContainerStoreVo>> containerRest = eisInvContainerStoreSubFeign.findByContainerNo(dto.getStockId());
         if (!containerRest.isSuccess()) {
+            log.error(String.format("[findByContainerNo]：查询库存失败：%s", containerRest.getMessage()));
             throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), containerRest.getMessage()));
         }
         List<EisInvContainerStoreVo> containerList = containerRest.getData();
@@ -218,6 +220,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
         RestMessage<String> locationRest = eisContainerRouteClient.findContainerLocation(JsonHelper.toJson(map));
         if (!locationRest.isSuccess()) {
+            log.error(String.format("[findContainerLocation]：查询容器位置失败：%s", locationRest.getMessage()));
             throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), locationRest.getMessage()));
         }
         String data = locationRest.getData();
@@ -228,6 +231,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         //调用仓库服务，找区域配置
         RestMessage<WhArea> areaRest = eisWarehouseStationFeign.getAreaByLocation(dto.getSource());
         if (!areaRest.isSuccess()) {
+            log.error(String.format("[getAreaByLocation]：查询区域失败：%s", areaRest.getMessage()));
             throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), areaRest.getMessage()));
         }
         WhArea whArea = areaRest.getData();
@@ -237,6 +241,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         //调用控制服务，找入库口配置
         RestMessage<PortInfo> portRest = eisControllerClient.getPortByArea(whArea.getAreaNo());
         if (!portRest.isSuccess()) {
+            log.error(String.format("[getPortByArea]：查询入库口失败：%s", portRest.getMessage()));
             throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), portRest.getMessage()));
         }
         PortInfo portInfo = portRest.getData();
@@ -253,10 +258,10 @@ public class InboundTaskServiceImpl implements InboundTaskService {
      * @param portInfo
      * @param wmsInboundTaskDto
      */
-    private InboundTaskVo convertDto(ZxMcsInBoundResponseDto dto, PortInfo portInfo, WmsInboundTaskDto wmsInboundTaskDto) {
+    private InboundTaskVo convertDto(ZxMcsInBoundResponseDto dto, PortInfo portInfo, MasterInboundTaskDto wmsInboundTaskDto) {
         InboundTaskVo vo = new InboundTaskVo();
         vo.setUpperSystemTaskId(wmsInboundTaskDto.getUpperSystemTaskId());
-        vo.setStatus(InboundTask.TASK_STATUS_GOINGON);
+        vo.setStatus(InboundTask.TASK_STATUS_NOTSTART);
         //明细
         InboundTaskDetailVo detailVo = new InboundTaskDetailVo();
         detailVo.setContainerNo(dto.getStockId());
@@ -265,8 +270,9 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         detailVo.setSourceArea(portInfo.getAreaNo());
         detailVo.setSourceLocation(dto.getSource());
         detailVo.setWeight(Double.valueOf(dto.getWeight()));
-        detailVo.setDetailStatus(InboundTask.TASK_STATUS_GOINGON);
+        detailVo.setDetailStatus(InboundTask.TASK_STATUS_NOTSTART);
         detailVo.setHeight(Double.valueOf(dto.getHeight()));
+        detailVo.setBusinessProperty(wmsInboundTaskDto.getBusinessProperty());
         //子任务
         InboundTaskDetailSub sub = new InboundTaskDetailSub();
         sub.setContainerNoSub(StringUtils.isEmpty(dto.getStockIdSub()) ? dto.getStockId() : dto.getStockIdSub());
