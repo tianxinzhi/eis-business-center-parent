@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Api(tags = "业务中心-入库任务单回告历史")
-@RequestMapping("/inboundTaskReport")
+@RequestMapping("/inboundTaskReportHis")
 public class InboundTaskReportHisController {
     @Autowired
     private InboundTaskReportService inboundTaskReportService;
