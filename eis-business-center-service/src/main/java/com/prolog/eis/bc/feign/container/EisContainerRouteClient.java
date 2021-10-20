@@ -4,7 +4,6 @@ import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
 import com.prolog.eis.router.vo.ContainerLocationVo;
 import com.prolog.framework.common.message.RestMessage;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -38,4 +37,7 @@ public interface EisContainerRouteClient {
 
     @PostMapping("/api/v1/route/carry/toCallbackHisList")
     RestMessage<String> toCallbackHisList(@RequestBody List<CarryTaskCallbackDto> carryTaskCallbackDtos)throws Exception;
+
+    @PostMapping("/api/v1/route/location/findContainerLocation")
+    RestMessage<String> findContainerLocation(@RequestBody String json) throws Exception;
 }

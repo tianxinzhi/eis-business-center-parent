@@ -8,6 +8,7 @@ prolog:
     inventory: upcloud-base-inventory-mysql
     route: service-ai-eis-route-center
     warehouse: upcloud-base-wh-dev-mysql
+    control: upcloud-base-wh-control
   serarch:
     url: http://service-data-api-base/search
 

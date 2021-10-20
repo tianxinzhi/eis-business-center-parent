@@ -36,6 +36,10 @@
             <groupId>com.prolog.framework</groupId>
             <artifactId>plg-bz-starter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.prolog.eis</groupId>
+            <artifactId>eis-interface-center-facade</artifactId>
+        </dependency>
 
     </dependencies>
 
