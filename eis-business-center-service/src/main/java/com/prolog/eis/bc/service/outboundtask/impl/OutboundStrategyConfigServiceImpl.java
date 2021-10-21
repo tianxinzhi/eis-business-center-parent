@@ -76,4 +76,12 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         outboundStrategyConfigVo.setClearStoreStrategy(outboundStrategyConfig.getClearStoreStrategy());
         return outboundStrategyConfigVo;
     }
+
+    @Override
+    public List<OutboundStrategyConfig> getByOutType(int outType)
+            throws PrologException {
+        Criteria criteria = new Criteria(OutboundStrategyConfig.class);
+        criteria.setRestriction(Restrictions.eq("outType", outType));
+        return outboundStrategyConfigMapper.findByCriteria(criteria);
+    }
 }

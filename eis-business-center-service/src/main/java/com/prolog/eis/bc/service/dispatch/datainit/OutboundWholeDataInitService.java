@@ -15,5 +15,9 @@ public interface OutboundWholeDataInitService {
      */
     WholeOutContainerDto findWholeOutData();
 
-
+    /**
+     * 查询整托出库数据初始化-临时
+     * @return
+     */
+    WholeOutContainerDto findWholeOutDataTmp();
 }

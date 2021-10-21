@@ -37,7 +37,6 @@ import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
 import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restrictions;
@@ -308,6 +307,22 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         Criteria criteria = new Criteria(OutboundTask.class);
         criteria.setRestriction(Restrictions
                 .and(Restrictions.eq("upperSystemTaskId", upperSystemTaskId)));
+        return outboundTaskMapper.findByCriteria(criteria);
+    }
+
+    @Override
+    public List<OutboundTask> getListByTypeNoListAndStateList(
+            List<String> typeNoList, List<Integer> stateList) {
+        if (CollectionUtils.isEmpty(typeNoList)) {
+            return Lists.newArrayList();
+        }
+        if (CollectionUtils.isEmpty(stateList)) {
+            return Lists.newArrayList();
+        }
+        Criteria criteria = new Criteria(OutboundTask.class);
+        criteria.setRestriction(Restrictions.and(
+                Restrictions.in("outboundTaskTypeNo", typeNoList.toArray()),
+                Restrictions.in("state", stateList.toArray())));
         return outboundTaskMapper.findByCriteria(criteria);
     }
 

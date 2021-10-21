@@ -49,4 +49,12 @@ public interface OutboundTaskService {
      */
     List<OutboundTask> getListByUpperSystemTaskId(String upperSystemTaskId);
 
+    /**
+     * 根据typeNo和state条件查询
+     * @param typeNoList 类型编号List
+     * @param stateList  状态List
+     * @return
+     */
+    List<OutboundTask> getListByTypeNoListAndStateList(List<String> typeNoList,
+            List<Integer> stateList);
 }

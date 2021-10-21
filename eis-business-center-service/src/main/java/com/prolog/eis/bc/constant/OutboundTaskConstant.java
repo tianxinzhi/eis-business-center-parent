@@ -11,4 +11,10 @@ public class OutboundTaskConstant {
      * outbound_task，state状态->已完成
      */
     public static final int STATE_FINISH = 2;
+
+    /**
+     * outbound_task，state状态->进行中
+     */
+    public static final int STATE_GOINGON = 1;
+
 }

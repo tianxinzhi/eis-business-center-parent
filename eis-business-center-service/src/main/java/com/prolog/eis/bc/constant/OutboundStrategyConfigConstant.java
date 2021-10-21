@@ -15,4 +15,7 @@ public interface OutboundStrategyConfigConstant {
 
     public static final int STORE_MATCHING_STRATEGY_ITEM = 1;
     public static final int STORE_MATCHING_STRATEGY_IOT = 2;
+
+    // 出库策略->整托出库
+    public static final int OUT_TYPE_WHOLE = 1;
 }
