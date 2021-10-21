@@ -35,5 +35,9 @@ public interface OutboundStrategyConfigService {
      */
     List<OutboundStrategyConfigVo> getByOutType(int outType) throws PrologException;
 
+    /**
+     * 查询所有策略
+     * @return
+     */
     List<OutboundStrategyConfigVo> findAll();
 }
