@@ -17,4 +17,11 @@ public interface OutboundTaskDetailService {
      * @return
      */
     public List<OutboundTaskDetail> getByOutTaskId(String taskId);
+
+    /**
+     * 根据任务单id集合获取明细
+     * @param outTaskIdList 任务单id集合
+     * @return
+     */
+    List<OutboundTaskDetail> getByOutTaskIdList(List<String> outTaskIdList);
 }

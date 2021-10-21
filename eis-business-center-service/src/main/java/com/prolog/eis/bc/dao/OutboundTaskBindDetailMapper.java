@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface OutboundTaskBindDetailMapper extends BaseMapper<OutboundTaskBindDetail> {
     @Select("<script>"
-            + "    select sum(binding_num) bindingNum, out_task_detail_id outTaskDetailId "
+            + "    select sum(binding_num) bindingNum, item_id itemId, lot_id lotId, out_task_detail_id outTaskDetailId "
             + "    from biz_eis_out_task_bind_dt" + "    where 1 = 1 "
             + "    <if test='outTaskDetailIdList != null and outTaskDetailIdList.size > 0'>"
             + "        and out_task_detail_id in "

@@ -39,6 +39,7 @@ import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
 import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Order;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.utils.MapUtils;
 import com.prolog.framework.utils.StringUtils;
@@ -92,9 +93,6 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return null");
             return;
         }
-
-        log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return:{}", JSONObject.toJSONString(config));
-
         String outModel = config.getOutModel();
         String composeOrderConfig = config.getComposeOrderConfig();
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {
@@ -207,6 +205,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     // 数据库对象->生成对应业务对象
                     BizOutTaskDetail bizOutTaskDetail = new BizOutTaskDetail();
                     bizOutTaskDetail.setId(taskDt.getId());
+                    bizOutTaskDetail.setLotId(taskDt.getLotId());
                     bizOutTaskDetail.setItemId(taskDt.getItemId());
                     bizOutTaskDetail.setOutTaskId(taskDt.getOutTaskId());
                     bizOutTaskDetail.setPlanNum(taskDt.getPlanNum());
@@ -296,6 +295,35 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                 log.error("找到没有全部完成的outboundTask, 对应拣选单Id:{}, 不执行操作", pickingOrderId);
             }
         }
+    }
+
+    @Override
+    public List<OutboundTask> getListByUpperSystemTaskId(
+            String upperSystemTaskId) {
+        if (StringUtils.isEmpty(upperSystemTaskId)) {
+            return Lists.newArrayList();
+        }
+        Criteria criteria = new Criteria(OutboundTask.class);
+        criteria.setRestriction(Restrictions
+                .and(Restrictions.eq("upperSystemTaskId", upperSystemTaskId)));
+        return outboundTaskMapper.findByCriteria(criteria);
+    }
+
+    @Override
+    public List<BizOutTask> getListByTypeNoListAndStateList(
+            List<String> typeNoList, List<Integer> stateList) {
+        if (CollectionUtils.isEmpty(typeNoList)) {
+            return Lists.newArrayList();
+        }
+        if (CollectionUtils.isEmpty(stateList)) {
+            return Lists.newArrayList();
+        }
+        Criteria criteria = new Criteria(OutboundTask.class);
+        criteria.setRestriction(Restrictions.and(
+                Restrictions.in("outboundTaskTypeNo", typeNoList.toArray()),
+                Restrictions.in("state", stateList.toArray())));
+        criteria.setOrder(Order.newInstance().asc("priority"));
+        return getBizOutTaskListByTaskList(outboundTaskMapper.findByCriteria(criteria));
     }
 
 }

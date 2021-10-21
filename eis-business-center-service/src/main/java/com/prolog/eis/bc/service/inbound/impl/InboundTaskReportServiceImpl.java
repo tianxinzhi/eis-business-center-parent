@@ -1,5 +1,12 @@
 package com.prolog.eis.bc.service.inbound.impl;
 
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import com.prolog.eis.bc.dao.inbound.InboundTaskReportHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskReportMapper;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportDto;
@@ -10,13 +17,11 @@ import com.prolog.eis.bc.service.inbound.InboundTaskReportService;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskReport;
 import com.prolog.framework.core.pojo.Page;
+import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: wuxl
@@ -54,4 +59,5 @@ public class InboundTaskReportServiceImpl implements InboundTaskReportService {
 
         inboundTaskReportMapper.save(taskReport);
     }
+
 }

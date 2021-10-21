@@ -26,4 +26,18 @@ public interface OutboundStrategyConfigService {
      * @throws PrologException
      */
     List<OutboundStrategyConfig> getByOutModel(String outModel) throws PrologException;
+
+    /**
+     * 获取指定出库类型的出库策略集合
+     * @param outType 出库类型
+     * @return
+     * @throws PrologException
+     */
+    List<OutboundStrategyConfigVo> getByOutType(int outType) throws PrologException;
+
+    /**
+     * 查询所有策略
+     * @return
+     */
+    List<OutboundStrategyConfigVo> findAll();
 }
