@@ -40,11 +40,4 @@ public interface InboundTaskReportService {
      */
     void toReport(InboundTask inboundTask);
 
-    /**
-     * 根据上游系统任务单Id查询入库任务单回告
-     * @param upperSystemTaskId 上游系统任务单Id
-     * @return
-     */
-    List<InboundTaskReport> getListByUpperSystemTaskId(
-            String upperSystemTaskId);
 }

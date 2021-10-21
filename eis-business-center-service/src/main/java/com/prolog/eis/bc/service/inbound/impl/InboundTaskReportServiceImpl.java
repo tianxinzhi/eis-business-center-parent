@@ -60,14 +60,4 @@ public class InboundTaskReportServiceImpl implements InboundTaskReportService {
         inboundTaskReportMapper.save(taskReport);
     }
 
-    @Override
-    public List<InboundTaskReport> getListByUpperSystemTaskId(String upperSystemTaskId) {
-        if (StringUtils.isEmpty(upperSystemTaskId)) {
-            return null;
-        }
-        Criteria criteria = new Criteria(InboundTaskReport.class);
-        criteria.setRestriction(Restrictions
-                .and(Restrictions.eq("upperSystemTaskId", upperSystemTaskId)));
-        return inboundTaskReportMapper.findByCriteria(criteria);
-    }
 }

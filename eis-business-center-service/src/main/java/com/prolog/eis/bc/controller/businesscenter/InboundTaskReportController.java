@@ -44,15 +44,4 @@ public class InboundTaskReportController {
         return RestMessage.newInstance(true, "成功", page);
     }
 
-    @ApiOperation(value = "根据上游系统任务单Id查询入库任务单回告", notes = "根据上游系统任务单Id查询入库任务单回告")
-    @PostMapping("/getListByUpperSystemTaskId")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "InboundTaskReportDto", value = "入库任务单回告") })
-    public RestMessage<List<InboundTaskReport>> getListByUpperSystemTaskId(
-            @RequestBody InboundTaskReportDto dto) {
-        List<InboundTaskReport> list = inboundTaskReportService
-                .getListByUpperSystemTaskId(dto.getUpperSystemTaskId());
-        return RestMessage.newInstance(true, "成功", list);
-    }
-
 }
