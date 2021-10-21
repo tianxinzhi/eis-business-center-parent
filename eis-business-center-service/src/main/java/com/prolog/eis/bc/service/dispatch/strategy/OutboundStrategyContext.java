@@ -1,6 +1,7 @@
 package com.prolog.eis.bc.service.dispatch.strategy;
 
 import com.prolog.eis.bc.service.dispatch.datainit.OutboundWholeDataInitService;
+import com.prolog.framework.utils.StringUtils;
 import com.prolog.upcloud.base.strategy.domain.core.SearchFactor;
 import com.prolog.upcloud.base.strategy.domain.core.StrategyContext;
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.OutboundDataSourceDto;
@@ -24,11 +25,18 @@ public class OutboundStrategyContext extends StrategyContext<OutboundDataSourceD
 
     @Override
     public boolean completed() {
-        return false;
+        return this.getStrategyData().isCompleted();
     }
 
     @Override
     public Object getMatchFieldValue(String fieldName) {
+        OutboundStrategyDto strategyData = (OutboundStrategyDto) super.getStrategyData();
+        if(strategyData!=null && strategyData.getStrategyType()!=null){
+            String s = strategyData.getStrategyType().get(fieldName);
+            if(!StringUtils.isBlank(s)) {
+                return s;
+            }
+        }
         return null;
     }
 
@@ -36,9 +44,8 @@ public class OutboundStrategyContext extends StrategyContext<OutboundDataSourceD
     public List<OutboundDataSourceDto> search(List<SearchFactor> searchFactors) {
         List<OutboundDataSourceDto> outboundDataSourceDtoList = new ArrayList<>();
         OutboundStrategyDto strategyData = (OutboundStrategyDto) super.getStrategyData();
-        Object condition = strategyData.getCondition();
         String strategyType = strategyData.getStrategyType().get("strategyType");
-
-        return null;
+        outboundDataSourceDtoList.add((OutboundDataSourceDto)strategyData.getCondition());
+        return outboundDataSourceDtoList;
     }
 }

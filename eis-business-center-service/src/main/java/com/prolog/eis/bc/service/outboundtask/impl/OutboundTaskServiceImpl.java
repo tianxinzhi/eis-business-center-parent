@@ -92,9 +92,6 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return null");
             return;
         }
-
-        log.error("outboundStrategyConfigService.findConfigByTypeNo(B2C) return:{}", JSONObject.toJSONString(config));
-
         String outModel = config.getOutModel();
         String composeOrderConfig = config.getComposeOrderConfig();
         if (OutboundStrategyConfigConstant.OUT_MODEL_PICKING.equals(outModel)) {

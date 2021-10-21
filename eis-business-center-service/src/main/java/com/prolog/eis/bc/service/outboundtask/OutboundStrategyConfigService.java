@@ -34,4 +34,6 @@ public interface OutboundStrategyConfigService {
      * @throws PrologException
      */
     List<OutboundStrategyConfig> getByOutType(int outType) throws PrologException;
+
+    List<OutboundStrategyConfigVo> findAll();
 }

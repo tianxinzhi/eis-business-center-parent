@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,9 +54,9 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
 
     @Override
     public List<OutboundStrategyConfig> getByOutModel(String outModel) throws PrologException {
-        Assert.notNull(outModel,"出库模式不能为空");
+        Assert.notNull(outModel, "出库模式不能为空");
         Criteria criteria = new Criteria(OutboundStrategyConfig.class);
-        criteria.setRestriction(Restrictions.eq("outModel",outModel));
+        criteria.setRestriction(Restrictions.eq("outModel", outModel));
         List<OutboundStrategyConfig> confs = outboundStrategyConfigMapper.findByCriteria(criteria);
         return confs;
     }
@@ -83,5 +84,23 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         Criteria criteria = new Criteria(OutboundStrategyConfig.class);
         criteria.setRestriction(Restrictions.eq("outType", outType));
         return outboundStrategyConfigMapper.findByCriteria(criteria);
+    }
+
+    @Override
+    public List<OutboundStrategyConfigVo> findAll() {
+        List<OutboundStrategyConfigVo> outboundStrategyConfigVoList = new ArrayList<>();
+        List<OutboundStrategyConfig> outboundStrategyConfigList = outboundStrategyConfigMapper.findByMap(null, OutboundStrategyConfig.class);
+        if (outboundStrategyConfigList.isEmpty()) {
+            return outboundStrategyConfigVoList;
+        }
+        for(OutboundStrategyConfig outboundStrategyConfig : outboundStrategyConfigList){
+            OutboundStrategyConfigVo outboundStrategyConfigVo = copyBean(outboundStrategyConfig);
+            List<OutboundStrategySourceAreaConfig> outboundStrategySourceAreaConfigList = outboundStrategySourceAreaConfigMapper.findByMap(MapUtils.put("outStgCfgId", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategySourceAreaConfig.class);
+            List<OutboundStrategyTargetStationConfig> outboundStrategyTargetStationConfigList = outboundStrategyTargetStationConfigMapper.findByMap(MapUtils.put("outStgCfgId", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategyTargetStationConfig.class);
+            outboundStrategyConfigVo.setOutboundStrategySourceAreaConfigList(outboundStrategySourceAreaConfigList);
+            outboundStrategyConfigVo.setOutboundStrategyTargetStationConfigList(outboundStrategyTargetStationConfigList);
+            outboundStrategyConfigVoList.add(outboundStrategyConfigVo);
+        }
+        return outboundStrategyConfigVoList;
     }
 }
