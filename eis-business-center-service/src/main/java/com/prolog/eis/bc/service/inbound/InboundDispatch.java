@@ -14,6 +14,7 @@ import com.prolog.eis.common.util.constants.SysParamConstants;
 import com.prolog.eis.common.util.location.LocationConstants;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaParamDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaResultDto;
+import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetail;
@@ -22,6 +23,7 @@ import com.prolog.eis.core.model.ctrl.basis.DispatchSwitch;
 import com.prolog.framework.bz.common.search.SearchApi;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.exception.PrologException;
+import com.prolog.framework.core.exception.UpdateException;
 import com.prolog.framework.utils.MapUtils;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreSubVo;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
@@ -87,10 +89,17 @@ public class InboundDispatch {
                 }
             }
             //执行入库任务
-            List<InboundTaskVo> taskList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_NOTSTART == vo.getStatus() || InboundTask.TASK_STATUS_GOINGON == vo.getStatus());
+            List<InboundTaskVo> executeList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_NOTSTART == vo.getStatus() || InboundTask.TASK_STATUS_GOINGON == vo.getStatus());
+            if (!CollectionUtils.isEmpty(executeList)) {
+                for (InboundTaskVo inboundTaskVo : executeList) {
+                    executeTask(inboundTaskVo);
+                }
+            }
+            //获取已完成的搬运任务
+            List<InboundTaskVo> taskList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_GOINGON == vo.getStatus());
             if (!CollectionUtils.isEmpty(taskList)) {
                 for (InboundTaskVo inboundTaskVo : taskList) {
-                    executeTask(inboundTaskVo);
+                    callbackTask(inboundTaskVo);
                 }
             }
             //任务完成
@@ -155,6 +164,9 @@ public class InboundDispatch {
             return;
         }
         for (InboundTaskDetailVo detailVo : detailList) {
+            if (InboundTask.TASK_STATUS_NOTSTART != detailVo.getDetailStatus()) {
+                continue;
+            }
             //获取最佳入库区域
             InboundAllotAreaResultDto areaData = findArea(detailVo);
             if (null == areaData) {
@@ -165,7 +177,50 @@ public class InboundDispatch {
             createCarryTask(detailVo, areaData);
             //生成库存
             createStore(detailVo);
+            //修改任务状态
+            updateForStart(detailVo);
         }
+    }
+
+    /**
+     * 获取已完成的搬运任务
+     *
+     * @param inboundTaskVo
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void callbackTask(InboundTaskVo inboundTaskVo) throws Exception {
+        List<InboundTaskDetailVo> detailList = inboundTaskVo.getInboundTaskDetailVoList();
+        if (CollectionUtils.isEmpty(detailList)) {
+            return;
+        }
+        RestMessage<List<CarryTaskCallbackDto>> carryRest = eisContainerRouteClient.findAllCallback();
+        if (!carryRest.isSuccess()) {
+            log.error(String.format("[findAllCallback]：查询搬运回告任务失败：%s", carryRest.getMessage()));
+            throw new PrologException(String.format("查询搬运回告任务失败，{%s}", carryRest.getMessage()));
+        }
+        List<CarryTaskCallbackDto> carryList = carryRest.getData();
+        if (CollectionUtils.isEmpty(carryList)) {
+            return;
+        }
+        List<CarryTaskCallbackDto> newCarryList = Lists.newArrayList();
+        for (InboundTaskDetailVo detailVo : detailList) {
+            if (InboundTask.TASK_STATUS_GOINGON != detailVo.getDetailStatus()) {
+                continue;
+            }
+            CarryTaskCallbackDto callback = ListHelper.where(carryList, c -> detailVo.getTaskId().equals(c.getId())).stream().findAny().orElse(null);
+            if (null == callback) {
+                continue;
+            }
+            detailVo.setDetailStatus(InboundTask.TASK_STATUS_FINISH);
+            newCarryList.add(callback);
+        }
+        RestMessage<String> restMessage = eisContainerRouteClient.toCallbackHisList(newCarryList);
+        if (!restMessage.isSuccess()) {
+            log.error(String.format("[toCallbackHisList]：搬运回告任务转历史失败：%s", restMessage.getMessage()));
+            throw new PrologException(String.format("搬运回告任务转历史失败，{%s}", restMessage.getMessage()));
+        }
+        //修改任务状态
+        updateForFinish(inboundTaskVo);
     }
 
     /**
@@ -266,6 +321,39 @@ public class InboundDispatch {
         if (!storeRest.isSuccess()) {
             log.error(String.format("[saveContainerStore]：生成库存失败：%s", storeRest.getMessage()));
             throw new PrologException("生成库存失败!" + storeRest.getMessage());
+        }
+    }
+
+    /**
+     * 修改任务状态
+     *
+     * @param detailVo
+     */
+    private void updateForStart(InboundTaskDetailVo detailVo) {
+        long l1 = inboundTaskService.updateById(detailVo.getInboundTaskId()
+                , MapUtils.put("status", InboundTask.TASK_STATUS_GOINGON).put("startTime", new Date()).getMap());
+        long l2 = inboundTaskDetailService.updateById(detailVo.getId()
+                , MapUtils.put("detailStatus", InboundTask.TASK_STATUS_GOINGON).put("startTime", new Date()).getMap());
+        if (l1 == 0L || l2 == 0L) {
+            throw new UpdateException("修改任务状态失败");
+        }
+    }
+
+    /**
+     * 修改任务状态
+     *
+     * @param inboundTaskVo
+     */
+    private void updateForFinish(InboundTaskVo inboundTaskVo) {
+        List<InboundTaskDetailVo> inboundTaskDetailVoList = inboundTaskVo.getInboundTaskDetailVoList();
+        List<InboundTaskDetailVo> where = ListHelper.where(inboundTaskDetailVoList, t -> InboundTask.TASK_STATUS_FINISH == t.getDetailStatus() && null == t.getFinishTime());
+        for (InboundTaskDetailVo detailVo : where) {
+            inboundTaskDetailService.updateById(detailVo.getId()
+                    , MapUtils.put("detailStatus", InboundTask.TASK_STATUS_FINISH).put("finishTime", new Date()).getMap());
+        }
+        if (inboundTaskDetailVoList.size() == where.size()) {
+            inboundTaskService.updateById(inboundTaskVo.getId()
+                    , MapUtils.put("status", InboundTask.TASK_STATUS_FINISH).put("finishTime", new Date()).getMap());
         }
     }
 }
