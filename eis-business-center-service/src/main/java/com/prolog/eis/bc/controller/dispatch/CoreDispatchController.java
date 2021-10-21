@@ -28,7 +28,7 @@ public class CoreDispatchController {
     @GetMapping("/out")
     public RestMessage<Boolean> composeAndGenerateOutbound() {
         try {
-            outboundDispatchService.outboundDispatch();
+            outboundDispatchService.coreDispatch();
             return RestMessage.newInstance(true, "成功", Boolean.TRUE);
         } catch (Exception ex) {
             log.error(ex.toString());
