@@ -1,10 +1,13 @@
 package com.prolog.eis.bc.service.inbound;
 
+import java.util.List;
+
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportDto;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportHisDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskReportHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskReportVo;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
+import com.prolog.eis.core.model.biz.inbound.InboundTaskReport;
 import com.prolog.framework.core.pojo.Page;
 
 /**
@@ -36,4 +39,12 @@ public interface InboundTaskReportService {
      * @param inboundTask
      */
     void toReport(InboundTask inboundTask);
+
+    /**
+     * 根据上游系统任务单Id查询入库任务单回告
+     * @param upperSystemTaskId 上游系统任务单Id
+     * @return
+     */
+    List<InboundTaskReport> getListByUpperSystemTaskId(
+            String upperSystemTaskId);
 }

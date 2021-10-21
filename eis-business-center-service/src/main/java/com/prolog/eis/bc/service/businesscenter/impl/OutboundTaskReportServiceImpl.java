@@ -78,4 +78,16 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
         outboundTaskReportMapper.saveBatch(insertObjList);
     }
 
+    @Override
+    public List<OutboundTaskReport> getListByUpperSystemTaskId(
+            String upperSystemTaskId) {
+        if (StringUtils.isEmpty(upperSystemTaskId)) {
+            return null;
+        }
+        Criteria criteria = new Criteria(OutboundTaskReport.class);
+        criteria.setRestriction(Restrictions
+                .and(Restrictions.eq("upperSystemTaskId", upperSystemTaskId)));
+        return outboundTaskReportMapper.findByCriteria(criteria);
+    }
+
 }

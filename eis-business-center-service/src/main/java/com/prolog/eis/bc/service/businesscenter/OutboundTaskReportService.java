@@ -19,4 +19,12 @@ public interface OutboundTaskReportService {
     void batchConvertAndInsert(List<OutboundTask> outboundTaskList)
             throws Exception;
 
+    /**
+     * 根据上游系统任务单Id查询出库任务单回告
+     * @param upperSystemTaskId 上游系统任务单Id
+     * @return
+     */
+    List<OutboundTaskReport> getListByUpperSystemTaskId(
+            String upperSystemTaskId);
+
 }
