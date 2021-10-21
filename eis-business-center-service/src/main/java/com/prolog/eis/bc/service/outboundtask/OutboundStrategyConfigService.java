@@ -33,7 +33,7 @@ public interface OutboundStrategyConfigService {
      * @return
      * @throws PrologException
      */
-    List<OutboundStrategyConfig> getByOutType(int outType) throws PrologException;
+    List<OutboundStrategyConfigVo> getByOutType(int outType) throws PrologException;
 
     List<OutboundStrategyConfigVo> findAll();
 }

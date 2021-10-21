@@ -137,21 +137,4 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         return configVoList;
     }
 
-    @Override
-    public List<OutboundStrategyConfigVo> findAll() {
-        List<OutboundStrategyConfigVo> outboundStrategyConfigVoList = new ArrayList<>();
-        List<OutboundStrategyConfig> outboundStrategyConfigList = outboundStrategyConfigMapper.findByMap(null, OutboundStrategyConfig.class);
-        if (outboundStrategyConfigList.isEmpty()) {
-            return outboundStrategyConfigVoList;
-        }
-        for(OutboundStrategyConfig outboundStrategyConfig : outboundStrategyConfigList){
-            OutboundStrategyConfigVo outboundStrategyConfigVo = copyBean(outboundStrategyConfig);
-            List<OutboundStrategySourceAreaConfig> outboundStrategySourceAreaConfigList = outboundStrategySourceAreaConfigMapper.findByMap(MapUtils.put("outStgCfgId", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategySourceAreaConfig.class);
-            List<OutboundStrategyTargetStationConfig> outboundStrategyTargetStationConfigList = outboundStrategyTargetStationConfigMapper.findByMap(MapUtils.put("outStgCfgId", outboundStrategyConfigVo.getId()).getMap(), OutboundStrategyTargetStationConfig.class);
-            outboundStrategyConfigVo.setOutboundStrategySourceAreaConfigList(outboundStrategySourceAreaConfigList);
-            outboundStrategyConfigVo.setOutboundStrategyTargetStationConfigList(outboundStrategyTargetStationConfigList);
-            outboundStrategyConfigVoList.add(outboundStrategyConfigVo);
-        }
-        return outboundStrategyConfigVoList;
-    }
 }
