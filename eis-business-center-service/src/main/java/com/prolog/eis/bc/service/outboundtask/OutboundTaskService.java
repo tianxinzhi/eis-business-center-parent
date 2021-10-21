@@ -55,6 +55,6 @@ public interface OutboundTaskService {
      * @param stateList  状态List
      * @return
      */
-    List<OutboundTask> getListByTypeNoListAndStateList(List<String> typeNoList,
+    List<BizOutTask> getListByTypeNoListAndStateList(List<String> typeNoList,
             List<Integer> stateList);
 }
