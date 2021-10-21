@@ -82,7 +82,7 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
     public List<OutboundTaskReport> getListByUpperSystemTaskId(
             String upperSystemTaskId) {
         if (StringUtils.isEmpty(upperSystemTaskId)) {
-            return null;
+            return Lists.newArrayList();
         }
         Criteria criteria = new Criteria(OutboundTaskReport.class);
         criteria.setRestriction(Restrictions

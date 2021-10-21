@@ -37,6 +37,7 @@ import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
 import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restrictions;
@@ -296,6 +297,18 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                 log.error("找到没有全部完成的outboundTask, 对应拣选单Id:{}, 不执行操作", pickingOrderId);
             }
         }
+    }
+
+    @Override
+    public List<OutboundTask> getListByUpperSystemTaskId(
+            String upperSystemTaskId) {
+        if (StringUtils.isEmpty(upperSystemTaskId)) {
+            return Lists.newArrayList();
+        }
+        Criteria criteria = new Criteria(OutboundTask.class);
+        criteria.setRestriction(Restrictions
+                .and(Restrictions.eq("upperSystemTaskId", upperSystemTaskId)));
+        return outboundTaskMapper.findByCriteria(criteria);
     }
 
 }

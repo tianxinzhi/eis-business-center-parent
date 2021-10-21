@@ -3,6 +3,7 @@ package com.prolog.eis.bc.service.outboundtask;
 import java.util.List;
 
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
+import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 
 /**
  * @Describe
@@ -40,5 +41,12 @@ public interface OutboundTaskService {
      * 生成拣选单回告和历史
      */
     void genOutboundRpAndHis() throws Exception;
+
+    /**
+     * 根据上游系统任务单Id查询
+     * @param upperSystemTaskId 上游系统任务单Id
+     * @return
+     */
+    List<OutboundTask> getListByUpperSystemTaskId(String upperSystemTaskId);
 
 }
