@@ -1,6 +1,8 @@
 package com.prolog.eis.bc.service.dispatch.datainit;
 
+import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.WholeOutContainerDto;
+import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.WholeOutTaskContainerDto;
 
 /**
  * @Describe
@@ -19,5 +21,5 @@ public interface OutboundWholeDataInitService {
      * 查询整托出库数据初始化-临时
      * @return
      */
-    WholeOutContainerDto findWholeOutDataTmp();
+    WholeOutTaskContainerDto findWholeOutData(OutboundStrategyConfigVo config);
 }

@@ -39,6 +39,7 @@ import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
 import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Order;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.utils.MapUtils;
 import com.prolog.framework.utils.StringUtils;
@@ -204,6 +205,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     // 数据库对象->生成对应业务对象
                     BizOutTaskDetail bizOutTaskDetail = new BizOutTaskDetail();
                     bizOutTaskDetail.setId(taskDt.getId());
+                    bizOutTaskDetail.setLotId(taskDt.getLotId());
                     bizOutTaskDetail.setItemId(taskDt.getItemId());
                     bizOutTaskDetail.setOutTaskId(taskDt.getOutTaskId());
                     bizOutTaskDetail.setPlanNum(taskDt.getPlanNum());
@@ -308,7 +310,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     }
 
     @Override
-    public List<OutboundTask> getListByTypeNoListAndStateList(
+    public List<BizOutTask> getListByTypeNoListAndStateList(
             List<String> typeNoList, List<Integer> stateList) {
         if (CollectionUtils.isEmpty(typeNoList)) {
             return Lists.newArrayList();
@@ -320,7 +322,8 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         criteria.setRestriction(Restrictions.and(
                 Restrictions.in("outboundTaskTypeNo", typeNoList.toArray()),
                 Restrictions.in("state", stateList.toArray())));
-        return outboundTaskMapper.findByCriteria(criteria);
+        criteria.setOrder(Order.newInstance().asc("priority"));
+        return getBizOutTaskListByTaskList(outboundTaskMapper.findByCriteria(criteria));
     }
 
 }

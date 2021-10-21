@@ -1,5 +1,17 @@
 package com.prolog.eis.bc.service.outboundtask.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import com.google.common.collect.Lists;
 import com.prolog.eis.bc.dao.OutboundStrategyConfigMapper;
 import com.prolog.eis.bc.dao.OutboundStrategySourceAreaConfigMapper;
 import com.prolog.eis.bc.dao.OutboundStrategyTargetStationConfigMapper;
@@ -12,6 +24,7 @@ import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.utils.MapUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -78,13 +91,6 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         return outboundStrategyConfigVo;
     }
 
-    @Override
-    public List<OutboundStrategyConfig> getByOutType(int outType)
-            throws PrologException {
-        Criteria criteria = new Criteria(OutboundStrategyConfig.class);
-        criteria.setRestriction(Restrictions.eq("outType", outType));
-        return outboundStrategyConfigMapper.findByCriteria(criteria);
-    }
 
     @Override
     public List<OutboundStrategyConfigVo> findAll() {
@@ -103,4 +109,32 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         }
         return outboundStrategyConfigVoList;
     }
+
+    @Override
+    public List<OutboundStrategyConfigVo> getByOutType(int outType)
+            throws PrologException {
+        Criteria cfgCrt = new Criteria(OutboundStrategyConfig.class);
+        cfgCrt.setRestriction(Restrictions.eq("outType", outType));
+        List<OutboundStrategyConfig> configList = outboundStrategyConfigMapper.findByCriteria(cfgCrt);
+        if (CollectionUtils.isEmpty(configList)) {
+            return Lists.newArrayList();
+        }
+
+        List<String> configIdList = configList.stream().map(OutboundStrategyConfig::getId).collect(Collectors.toList());
+        Criteria cfgSaCrt = new Criteria(OutboundStrategySourceAreaConfig.class);
+        cfgCrt.setRestriction(Restrictions.in("outStgCfgId", configIdList.toArray()));
+
+        List<OutboundStrategySourceAreaConfig> configSaList = outboundStrategySourceAreaConfigMapper.findByCriteria(cfgSaCrt);
+        Map<String, List<OutboundStrategySourceAreaConfig>> configSaListGroupByConfigIdMap = configSaList.stream().filter(e -> !StringUtils.isEmpty(e.getOutStgCfgId())).collect(Collectors.groupingBy(OutboundStrategySourceAreaConfig::getOutStgCfgId));
+        List<OutboundStrategyConfigVo> configVoList = Lists.newArrayList();
+        for (OutboundStrategyConfig config : configList) {
+            OutboundStrategyConfigVo configVo = new OutboundStrategyConfigVo();
+            BeanUtils.copyProperties(config, configVo);
+            configVo.setOutboundStrategySourceAreaConfigList(configSaListGroupByConfigIdMap.get(config.getId()));
+            configVo.setOutboundStrategyTargetStationConfigList(Lists.newArrayList());
+            configVoList.add(configVo);
+        }
+        return configVoList;
+    }
+
 }
