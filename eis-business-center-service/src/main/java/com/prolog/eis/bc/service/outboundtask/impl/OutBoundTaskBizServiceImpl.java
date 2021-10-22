@@ -2,10 +2,12 @@ package com.prolog.eis.bc.service.outboundtask.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -58,10 +60,18 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
         List<Station> stationList = feignService.getAllUnlockAndClaimStation();
         List<StationDto> stationDtoList = Lists.newArrayList();
         if (!CollectionUtils.isEmpty(stationList)) {
+            List<String> stationAreaNoList = stationList.stream().filter(e -> !StringUtils.isEmpty(e.getAreaNo())).map(Station::getAreaNo).collect(Collectors.toList());
+            Map<String, StationDto> areaNoAndContainerCountMap = feignService.findAreaNoAndContainerCountMap(stationAreaNoList);
             for (Station station : stationList) {
                 StationDto stationDto = new StationDto();
-                stationDto.setArriveLxCount(feignService.getFreeContainerCount(station.getAreaNo()));
-                stationDto.setChuKuLxCount(feignService.getChuKuContainerCount(station.getAreaNo()));
+                StationDto containerCount = areaNoAndContainerCountMap.get(station.getAreaNo());
+                if (null != containerCount) {
+                    stationDto.setArriveLxCount(containerCount.getArriveLxCount());
+                    stationDto.setChuKuLxCount(containerCount.getChuKuLxCount());
+                } else {
+                    stationDto.setArriveLxCount(0);
+                    stationDto.setChuKuLxCount(0);
+                }
 
                 //TODO 改为直接查询
                 stationDto.setMaxLxCacheCount(station.getMaxCacheCount());
@@ -95,9 +105,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                 itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByLotId();
             } catch (Exception e) {
                 log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() excp:{}", e.getMessage());
-                itemStockMapResp = JSONObject.parseObject("{\"code\":\"200\",\"data\":{\"0021257245\":60},\"message\":\"操作成功\",\"success\":true}", RestMessage.class);
-
-//                throw e;
+                throw e;
             }
 
             log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByLotId() return:{}", JSONObject.toJSONString(itemStockMapResp));
@@ -122,9 +130,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                 itemStockMapResp = eisInvContainerStoreSubFeign.findSumQtyGroupByItemId();
             } catch (Exception e) {
                 log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() excp:{}", e.getMessage());
-                itemStockMapResp = JSONObject.parseObject("{\"code\":\"200\",\"data\":{\"0021257245\":60},\"message\":\"操作成功\",\"success\":true}", RestMessage.class);
-
-//                throw e;
+                throw e;
             }
 
             log.error("eisInvContainerStoreSubFeign.findSumQtyGroupByItemId() return:{}", JSONObject.toJSONString(itemStockMapResp));

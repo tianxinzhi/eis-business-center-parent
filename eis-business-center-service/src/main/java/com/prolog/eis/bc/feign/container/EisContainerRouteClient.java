@@ -1,5 +1,6 @@
 package com.prolog.eis.bc.feign.container;
 
+import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaParamDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaResultDto;
 import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
@@ -56,6 +57,15 @@ public interface EisContainerRouteClient {
      */
     @PostMapping("/api/v1/route/location/findFreeContainerByAreaNo")
     RestMessage<List<ContainerLocation>> findFreeContainerByAreaNo(
+            @RequestParam(value = "areaNos", required = false) String areaNos);
+
+    /**
+     * 查询某些区域的空闲托盘,已出库托盘，返回Map对象Key=区域，Value=托盘数量
+     * @param areaNos 区域多个以英文,分隔
+     * @return
+     */
+    @PostMapping("/api/v1/route/location/findAreaNoAndContainerCountMap")
+    RestMessage<Map<String, StationDto>> findAreaNoAndContainerCountMap(
             @RequestParam(value = "areaNos", required = false) String areaNos);
 
 }

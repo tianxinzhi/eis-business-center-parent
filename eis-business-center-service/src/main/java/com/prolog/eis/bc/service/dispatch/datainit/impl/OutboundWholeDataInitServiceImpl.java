@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
 import com.prolog.eis.bc.constant.OutboundTaskConstant;
@@ -21,6 +20,7 @@ import com.prolog.eis.bc.service.dispatch.datainit.OutboundWholeDataInitService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTaskDetail;
+import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.core.dto.route.WhLocatorDto;
 import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
@@ -79,7 +79,7 @@ public class OutboundWholeDataInitServiceImpl implements OutboundWholeDataInitSe
                 .getListByTypeNoListAndStateList(Lists.newArrayList(config.getTypeNo()),
                         Lists.newArrayList(OutboundTaskConstant.STATE_NOSTART,
                                 OutboundTaskConstant.STATE_GOINGON));
-        log.error("outboundTaskService.getListByTypeNoListAndStateList() return:{}", JSONObject.toJSONString(outboundTaskList));
+
         // 查询策略对应的出库任务单类型编号列表
         if (CollectionUtils.isEmpty(outboundTaskList)) {
             return result;
@@ -179,11 +179,19 @@ public class OutboundWholeDataInitServiceImpl implements OutboundWholeDataInitSe
         // 站点，筛选出库站台，通过feign查询出所有的 isLock=0且claim=1索取
         List<Station> stationList = feignService.getAllUnlockAndClaimStation();
         if (!CollectionUtils.isEmpty(stationList)) {
+            List<String> stationAreaNoList = stationList.stream().filter(e -> !StringUtils.isEmpty(e.getAreaNo())).map(Station::getAreaNo).collect(Collectors.toList());
+            Map<String, StationDto> areaNoAndContainerCountMap = feignService.findAreaNoAndContainerCountMap(stationAreaNoList);
             for (Station station : stationList) {
                 // 将数据库对象Station->业务对象WholeStationDto
                 WholeStationDto wholeStationDto = new WholeStationDto();
-                wholeStationDto.setArriveLxCount(feignService.getFreeContainerCount(station.getAreaNo()));
-                wholeStationDto.setChuKuLxCount(feignService.getChuKuContainerCount(station.getAreaNo()));
+                StationDto containerCount = areaNoAndContainerCountMap.get(station.getAreaNo());
+                if (null != containerCount) {
+                    wholeStationDto.setArriveLxCount(containerCount.getArriveLxCount());
+                    wholeStationDto.setChuKuLxCount(containerCount.getChuKuLxCount());
+                } else {
+                    wholeStationDto.setArriveLxCount(0);
+                    wholeStationDto.setChuKuLxCount(0);
+                }
                 wholeStationDto.setIsLock(station.getIsLock());
                 wholeStationDto.setIsClaim(station.getClaim());
                 wholeStationDto.setStationId(station.getId());
