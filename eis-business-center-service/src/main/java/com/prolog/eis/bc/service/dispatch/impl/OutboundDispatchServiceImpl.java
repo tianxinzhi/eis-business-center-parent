@@ -91,10 +91,14 @@ public class OutboundDispatchServiceImpl implements OutboundDispatchService {
         }
         List<OutboundStrategyTargetStationConfig> outboundStrategyTargetStationConfigList = outboundStrategyConfigVo.getOutboundStrategyTargetStationConfigList();
         StrategyDTO data = strategyDTO.getData();
+        flag:
         for (WholeStationDto wholeStationDto : wholeStationDtoList) {
             for (OutboundStrategyTargetStationConfig outboundStrategyTargetStationConfig : outboundStrategyTargetStationConfigList) {
                 if (wholeStationDto.getStationId().equals(outboundStrategyTargetStationConfig.getStationId()) && wholeStationDto.getIsClaim() == 1 && wholeStationDto.getIsLock() == 0) {
-                    outWholeService.outContainer(wholeOutTaskContainerDto,data,outboundStrategyTargetStationConfig);
+                    boolean b = outWholeService.outContainer(wholeStationDto, wholeOutTaskContainerDto, data, outboundStrategyTargetStationConfig, outboundStrategyConfigVo);
+                    if (b) {
+                        break flag;
+                    }
                 }
             }
         }
