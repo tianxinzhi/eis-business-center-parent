@@ -112,6 +112,7 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
                     log.error("eisContainerLocationFeign.findChuKuLxCount({}) return error, msg:{}", station.getAreaNo(), message);
                     stationDto.setChuKuLxCount(0);
                 }
+                //TODO 改为直接查询
                 stationDto.setMaxLxCacheCount(100);
                 stationDto.setMaxOrderNum(config.getMaxOrderNum());
                 stationDto.setMaxOrderSpCount(100);
