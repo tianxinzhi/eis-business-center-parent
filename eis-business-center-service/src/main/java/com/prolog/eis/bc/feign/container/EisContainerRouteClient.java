@@ -3,13 +3,16 @@ package com.prolog.eis.bc.feign.container;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaParamDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaResultDto;
 import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
+import com.prolog.eis.core.model.biz.route.ContainerLocation;
 import com.prolog.eis.router.vo.ContainerLocationVo;
 import com.prolog.framework.common.message.RestMessage;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Describe
@@ -45,4 +48,14 @@ public interface EisContainerRouteClient {
 
     @PostMapping("/api/v1/route/inbound/findArea")
     RestMessage<InboundAllotAreaResultDto> getAllotArea(@RequestBody InboundAllotAreaParamDto dto);
+
+    /**
+     * 查询某些区域的空闲托盘
+     * @param areaNos 区域多个以英文,分隔
+     * @return
+     */
+    @PostMapping("/api/v1/route/location/findFreeContainerByAreaNo")
+    RestMessage<List<ContainerLocation>> findFreeContainerByAreaNo(
+            @RequestParam(value = "areaNos", required = false) String areaNos);
+
 }
