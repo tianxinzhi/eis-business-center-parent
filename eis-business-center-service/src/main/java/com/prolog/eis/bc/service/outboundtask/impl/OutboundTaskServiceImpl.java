@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -189,35 +190,40 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         Criteria outboundTaskDtCrt = Criteria.forClass(OutboundTaskDetail.class);
         outboundTaskDtCrt.setRestriction(Restrictions.in("outTaskId", taskIdList.toArray()));
         List<OutboundTaskDetail> taskDtList = outboundTaskDetailMapper.findByCriteria(outboundTaskDtCrt);
+        // task_detail根据outTaskId分组
+        Map<String, List<OutboundTaskDetail>> outTaskIdAndTaskDtListMap = taskDtList.stream().collect(Collectors.groupingBy(OutboundTaskDetail::getOutTaskId));
+
         // 查询关联的task_bind数据
         List<String> taskDetailIdList = taskDtList.stream().map(OutboundTaskDetail::getId).collect(Collectors.toList());
-        List<OutboundTaskBindDetail> taskBindDtList = outboundTaskBindDtMapper.findSumBindingNumGroupByOutTaskDetailId(taskDetailIdList);
+        Criteria outboundTaskBindDtCrt = Criteria.forClass(OutboundTaskBindDetail.class);
+        outboundTaskBindDtCrt.setRestriction(Restrictions.in("outTaskDetailId", taskDetailIdList.toArray()));
+        List<OutboundTaskBindDetail> taskBindDtList = outboundTaskBindDtMapper.findByCriteria(outboundTaskBindDtCrt);
+        // task_bind根据taskDetailId分组
+        Map<String, List<OutboundTaskBindDetail>> outTaskDtIdAndTaskBindDtListMap = taskBindDtList.stream().collect(Collectors.groupingBy(OutboundTaskBindDetail::getOutTaskDetailId));
+
         for (OutboundTask task : taskList) {
-            // 根据数据库数据生成对应业务对象
+            // 根据数据库OutboundTask->生成对应业务对象BizOutTask
             BizOutTask bizTask = new BizOutTask();
             bizTask.setId(task.getId());
             bizTask.setPickOrderId(task.getPickingOrderId());
             bizTask.setPriority(task.getPriority());
             bizTask.setExpiryDate(task.getExpireDate());
+
             List<BizOutTaskDetail> bizOutTaskDetailList = Lists.newArrayList();
-            for (OutboundTaskDetail taskDt : taskDtList) {
-                if (null != task.getId() && task.getId().equals(taskDt.getOutTaskId())) {
-                    // 数据库对象->生成对应业务对象
-                    BizOutTaskDetail bizOutTaskDetail = new BizOutTaskDetail();
-                    bizOutTaskDetail.setId(taskDt.getId());
-                    bizOutTaskDetail.setLotId(taskDt.getLotId());
-                    bizOutTaskDetail.setItemId(taskDt.getItemId());
-                    bizOutTaskDetail.setOutTaskId(taskDt.getOutTaskId());
-                    bizOutTaskDetail.setPlanNum(taskDt.getPlanNum());
-                    for (OutboundTaskBindDetail taskBindDt : taskBindDtList) {
-                        if (bizOutTaskDetail.getId().equals(taskBindDt.getOutTaskDetailId())) {
-                            bizOutTaskDetail.setBindingNum(taskBindDt.getBindingNum());
-                            break;
-                        }
-                    }
-                    bizOutTaskDetail.setActualNum(taskDt.getActualNum());
-                    bizOutTaskDetailList.add(bizOutTaskDetail);
+            // 查询task下属task_detail数据
+            List<OutboundTaskDetail> taskDtListByOutTaskId = outTaskIdAndTaskDtListMap.get(task.getId());
+            for (OutboundTaskDetail taskDt : taskDtListByOutTaskId) {
+                // 数据库对象OutboundTaskDetail->生成对应业务对象BizOutTaskDetail
+                BizOutTaskDetail bizOutTaskDetail = new BizOutTaskDetail();
+                BeanUtils.copyProperties(bizOutTaskDetail, taskDt);
+                // 查询task_detail下属binding数据,计算bindingNum
+                float bindingNum = 0.F;
+                List<OutboundTaskBindDetail> taskBindDtListByOutTaskDtId = outTaskDtIdAndTaskBindDtListMap.get(taskDt.getId());
+                for (OutboundTaskBindDetail taskBindDt : taskBindDtListByOutTaskDtId) {
+                    bindingNum += taskBindDt.getBindingNum();
                 }
+                bizOutTaskDetail.setBindingNum(bindingNum);
+                bizOutTaskDetailList.add(bizOutTaskDetail);
             }
             bizTask.setBizOutTaskDetailList(bizOutTaskDetailList);
             bizOutTaskList.add(bizTask);
