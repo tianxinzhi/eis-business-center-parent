@@ -9,6 +9,7 @@ import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class OutboundDispatchServiceImpl implements OutboundDispatchService {
         for (OutboundStrategyConfigVo outboundStrategyConfig : outboundStrategyConfigList) {
             switch (outboundStrategyConfig.getOutType()) {
                 case OutboundStrategyConfigConstant.OUT_TYPE_WHOLE:
-
+                    this.wholeOutDispatch(outboundStrategyConfig);
                     break;
                 case OutboundStrategyConfigConstant.OUT_TYPE_COMPOSE_WHOLE:
                     break;
@@ -54,7 +55,11 @@ public class OutboundDispatchServiceImpl implements OutboundDispatchService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void wholeOutDispatch(OutboundStrategyConfigVo outboundStrategyConfigVo) throws Exception {
-
+        /**
+         * 1.查询所有整托任务的站台
+         * 2.
+         */
     }
 }
