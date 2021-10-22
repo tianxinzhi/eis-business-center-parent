@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
 import com.prolog.eis.bc.constant.OutboundTaskConstant;
@@ -32,12 +33,15 @@ import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.OutTaskAlgorithmD
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.OutTaskDetailAlgorithmDto;
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.WholeOutContainerDto;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @Describe
  * @Author clarence_she
  * @Date 2021/10/21
  **/
 @Service
+@Slf4j
 public class OutboundWholeDataInitServiceImpl implements OutboundWholeDataInitService {
 
     @Autowired
@@ -75,6 +79,7 @@ public class OutboundWholeDataInitServiceImpl implements OutboundWholeDataInitSe
                 .getListByTypeNoListAndStateList(Lists.newArrayList(config.getTypeNo()),
                         Lists.newArrayList(OutboundTaskConstant.STATE_NOSTART,
                                 OutboundTaskConstant.STATE_GOINGON));
+        log.error("outboundTaskService.getListByTypeNoListAndStateList() return:{}", JSONObject.toJSONString(outboundTaskList));
         // 查询策略对应的出库任务单类型编号列表
         if (CollectionUtils.isEmpty(outboundTaskList)) {
             return result;
@@ -183,6 +188,7 @@ public class OutboundWholeDataInitServiceImpl implements OutboundWholeDataInitSe
                 wholeStationDto.setIsClaim(station.getClaim());
                 wholeStationDto.setStationId(station.getId());
                 wholeStationDto.setMaxLxCacheCount(station.getMaxCacheCount());
+                wholeStationDtoList.add(wholeStationDto);
             }
         }
         result.setOutTaskAlgorithmDtoList(outTaskAlgorithmDtoList);

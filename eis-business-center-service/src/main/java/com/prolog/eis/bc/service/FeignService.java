@@ -57,9 +57,9 @@ public class FeignService {
         try {
             locationListResp = eisContainerRouteClient.findFreeContainerByAreaNo(areaNos);
         } catch (Exception e) {
-            log.error("eisContainerRouteClient.findFreeContainerByAreaNo({}) excp:{}", areaNos, e.getMessage());
+            log.error("getAllFreeContainerNoByAreaNo({}) excp:{}", areaNos, e.getMessage());
         }
-        log.error("eisContainerRouteClient.findFreeContainerByAreaNo({}) return:{}", areaNos, JSONObject.toJSONString(locationListResp));
+        log.error("getAllFreeContainerNoByAreaNo({}) return:{}", areaNos, JSONObject.toJSONString(locationListResp));
 //        List<String> containerNoList = Lists.newArrayList();
         if (null != locationListResp && locationListResp.isSuccess()) {
             // 过滤出有效的容器位置信息
@@ -86,10 +86,10 @@ public class FeignService {
         try {
             stationResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
         } catch (Exception e) {
-            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() excp:{}", e.getMessage());
+            log.error("getAllUnlockAndClaimStation excp:{}", e.getMessage());
         }
 
-        log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return:{}", JSONObject.toJSONString(stationResp));
+        log.error("getAllUnlockAndClaimStation return:{}", JSONObject.toJSONString(stationResp));
         if (null != stationResp && stationResp.isSuccess()) {
             stationList = stationResp.getData();
         } else {
@@ -114,16 +114,16 @@ public class FeignService {
         try {
             locationListResp = eisContainerRouteClient.findFreeContainerByAreaNo(areaNo);
         } catch (Exception e) {
-            log.error("eisContainerRouteClient.findFreeContainerByAreaNo({}) excp:{}", areaNo, e.getMessage());
+            log.error("getFreeContainerCount({}) excp:{}", areaNo, e.getMessage());
         }
-        log.error("eisContainerRouteClient.findFreeContainerByAreaNo({}) return:{}", areaNo, JSONObject.toJSONString(locationListResp));
+        log.error("getFreeContainerCount({}) return:{}", areaNo, JSONObject.toJSONString(locationListResp));
 
         int freeContainerCount = 0;
         if (null != locationListResp && locationListResp.isSuccess()) {
             freeContainerCount = locationListResp.getData().size();
         } else {
             String message = null == locationListResp ? "resp is null" : locationListResp.getMessage();
-            log.error("eisContainerLocationFeign.findArriveLxCount({}) return error, msg:{}", areaNo, message);
+            log.error("getFreeContainerCount({}) return error, msg:{}", areaNo, message);
         }
         return freeContainerCount;
     }
@@ -142,16 +142,16 @@ public class FeignService {
         try {
             chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(areaNo);
         } catch (Exception e) {
-            log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", areaNo, e.getMessage());
+            log.error("findChuKuLxCount({}) excp:{}", areaNo, e.getMessage());
         }
 
-        log.error("eisContainerLocationFeign.findChuKuLxCount({}) return:{}", areaNo, JSONObject.toJSONString(chuKuLxCountResp));
+        log.error("findChuKuLxCount({}) return:{}", areaNo, JSONObject.toJSONString(chuKuLxCountResp));
 
         if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
             return chuKuLxCountResp.getData().intValue();
         } else {
             String message = null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage();
-            log.error("eisContainerLocationFeign.findChuKuLxCount({}) return error, msg:{}", areaNo, message);
+            log.error("findChuKuLxCount({}) return error, msg:{}", areaNo, message);
             return 0;
         }
     }
@@ -172,10 +172,10 @@ public class FeignService {
         try {
             invContainerStoreListResp = eisInvContainerStoreSubFeign.findByContainerNo(containerNos);
         } catch (Exception e) {
-            log.error("eisInvContainerStoreSubFeign.findByContainerNo({}) excp:{}", containerNos, e.getMessage());
+            log.error("getInvContainerStoreListByContainerNoList({}) excp:{}", containerNos, e.getMessage());
         }
 
-        log.error("eisInvContainerStoreSubFeign.findByContainerNo({}) return:{}", containerNos, JSONObject.toJSONString(invContainerStoreListResp));
+        log.error("getInvContainerStoreListByContainerNoList({}) return:{}", containerNos, JSONObject.toJSONString(invContainerStoreListResp));
 
         if (null != invContainerStoreListResp && invContainerStoreListResp.isSuccess()) {
             List<EisInvContainerStoreVo> invContainerStoreList = invContainerStoreListResp.getData();
@@ -192,7 +192,7 @@ public class FeignService {
             return containerNoAndStoreMap;
         } else {
             String message = null == invContainerStoreListResp ? "resp is null" : invContainerStoreListResp.getMessage();
-            log.error("eisInvContainerStoreSubFeign.findByContainerNo({}) return error, msg:{}", containerNos, message);
+            log.error("getInvContainerStoreListByContainerNoList({}) return error, msg:{}", containerNos, message);
         }
         return Maps.newHashMap();
     }
@@ -212,9 +212,9 @@ public class FeignService {
         RestMessage<List<WhLocatorDto>> whLocatorListResp = null;
         try {
             whLocatorListResp = eisWarehouseStationFeign.getWhLocatorListByLocationNos(locationNos);
-            log.error("eisWarehouseStationFeign.getWhLocatorListByLocationNos({}) return:{}", locationNos, JSONObject.toJSONString(whLocatorListResp));
+            log.error("getWhLocatorListByLocationNoList({}) return:{}", locationNos, JSONObject.toJSONString(whLocatorListResp));
         } catch (Exception e) {
-            log.error("eisWarehouseStationFeign.getWhLocatorListByLocationNos({}) excp:{}", locationNos, e.getMessage());
+            log.error("getWhLocatorListByLocationNoList({}) excp:{}", locationNos, e.getMessage());
         }
 
         if (null != whLocatorListResp && whLocatorListResp.isSuccess()) {
@@ -232,7 +232,7 @@ public class FeignService {
             return locationNoAndLocatorMap;
         } else {
             String message = null == whLocatorListResp ? "resp is null" : whLocatorListResp.getMessage();
-            log.error("eisWarehouseStationFeign.getWhLocatorListByLocationNos({}) return error, msg:{}", locationNos, message);
+            log.error("getWhLocatorListByLocationNoList({}) return error, msg:{}", locationNos, message);
         }
         return Maps.newHashMap();
     }

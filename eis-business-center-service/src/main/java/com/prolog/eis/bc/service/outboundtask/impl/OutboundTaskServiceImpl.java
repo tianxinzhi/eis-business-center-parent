@@ -215,12 +215,14 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             for (OutboundTaskDetail taskDt : taskDtListByOutTaskId) {
                 // 数据库对象OutboundTaskDetail->生成对应业务对象BizOutTaskDetail
                 BizOutTaskDetail bizOutTaskDetail = new BizOutTaskDetail();
-                BeanUtils.copyProperties(bizOutTaskDetail, taskDt);
+                BeanUtils.copyProperties(taskDt, bizOutTaskDetail);
                 // 查询task_detail下属binding数据,计算bindingNum
                 float bindingNum = 0.F;
                 List<OutboundTaskBindDetail> taskBindDtListByOutTaskDtId = outTaskDtIdAndTaskBindDtListMap.get(taskDt.getId());
-                for (OutboundTaskBindDetail taskBindDt : taskBindDtListByOutTaskDtId) {
-                    bindingNum += taskBindDt.getBindingNum();
+                if (!CollectionUtils.isEmpty(taskBindDtListByOutTaskDtId)) {
+                    for (OutboundTaskBindDetail taskBindDt : taskBindDtListByOutTaskDtId) {
+                        bindingNum += taskBindDt.getBindingNum();
+                    }
                 }
                 bizOutTaskDetail.setBindingNum(bindingNum);
                 bizOutTaskDetailList.add(bizOutTaskDetail);
