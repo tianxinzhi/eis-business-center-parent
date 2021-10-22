@@ -1,5 +1,7 @@
 package com.prolog.eis.bc.facade.dto.outbound;
 
+import org.apache.poi.ss.formula.functions.T;
+
 /**
  * @Describe
  * @Author clarence_she
@@ -77,5 +79,9 @@ public class WholeStationDto {
 
     public void setChuKuLxCount(int chuKuLxCount) {
         this.chuKuLxCount = chuKuLxCount;
+    }
+
+    public int getContainerCount() {
+        return this.chuKuLxCount + this.arriveLxCount;
     }
 }
