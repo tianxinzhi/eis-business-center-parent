@@ -3,10 +3,7 @@ package com.prolog.eis.bc.dao;
 import com.prolog.eis.bc.facade.dto.osr.OrderPoolMixDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.framework.dao.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -97,4 +94,7 @@ public interface OutboundTaskMapper extends BaseMapper<OutboundTask> {
             "where t1.out_model = #{outModel} and smy.state = 0 and ot.state = 0 and ot.out_task_smy_id is not null \n" +
             "and ot.picking_order_id is null and ot.order_pool_id is not null</script>") //按分组统计
     List<OrderPoolMixDto> getNotFullSummaryOrderByGroup(@Param("outModel") String outModel);
+
+    @Update("update biz_eis_out_task set out_task_smy_id = #{smyId} where id in (${outTaskIds})")
+    long updateBatch(@Param("smyId") String smyId,@Param("outTaskIds") String outTaskIds);
 }

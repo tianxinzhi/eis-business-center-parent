@@ -15,6 +15,7 @@ import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
 import com.prolog.eis.bc.feign.container.EisContainerLocationFeign;
+import com.prolog.eis.bc.service.FeignService;
 import com.prolog.eis.bc.service.outboundtask.OutBoundTaskBizService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskBindDtService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
@@ -45,75 +46,25 @@ public class OutBoundTaskBizServiceImpl implements OutBoundTaskBizService {
     @Autowired
     private EisInvContainerStoreSubFeign eisInvContainerStoreSubFeign;
 
+    @Autowired
+    private FeignService feignService;
+
     @Override
     public WarehouseDto getWarehouseByPickingOrderOutModel(OutboundStrategyConfigVo config) {
         // 获取库存匹配策略
         int storeMatchingStrategy = config.getStoreMatchingStrategy();
 
         // 站点，筛选出库站台，通过feign查询出所有的 isLock=0且claim=1索取
-        List<Station> stationList = null;
-        RestMessage<List<Station>> stationResp = null;
-        try {
-            stationResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
-        } catch (Exception e) {
-            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() excp:{}", e.getMessage());
-            stationResp = JSONObject.parseObject("{\"code\":\"200\",\"data\":[{\"areaNo\":\"S020101\",\"claim\":1,\"createTime\":1631244096000,\"id\":\"633665508595601408\",\"isLock\":0,\"stationNo\":\"20101\",\"type\":3},{\"areaNo\":\"S020102\",\"claim\":1,\"createTime\":1631244109000,\"id\":\"633665565474557952\",\"isLock\":0,\"stationNo\":\"20102\",\"type\":1},{\"areaNo\":\"S020103\",\"claim\":1,\"createTime\":1631244125000,\"id\":\"633665631182524416\",\"isLock\":0,\"stationNo\":\"20103\",\"type\":1},{\"areaNo\":\"S020104\",\"claim\":1,\"createTime\":1631244138000,\"id\":\"633665686417313792\",\"isLock\":0,\"stationNo\":\"20104\",\"type\":1},{\"areaNo\":\"6789\",\"claim\":1,\"createTime\":1631529073000,\"id\":\"634860790171701248\",\"isLock\":0,\"stationNo\":\"68876\",\"type\":1},{\"areaNo\":\"test02\",\"claim\":1,\"createTime\":1632276348000,\"id\":\"637995087682473984\",\"isLock\":0,\"stationNo\":\"Test02\",\"type\":1}],\"message\":\"success\",\"success\":true}", RestMessage.class);
-            //throw e;
-        }
-
-        log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return:{}", JSONObject.toJSONString(stationResp));
-
-        if (null != stationResp && stationResp.isSuccess()) {
-            stationList = stationResp.getData();
-        } else {
-            String message = null == stationResp ? "resp is null" : stationResp.getMessage();
-            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return error, msg:{}", message);
-            throw new BizException(message);
-        }
+        List<Station> stationList = feignService.getAllUnlockAndClaimStation();
         List<StationDto> stationDtoList = Lists.newArrayList();
         if (!CollectionUtils.isEmpty(stationList)) {
             for (Station station : stationList) {
                 StationDto stationDto = new StationDto();
-                // 调用远程接口 查询sourceArea且targetArea=站点areaNo的容器数量
-                RestMessage<Long> arriveLxCountResp = null;
-                try {
-                    arriveLxCountResp = eisContainerLocationFeign.findArriveLxCount(station.getAreaNo());
-                } catch (Exception e) {
-                    log.error("eisContainerLocationFeign.findArriveLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
-                    arriveLxCountResp = JSONObject.parseObject("{\"code\":\"200\",\"data\":0L,\"message\":\"操作成功\",\"success\":true}", RestMessage.class);
-//                    throw e;
-                }
+                stationDto.setArriveLxCount(feignService.getFreeContainerCount(station.getAreaNo()));
+                stationDto.setChuKuLxCount(feignService.getChuKuContainerCount(station.getAreaNo()));
 
-                log.error("eisContainerLocationFeign.findArriveLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(arriveLxCountResp));
-
-                if (null != arriveLxCountResp && arriveLxCountResp.isSuccess()) {
-                    stationDto.setArriveLxCount(arriveLxCountResp.getData().intValue());
-                } else {
-                    String message = null == arriveLxCountResp ? "resp is null" : arriveLxCountResp.getMessage();
-                    log.error("eisContainerLocationFeign.findArriveLxCount({}) return error, msg:{}", station.getAreaNo(), message);
-                    stationDto.setArriveLxCount(0);
-                }
-                // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
-                RestMessage<Long> chuKuLxCountResp = null;
-                try {
-                    chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(station.getAreaNo());
-                } catch (Exception e) {
-                    log.error("eisContainerLocationFeign.findChuKuLxCount({}) excp:{}", station.getAreaNo(), e.getMessage());
-                    chuKuLxCountResp = JSONObject.parseObject("{\"code\":\"200\",\"data\":0L,\"message\":\"操作成功\",\"success\":true}", RestMessage.class);
-//                    throw e;
-                }
-
-                log.error("eisContainerLocationFeign.findChuKuLxCount({}) return:{}", station.getAreaNo(), JSONObject.toJSONString(chuKuLxCountResp));
-
-                if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
-                    stationDto.setChuKuLxCount(chuKuLxCountResp.getData().intValue());
-                } else {
-                    String message = null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage();
-                    log.error("eisContainerLocationFeign.findChuKuLxCount({}) return error, msg:{}", station.getAreaNo(), message);
-                    stationDto.setChuKuLxCount(0);
-                }
                 //TODO 改为直接查询
-                stationDto.setMaxLxCacheCount(100);
+                stationDto.setMaxLxCacheCount(station.getMaxCacheCount());
                 stationDto.setMaxOrderNum(config.getMaxOrderNum());
                 stationDto.setMaxOrderSpCount(100);
                 stationDto.setStationId(station.getId());
