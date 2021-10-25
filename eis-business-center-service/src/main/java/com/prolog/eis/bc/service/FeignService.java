@@ -7,16 +7,15 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
-import com.prolog.eis.bc.feign.container.EisContainerLocationFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.common.util.MathHelper;
+import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.core.dto.route.WhLocatorDto;
 import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
@@ -32,9 +31,6 @@ public class FeignService {
 
     @Autowired
     private EisContainerRouteClient eisContainerRouteClient;
-
-    @Autowired
-    private EisContainerLocationFeign eisContainerLocationFeign;
 
     @Autowired
     private EisWarehouseStationFeign eisWarehouseStationFeign;
@@ -100,60 +96,28 @@ public class FeignService {
     }
 
     /**
-     * 获取空闲的容器数量
-     * @param areaNo 区域No
+     * 根据区域集合查询对应区域的托盘数量信息
+     * @param areaNoList 区域集合
      * @return
      */
-    public int getFreeContainerCount(String areaNo) {
-        if (StringUtils.isEmpty(areaNo)) {
-            return 0;
+    public Map<String, StationDto> findAreaNoAndContainerCountMap(List<String> areaNoList) {
+        if (CollectionUtils.isEmpty(areaNoList)) {
+            return Maps.newHashMap();
         }
-        // 调用远程接口 查询sourceArea且targetArea=站点areaNo的容器数量
+        String areaNos = MathHelper.strListToStr(areaNoList, ",");
         // 查询空闲容器
-        RestMessage<List<ContainerLocation>> locationListResp = null;
+        RestMessage<Map<String, StationDto>> areaNoAndContainerCountMapResp = null;
         try {
-            locationListResp = eisContainerRouteClient.findFreeContainerByAreaNo(areaNo);
+            areaNoAndContainerCountMapResp = eisContainerRouteClient.findAreaNoAndContainerCountMap(areaNos);
         } catch (Exception e) {
-            log.error("getFreeContainerCount({}) excp:{}", areaNo, e.getMessage());
+            log.error("findAreaNoAndContainerCountMap({}) excp:{}", areaNos, e.getMessage());
         }
-        log.error("getFreeContainerCount({}) return:{}", areaNo, JSONObject.toJSONString(locationListResp));
-
-        int freeContainerCount = 0;
-        if (null != locationListResp && locationListResp.isSuccess()) {
-            freeContainerCount = locationListResp.getData().size();
-        } else {
-            String message = null == locationListResp ? "resp is null" : locationListResp.getMessage();
-            log.error("getFreeContainerCount({}) return error, msg:{}", areaNo, message);
+        log.error("findAreaNoAndContainerCountMap({}) return:{}", areaNos, JSONObject.toJSONString(areaNoAndContainerCountMapResp));
+        Map<String, StationDto> areaNoAndContainerCountMap = Maps.newHashMap();
+        if (null != areaNoAndContainerCountMapResp && areaNoAndContainerCountMapResp.isSuccess()) {
+            areaNoAndContainerCountMap = areaNoAndContainerCountMapResp.getData();
         }
-        return freeContainerCount;
-    }
-
-    /**
-     * 获取出库的容器数量
-     * @param areaNo 区域No
-     * @return
-     */
-    public int getChuKuContainerCount(String areaNo) {
-        if (StringUtils.isEmpty(areaNo)) {
-            return 0;
-        }
-        // 调用远程接口 查询sourceArea!=站点areaNo且targetArea=站点areaNo的容器数量
-        RestMessage<Long> chuKuLxCountResp = null;
-        try {
-            chuKuLxCountResp = eisContainerLocationFeign.findChuKuLxCount(areaNo);
-        } catch (Exception e) {
-            log.error("findChuKuLxCount({}) excp:{}", areaNo, e.getMessage());
-        }
-
-        log.error("findChuKuLxCount({}) return:{}", areaNo, JSONObject.toJSONString(chuKuLxCountResp));
-
-        if (null != chuKuLxCountResp && chuKuLxCountResp.isSuccess()) {
-            return chuKuLxCountResp.getData().intValue();
-        } else {
-            String message = null == chuKuLxCountResp ? "resp is null" : chuKuLxCountResp.getMessage();
-            log.error("findChuKuLxCount({}) return error, msg:{}", areaNo, message);
-            return 0;
-        }
+        return areaNoAndContainerCountMap;
     }
 
     /**
