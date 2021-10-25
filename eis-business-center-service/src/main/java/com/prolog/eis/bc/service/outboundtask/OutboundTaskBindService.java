@@ -23,8 +23,11 @@ public interface OutboundTaskBindService {
 
     /**
      * 根据拣选单Id查询出库任务
-     * @param id
+     * @param pickingOrderId
      * @return
      */
-    List<OutboundTaskBindVo> findByPickingOrderId(String id);
+    List<OutboundTaskBindVo> findByPickingOrderId(String pickingOrderId);
+
+
+
 }

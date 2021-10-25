@@ -1,8 +1,8 @@
 package com.prolog.eis.bc.service.dispatch.datainit;
 
+import com.prolog.eis.bc.facade.dto.outbound.WholeOutTaskContainerDto;
 import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.WholeOutContainerDto;
-import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.WholeOutTaskContainerDto;
 
 /**
  * @Describe

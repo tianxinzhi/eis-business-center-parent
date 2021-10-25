@@ -47,7 +47,8 @@ public class OrderPoolMixTaskServiceImpl implements OrderPoolMixTaskService {
             //获取订单池出库的策略，判断为按品或按品批
             //List<OutboundStrategyConfig> configs = strategyConfigService.getByOutModel(OutboundStrategyConfigConstant.OUT_MODEL_ORDER_POOL);
             List<OrderPoolMixDto> orderPools = taskMapper.getOrderPoolNotStart(OutboundStrategyConfigConstant.OUT_MODEL_ORDER_POOL); //订单池订单
-            List<OrderPoolMixDto> summaryOrders = taskMapper.getNotFullSummaryOrder(OutboundStrategyConfigConstant.OUT_MODEL_ORDER_POOL);//汇总单
+            //List<OrderPoolMixDto> summaryOrders = taskMapper.getNotFullSummaryOrder(OutboundStrategyConfigConstant.OUT_MODEL_ORDER_POOL);//汇总单
+            List<OrderPoolMixDto> summaryOrders = taskMapper.getNotFullSummaryOrderByGroup(OutboundStrategyConfigConstant.OUT_MODEL_ORDER_POOL);//汇总单
             if (CollectionUtils.isNotEmpty(orderPools) && CollectionUtils.isNotEmpty(summaryOrders)) {
                 //String typeNos = inAppend(configs.stream().map(s -> s.getTypeNo()).collect(Collectors.toList())); //typeNos
                 //找订单池订单
@@ -94,7 +95,7 @@ public class OrderPoolMixTaskServiceImpl implements OrderPoolMixTaskService {
      * @param summaryOrder
      * @return
      */
-    public long updateOrderTaskToSummary(List<String> maxEquals,OrderPoolMixDto summaryOrder){
+    public long updateOrderTaskToSummary(List<String> maxEquals,OrderPoolMixDto summaryOrder) throws IllegalAccessException {
         Iterator<String> iterator = maxEquals.iterator();
         //汇总单需要的订单数量
         int needOrderNum = summaryOrder.getMaxOrderNum() - summaryOrder.getOutTaskNum();
@@ -131,14 +132,22 @@ public class OrderPoolMixTaskServiceImpl implements OrderPoolMixTaskService {
      * @param tasks
      * @return
      */
-    public long joinToSummaryOrder(String smyId, List<OutboundTask> tasks){
-        long count = 0;
+    public long joinToSummaryOrder(String smyId, List<OutboundTask> tasks) {
+        List<String> ids = new LinkedList<>();
         for (OutboundTask task : tasks) {
-            task.setOutTaskSmyId(smyId);
-            taskMapper.update(task);
-            count++;
+            ids.add(task.getId());
         }
-        return count;
+        long l = taskMapper.updateBatch(smyId, appendIn(ids));
+        return l;
+    }
+
+
+    public String appendIn(List<String> ids){
+        StringBuilder str = new StringBuilder("");
+        for (String id : ids) {
+            str.append("'"+id+"',");
+        }
+        return str.substring(0,str.length() - 1);
     }
 
     /**

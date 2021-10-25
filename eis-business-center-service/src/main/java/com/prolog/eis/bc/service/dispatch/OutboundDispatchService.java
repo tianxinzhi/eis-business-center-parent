@@ -9,7 +9,16 @@ import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
  **/
 public interface OutboundDispatchService {
 
+    /**
+     * 出库调度
+     * @throws Exception
+     */
     void coreDispatch() throws Exception;
 
+    /**
+     * 整托出库
+     * @param outboundStrategyConfigVo
+     * @throws Exception
+     */
     void wholeOutDispatch(OutboundStrategyConfigVo outboundStrategyConfigVo)throws Exception;
 }

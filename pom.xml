@@ -95,6 +95,12 @@
                 <artifactId>plg-bz-starter</artifactId>
                 <version>${prolog.framework.bz}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.prolog.upcloud</groupId>
+                <artifactId>strategy-eis</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -3,13 +3,20 @@ package com.prolog.eis.bc.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSONObject;
+import com.prolog.eis.bc.constant.OutboundStrategyConfigConstant;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskDto;
+import com.prolog.eis.bc.facade.dto.outbound.WholeOutTaskContainerDto;
+import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
+import com.prolog.eis.bc.service.dispatch.datainit.OutboundWholeDataInitService;
+import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.framework.common.message.RestMessage;
@@ -62,6 +69,24 @@ public class OutboundTaskController {
         List<OutboundTask> list = outboundTaskService
                 .getListByUpperSystemTaskId(dto.getUpperSystemTaskId());
         return RestMessage.newInstance(true, "成功", list);
+    }
+
+    @Autowired
+    private OutboundStrategyConfigService outboundStrategyConfigService;
+    @Autowired
+    private OutboundWholeDataInitService outboundWholeDataInitService;
+
+    @ApiOperation(value = "整托出库", notes = "整托出库")
+    @GetMapping("/wholeContainerOut")
+    public RestMessage<Object> wholeContainerOut() {
+        List<OutboundStrategyConfigVo> configList = outboundStrategyConfigService.getByOutType(OutboundStrategyConfigConstant.OUT_TYPE_WHOLE);
+        if (!CollectionUtils.isEmpty(configList)) {
+            for (OutboundStrategyConfigVo config : configList) {
+                WholeOutTaskContainerDto dto = outboundWholeDataInitService.findWholeOutData(config);
+                log.error("outboundWholeDataInitService.findWholeOutData({}), return:{}", JSONObject.toJSONString(config), JSONObject.toJSONString(dto));
+            }
+        }
+        return RestMessage.newInstance(true, "成功", null);
     }
 
 }

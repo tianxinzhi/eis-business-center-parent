@@ -1,12 +1,15 @@
 #eureka client配置
 eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.1.21:6001/eureka/
 
-prolog.tx.url: http://192.168.0.52:7000/tx/manager/
+prolog.tx.url: http://192.168.0.167:7000/tx/manager/
 
 prolog:
   serivce:
     inventory: upcloud-base-inventory-mysql-eistest
     route: service-ai-eis-route-center-eistest
+    warehouse: upcloud-base-wh-dev-mysql-eistest
+    control: upcloud-base-wh-control-mysql-eistest
+    strategy: upcloud-base-strategy-mysql-eistest
   serarch:
     url: http://service-data-api-base/search
 

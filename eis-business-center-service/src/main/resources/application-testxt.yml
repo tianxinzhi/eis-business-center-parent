@@ -5,13 +5,16 @@ prolog.tx.url: http://192.168.0.167:7000/tx/manager/
 
 prolog:
   serivce:
-    inventory: upcloud-base-inventory-mysql-eistest
-    route: service-ai-eis-route-center-eistest
+    inventory: upcloud-base-inventory-mysql-eistest-xt
+    route: service-ai-eis-route-center-eistest-xt
+    warehouse: upcloud-base-wh-dev-mysql-eistest-xt
+    control: upcloud-base-wh-control-mysql-eistest-xt
+    strategy: upcloud-base-strategy-mysql-eistest-xt
   serarch:
     url: http://service-data-api-base/search
 
 spring:
-  application.name: service-ai-eis-business-center-eistest
+  application.name: service-ai-eis-business-center-eistest-xt
   #redis配置
   redis:
     cluster:
@@ -30,7 +33,7 @@ spring:
       enabled: true
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.1.13:2206/eis_base_business?characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://192.168.1.11:3308/eis_base_business?characterEncoding=utf8&useSSL=false
     username: dev
     password: prolog0212-dev
     initialSize: 0 #初始化大小
