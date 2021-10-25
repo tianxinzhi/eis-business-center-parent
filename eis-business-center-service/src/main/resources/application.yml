@@ -12,6 +12,7 @@ eureka:
 
 
 server:
+  port: 30014
   servlet:
     context-path:
 
