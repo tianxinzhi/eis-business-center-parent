@@ -12,7 +12,7 @@ import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.eis.core.model.base.area.WhArea;
 import com.prolog.framework.common.message.RestMessage;
 
-@FeignClient(value = "${prolgo.service.warehouse:upcloud-base-wh-dev-mysql}")
+@FeignClient(value = "${prolog.service.warehouse:upcloud-base-wh-dev-mysql}")
 public interface EisWarehouseStationFeign {
 
     @GetMapping("/station/findAllUnlockAndClaimStation")

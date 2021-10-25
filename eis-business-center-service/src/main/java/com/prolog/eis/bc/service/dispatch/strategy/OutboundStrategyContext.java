@@ -1,5 +1,6 @@
 package com.prolog.eis.bc.service.dispatch.strategy;
 
+import com.prolog.eis.bc.facade.dto.outbound.WholeOutTaskContainerDto;
 import com.prolog.eis.bc.service.dispatch.datainit.OutboundWholeDataInitService;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyConfig;
 import com.prolog.framework.utils.StringUtils;
@@ -8,6 +9,7 @@ import com.prolog.upcloud.base.strategy.domain.core.StrategyContext;
 import com.prolog.upcloud.base.strategy.dto.eis.inbound.InboundStrategyDto;
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.OutboundDataSourceDto;
 import com.prolog.upcloud.base.strategy.dto.eis.outbound.OutboundStrategyDto;
+import com.prolog.upcloud.base.strategy.dto.eis.outbound.whole.WholeOutContainerDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ public class OutboundStrategyContext extends StrategyContext<OutboundDataSourceD
 
     @Override
     public boolean completed() {
-        return false;
+        return this.getStrategyData().isCompleted();
     }
 
     @Override
@@ -49,7 +51,8 @@ public class OutboundStrategyContext extends StrategyContext<OutboundDataSourceD
         OutboundStrategyDto strategyData = (OutboundStrategyDto) super.getStrategyData();
         Object condition = strategyData.getCondition();
         String strategyType = strategyData.getStrategyType().get("strategyType");
-
-        return null;
+        OutboundDataSourceDto outboundDataSourceDto = (OutboundDataSourceDto)condition;
+        outboundDataSourceDtoList.add(outboundDataSourceDto);
+        return outboundDataSourceDtoList;
     }
 }

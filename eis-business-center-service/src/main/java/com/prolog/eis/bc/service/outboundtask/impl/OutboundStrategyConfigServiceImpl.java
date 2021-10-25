@@ -85,6 +85,7 @@ public class OutboundStrategyConfigServiceImpl implements OutboundStrategyConfig
         outboundStrategyConfigVo.setOutboundExpiryDateRate(outboundStrategyConfig.getOutboundExpiryDateRate());
         outboundStrategyConfigVo.setMaxOrderVolume(outboundStrategyConfig.getMaxOrderVolume());
         outboundStrategyConfigVo.setMaxOrderNum(outboundStrategyConfig.getMaxOrderNum());
+        outboundStrategyConfigVo.setOutType(outboundStrategyConfig.getOutType());
         outboundStrategyConfigVo.setDispatchPriority(outboundStrategyConfig.getDispatchPriority());
         outboundStrategyConfigVo.setComposeOrderConfig(outboundStrategyConfig.getComposeOrderConfig());
         outboundStrategyConfigVo.setClearStoreStrategy(outboundStrategyConfig.getClearStoreStrategy());

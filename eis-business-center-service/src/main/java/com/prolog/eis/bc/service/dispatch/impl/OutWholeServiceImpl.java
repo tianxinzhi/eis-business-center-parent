@@ -66,7 +66,7 @@ public class OutWholeServiceImpl implements OutWholeService {
             try {
                 OutboundDataSourceDto outboundDataSourceDto = new OutboundDataSourceDto();
                 WholeOutContainerDto wholeOutContainerDto = new WholeOutContainerDto();
-                wholeOutContainerDto.setInvStockAlgorithmDtoList(wholeOutContainerDto.getInvStockAlgorithmDtoList());
+                wholeOutContainerDto.setInvStockAlgorithmDtoList(wholeOutTaskContainerDto.getInvStockAlgorithmDtoList());
                 wholeOutContainerDto.setOutTaskAlgorithmDto(outTaskAlgorithmDto);
                 wholeOutContainerDto.setOriginX(outboundStrategyTargetStationConfig.getX());
                 wholeOutContainerDto.setOriginY(outboundStrategyTargetStationConfig.getY());
@@ -76,7 +76,8 @@ public class OutWholeServiceImpl implements OutWholeService {
                 OutboundStrategyContext outboundStrategyContext = new OutboundStrategyContext(outboundWholeDataInitService);
                 OutboundStrategyDto outboundStrategyDto = new OutboundStrategyDto();
                 outboundStrategyDto.setStrategyType(strategyType);
-                outboundStrategyDto.setCondition(wholeOutTaskContainerDto);
+                outboundStrategyDto.setCondition(outboundDataSourceDto);
+                outboundStrategyContext.setStrategyData(outboundStrategyDto);
                 Strategy strategy = data.createStrategy();
                 strategy.execute(outboundStrategyContext);
                 OutboundStrategyDto outboundStrategyDto1 = (OutboundStrategyDto) outboundStrategyContext.getStrategyData();
@@ -107,7 +108,7 @@ public class OutWholeServiceImpl implements OutWholeService {
     private void generateContainerBindTask(List<WholeOutStrategyResultDto> result, OutTaskAlgorithmDto outTaskAlgorithmDto, WholeStationDto wholeStationDto, OutboundStrategyConfigVo outboundStrategyConfigVo) throws Exception {
         List<String> containerList = result.stream().map(p -> p.getContaienrNo()).collect(Collectors.toList());
         RestMessage<List<EisInvContainerStoreVo>> containerStoreListRest = eisContainerStoreFeign.findByContainerNos(containerList);
-        if (!containerStoreListRest.isSuccess() || containerStoreListRest.getData().isEmpty()) {
+        if (!containerStoreListRest.isSuccess() || containerStoreListRest.getData() == null) {
             throw new PrologException(String.format("容器集合[%s]库存查询失败原因[%s]", containerList.toString(), containerStoreListRest.getMessage()));
         }
         List<EisInvContainerStoreVo> eisInvContainerStoreVoList = containerStoreListRest.getData();

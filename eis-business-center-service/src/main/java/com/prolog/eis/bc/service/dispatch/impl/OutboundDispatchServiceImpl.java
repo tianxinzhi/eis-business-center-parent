@@ -45,6 +45,8 @@ public class OutboundDispatchServiceImpl implements OutboundDispatchService {
     private OutboundStrategyConfigService outboundStrategyConfigService;
     @Autowired
     private StrategyClient strategyClient;
+    @Autowired
+    private OutboundWholeDataInitService outboundWholeDataInitService;
 
 
     @Override
@@ -81,7 +83,11 @@ public class OutboundDispatchServiceImpl implements OutboundDispatchService {
          * 1.查询所有整托任务的站台
          * 2.
          */
-        WholeOutTaskContainerDto wholeOutTaskContainerDto = new WholeOutTaskContainerDto();
+        WholeOutTaskContainerDto wholeOutTaskContainerDto = outboundWholeDataInitService.findWholeOutData(outboundStrategyConfigVo);
+        if (wholeOutTaskContainerDto == null) {
+            log.warn("整托出库订单数据初始化为空");
+            return;
+        }
         List<WholeStationDto> wholeStationDtoList = wholeOutTaskContainerDto.getWholeStationDtoList();
         wholeStationDtoList.sort(Comparator.comparingInt(WholeStationDto::getContainerCount));
 

@@ -1,7 +1,7 @@
 #eureka client配置
 eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.1.21:6001/eureka/
 
-prolog.tx.url: http://192.168.0.52:7000/tx/manager/
+prolog.tx.url: http://192.168.0.167:7000/tx/manager/
 
 prolog:
   serivce:

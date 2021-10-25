@@ -53,6 +53,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.prolog.upcloud</groupId>
+            <artifactId>strategy-eis</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
