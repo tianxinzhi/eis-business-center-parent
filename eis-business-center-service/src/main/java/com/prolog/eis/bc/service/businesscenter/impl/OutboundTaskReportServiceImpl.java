@@ -1,28 +1,35 @@
 package com.prolog.eis.bc.service.businesscenter.impl;
 
-import com.prolog.eis.core.model.biz.outbound.OutboundTask;
-import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import com.google.common.collect.Lists;
+import com.prolog.eis.bc.dao.OutboundTaskReportHisMapper;
 import com.prolog.eis.bc.dao.OutboundTaskReportMapper;
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskReportDto;
 import com.prolog.eis.bc.service.businesscenter.OutboundTaskReportService;
+import com.prolog.eis.core.model.biz.outbound.OutboundTask;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
+import com.prolog.eis.core.model.biz.outbound.OutboundTaskReportHis;
 import com.prolog.framework.core.pojo.Page;
 import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.Restriction;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class OutboundTaskReportServiceImpl implements OutboundTaskReportService {
     @Autowired
     private OutboundTaskReportMapper outboundTaskReportMapper;
+    @Autowired
+    private OutboundTaskReportHisMapper outboundTaskReportHisMapper;
 
     public Page<OutboundTaskReport> getOutboundTaskReportPage(OutboundTaskReportDto dto){
         PageUtils.startPage(dto.getPageNum(), dto.getPageSize());
@@ -82,6 +89,25 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
     public List<OutboundTaskReport> findAll() {
         Criteria criteria = new Criteria(OutboundTaskReport.class);
         return outboundTaskReportMapper.findByCriteria(criteria);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void toCallbackHis(OutboundTaskReport outboundTaskReportCallback) throws Exception {
+        if (StringUtils.isEmpty(outboundTaskReportCallback.getId())) {
+            throw new Exception("任务ID不能为空！");
+        }
+        OutboundTaskReport one = outboundTaskReportMapper.findById(outboundTaskReportCallback.getId(), OutboundTaskReport.class);
+        if (null == one) {
+            throw new Exception("任务ID不存在！ id=" + outboundTaskReportCallback.getId());
+        }
+        OutboundTaskReportHis insertHis = new OutboundTaskReportHis();
+        // 复制数据 回告->回告历史
+        BeanUtils.copyProperties(one, insertHis);
+        // 入库回告历史
+        outboundTaskReportHisMapper.save(insertHis);
+        // 删除回告
+        outboundTaskReportMapper.deleteById(outboundTaskReportCallback.getId(), OutboundTaskReport.class);
     }
 
 }

@@ -11,6 +11,8 @@ import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.pojo.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Api(tags = "业务中心-入库任务单")
 @RequestMapping("/inboundTask")
+@Slf4j
 public class InboundTaskController {
     @Autowired
     private InboundTaskService inboundTaskService;
