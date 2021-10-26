@@ -43,6 +43,9 @@ spring:
     url: jdbc:mysql://192.168.1.13:2206/eis_base_business?characterEncoding=utf8&useSSL=false
     username: dev
     password: prolog0212-dev
+#    url: jdbc:mysql://192.168.1.11:3308/eis_base_business?characterEncoding=utf8&useSSL=false
+#    username: root
+#    password: prolog0212
     initialSize: 0 #初始化大小
     minIdle: 5 #最小空閒
     maxActive: 50 #最大連接數
