@@ -6,6 +6,7 @@ import com.prolog.eis.bc.dao.inbound.InboundTaskMapper;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskHisDto;
 import com.prolog.eis.bc.facade.dto.inbound.MasterInboundTaskDto;
+import com.prolog.eis.bc.facade.dto.inbound.MasterInboundTaskSubDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailHisVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskHisVo;
@@ -279,13 +280,15 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         detailVo.setHeight(Double.valueOf(dto.getHeight()));
         detailVo.setBusinessProperty(wmsInboundTaskDto.getBusinessProperty());
         //子任务
-        InboundTaskDetailSub sub = new InboundTaskDetailSub();
-        sub.setContainerNoSub(StringUtils.isEmpty(dto.getStockIdSub()) ? dto.getStockId() : dto.getStockIdSub());
-        sub.setItemId(wmsInboundTaskDto.getItemId());
-        sub.setLotId(wmsInboundTaskDto.getLotId());
-        sub.setQty(wmsInboundTaskDto.getQty());
         List<InboundTaskDetailSub> subList = Lists.newArrayList();
-        subList.add(sub);
+        for (MasterInboundTaskSubDto subDto : wmsInboundTaskDto.getSubList()) {
+            InboundTaskDetailSub sub = new InboundTaskDetailSub();
+            sub.setContainerNoSub(StringUtils.isEmpty(subDto.getContainerSubNo())? dto.getStockId() : subDto.getContainerSubNo());
+            sub.setItemId(subDto.getItemId());
+            sub.setLotId(subDto.getLotId());
+            sub.setQty(subDto.getQty());
+            subList.add(sub);
+        }
         detailVo.setInboundTaskDetailSubList(subList);
 
         List<InboundTaskDetailVo> detailList = Lists.newArrayList();

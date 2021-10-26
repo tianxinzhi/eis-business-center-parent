@@ -20,11 +20,9 @@ public interface OutboundTaskReportService {
             throws Exception;
 
     /**
-     * 根据上游系统任务单Id查询出库任务单回告
-     * @param upperSystemTaskId 上游系统任务单Id
-     * @return
+     * 查询全部出库任务单回告
+     * @return 出库任务回告列表
      */
-    List<OutboundTaskReport> getListByUpperSystemTaskId(
-            String upperSystemTaskId);
+    List<OutboundTaskReport> findAll();
 
 }

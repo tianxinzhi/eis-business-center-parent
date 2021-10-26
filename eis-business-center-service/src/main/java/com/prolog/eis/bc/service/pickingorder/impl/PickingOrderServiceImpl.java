@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.prolog.eis.bc.facade.vo.OutboundTaskBindVo;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ public class PickingOrderServiceImpl implements PickingOrderService {
     private OutboundTaskBindService outboundTaskBindService;
 
     @Autowired
+    @Qualifier("outboundTaskServiceImpl")
     private OutboundTaskService outboundTaskService;
 
 

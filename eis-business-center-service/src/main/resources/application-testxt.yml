@@ -2,7 +2,8 @@
 eureka.client.serviceUrl.defaultZone: http://admin:prolog00212@192.168.1.21:6001/eureka/
 
 prolog.tx.url: http://192.168.0.167:7000/tx/manager/
-
+server:
+  port: 40014
 prolog:
   serivce:
     inventory: upcloud-base-inventory-mysql-eistest-xt
@@ -11,7 +12,7 @@ prolog:
     control: upcloud-base-wh-control-mysql-eistest-xt
     strategy: upcloud-base-strategy-mysql-eistest-xt
   serarch:
-    url: http://service-data-api-base/search
+    url: http://service-data-api-base-ai/search
 
 spring:
   application.name: service-ai-eis-business-center-eistest-xt
@@ -34,8 +35,8 @@ spring:
   datasource:
     driverClassName: com.mysql.jdbc.Driver
     url: jdbc:mysql://192.168.1.11:3308/eis_base_business?characterEncoding=utf8&useSSL=false
-    username: dev
-    password: prolog0212-dev
+    username: root
+    password: prolog0212
     initialSize: 0 #初始化大小
     minIdle: 5 #最小空閒
     maxActive: 50 #最大連接數

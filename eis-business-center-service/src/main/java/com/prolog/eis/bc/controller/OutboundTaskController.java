@@ -3,6 +3,7 @@ package com.prolog.eis.bc.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OutboundTaskController {
 
     @Autowired
+    @Qualifier("outboundTaskServiceImpl")
     private OutboundTaskService outboundTaskService;
 
     @ApiOperation(value = "生成拣选单", notes = "生成拣选单")
@@ -69,6 +71,16 @@ public class OutboundTaskController {
         List<OutboundTask> list = outboundTaskService
                 .getListByUpperSystemTaskId(dto.getUpperSystemTaskId());
         return RestMessage.newInstance(true, "成功", list);
+    }
+
+    @ApiOperation(value = "根据Id查询出库任务单", notes = "根据Id查询出库任务单")
+    @PostMapping("/getOneById")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "OutboundTaskDto", value = "出库任务单") })
+    public RestMessage<OutboundTask> getOneById(
+            @RequestBody OutboundTaskDto dto) {
+        OutboundTask result = outboundTaskService.getOneById(dto.getId());
+        return RestMessage.newInstance(true, "成功", result);
     }
 
     @Autowired
