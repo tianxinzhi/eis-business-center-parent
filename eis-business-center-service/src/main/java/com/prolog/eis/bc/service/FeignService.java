@@ -20,7 +20,6 @@ import com.prolog.eis.core.dto.route.WhLocatorDto;
 import com.prolog.eis.core.model.base.area.Station;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
 import com.prolog.framework.common.message.RestMessage;
-import com.prolog.framework.core.exception.PrologException;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,27 +48,21 @@ public class FeignService {
         }
         String areaNos = MathHelper.strListToStr(areaNoList, ",");
         // 查询空闲容器
-        RestMessage<List<ContainerLocation>> locationListResp = null;
+        RestMessage<List<ContainerLocation>> webResp = null;
         try {
-            locationListResp = eisContainerRouteClient.findFreeContainerByAreaNo(areaNos);
+            webResp = eisContainerRouteClient.findFreeContainerByAreaNo(areaNos);
         } catch (Exception e) {
             log.error("getAllFreeContainerNoByAreaNo({}) excp:{}", areaNos, e.getMessage());
+            throw new RuntimeException(e);
         }
-        log.error("getAllFreeContainerNoByAreaNo({}) return:{}", areaNos, JSONObject.toJSONString(locationListResp));
-//        List<String> containerNoList = Lists.newArrayList();
-        if (null != locationListResp && locationListResp.isSuccess()) {
-            // 过滤出有效的容器位置信息
-            List<ContainerLocation> locationList = locationListResp.getData();
-//            if (!CollectionUtils.isEmpty(locationList)) {
-//                for (ContainerLocation cl : locationList) {
-//                    if (!StringUtils.isEmpty(cl.getContainerNo())) {
-//                        containerNoList.add(cl.getContainerNo());
-//                    }
-//                }
-//            }
-            return locationList;
+        log.info("getAllFreeContainerNoByAreaNo({}) return:{}", areaNos, JSONObject.toJSONString(webResp));
+        if (null != webResp && webResp.isSuccess()) {
+            return webResp.getData();
+        } else {
+            String message = null == webResp ? "resp is null" : webResp.getMessage();
+            log.error("eisContainerRouteClient.findFreeContainerByAreaNo({}) return error, msg:{}", areaNos, message);
+            throw new RuntimeException(message);
         }
-        return Lists.newArrayList();
     }
 
     /**
@@ -77,22 +70,22 @@ public class FeignService {
      * @return
      */
     public List<Station> getAllUnlockAndClaimStation() {
-        List<Station> stationList = null;
-        RestMessage<List<Station>> stationResp = null;
+        RestMessage<List<Station>> webResp = null;
         try {
-            stationResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
+            webResp = eisWarehouseStationFeign.findAllUnlockAndClaimStation();
         } catch (Exception e) {
             log.error("getAllUnlockAndClaimStation excp:{}", e.getMessage());
+            throw new RuntimeException(e);
         }
 
-        log.error("getAllUnlockAndClaimStation return:{}", JSONObject.toJSONString(stationResp));
-        if (null != stationResp && stationResp.isSuccess()) {
-            stationList = stationResp.getData();
+        log.info("getAllUnlockAndClaimStation return:{}", JSONObject.toJSONString(webResp));
+        if (null != webResp && webResp.isSuccess()) {
+            return webResp.getData();
         } else {
-            String message = null == stationResp ? "resp is null" : stationResp.getMessage();
-            throw new PrologException(message);
+            String message = null == webResp ? "resp is null" : webResp.getMessage();
+            log.error("eisWarehouseStationFeign.findAllUnlockAndClaimStation() return error, msg:{}", message);
+            throw new RuntimeException(message);
         }
-        return stationList;
     }
 
     /**
@@ -106,18 +99,21 @@ public class FeignService {
         }
         String areaNos = MathHelper.strListToStr(areaNoList, ",");
         // 查询空闲容器
-        RestMessage<Map<String, StationDto>> areaNoAndContainerCountMapResp = null;
+        RestMessage<Map<String, StationDto>> webResp = null;
         try {
-            areaNoAndContainerCountMapResp = eisContainerRouteClient.findAreaNoAndContainerCountMap(areaNos);
+            webResp = eisContainerRouteClient.findAreaNoAndContainerCountMap(areaNos);
         } catch (Exception e) {
             log.error("findAreaNoAndContainerCountMap({}) excp:{}", areaNos, e.getMessage());
+            throw new RuntimeException(e);
         }
-        log.error("findAreaNoAndContainerCountMap({}) return:{}", areaNos, JSONObject.toJSONString(areaNoAndContainerCountMapResp));
-        Map<String, StationDto> areaNoAndContainerCountMap = Maps.newHashMap();
-        if (null != areaNoAndContainerCountMapResp && areaNoAndContainerCountMapResp.isSuccess()) {
-            areaNoAndContainerCountMap = areaNoAndContainerCountMapResp.getData();
+        log.info("findAreaNoAndContainerCountMap({}) return:{}", areaNos, JSONObject.toJSONString(webResp));
+        if (null != webResp && webResp.isSuccess()) {
+            return webResp.getData();
+        } else {
+            String message = null == webResp ? "resp is null" : webResp.getMessage();
+            log.error("eisContainerRouteClient.findAreaNoAndContainerCountMap({}) return error, msg:{}", areaNos, message);
+            throw new RuntimeException(message);
         }
-        return areaNoAndContainerCountMap;
     }
 
     /**
@@ -132,17 +128,18 @@ public class FeignService {
         }
         String containerNos = MathHelper.strListToStr(containerNoList, ",");
         // 根据托盘号查询托盘库存信息
-        RestMessage<List<EisInvContainerStoreVo>> invContainerStoreListResp = null;
+        RestMessage<List<EisInvContainerStoreVo>> webResp = null;
         try {
-            invContainerStoreListResp = eisInvContainerStoreSubFeign.findByContainerNo(containerNos);
+            webResp = eisInvContainerStoreSubFeign.findByContainerNo(containerNos);
         } catch (Exception e) {
             log.error("getInvContainerStoreListByContainerNoList({}) excp:{}", containerNos, e.getMessage());
+            throw new RuntimeException(e);
         }
 
-        log.error("getInvContainerStoreListByContainerNoList({}) return:{}", containerNos, JSONObject.toJSONString(invContainerStoreListResp));
+        log.info("getInvContainerStoreListByContainerNoList({}) return:{}", containerNos, JSONObject.toJSONString(webResp));
 
-        if (null != invContainerStoreListResp && invContainerStoreListResp.isSuccess()) {
-            List<EisInvContainerStoreVo> invContainerStoreList = invContainerStoreListResp.getData();
+        if (null != webResp && webResp.isSuccess()) {
+            List<EisInvContainerStoreVo> invContainerStoreList = webResp.getData();
             if (CollectionUtils.isEmpty(invContainerStoreList)) {
                 return Maps.newHashMap();
             }
@@ -155,10 +152,10 @@ public class FeignService {
             }
             return containerNoAndStoreMap;
         } else {
-            String message = null == invContainerStoreListResp ? "resp is null" : invContainerStoreListResp.getMessage();
-            log.error("getInvContainerStoreListByContainerNoList({}) return error, msg:{}", containerNos, message);
+            String message = null == webResp ? "resp is null" : webResp.getMessage();
+            log.error("eisInvContainerStoreSubFeign.findByContainerNo({}) return error, msg:{}", containerNos, message);
+            throw new RuntimeException(message);
         }
-        return Maps.newHashMap();
     }
 
     /**
@@ -179,6 +176,7 @@ public class FeignService {
             log.error("getWhLocatorListByLocationNoList({}) return:{}", locationNos, JSONObject.toJSONString(whLocatorListResp));
         } catch (Exception e) {
             log.error("getWhLocatorListByLocationNoList({}) excp:{}", locationNos, e.getMessage());
+            throw new RuntimeException(e);
         }
 
         if (null != whLocatorListResp && whLocatorListResp.isSuccess()) {
@@ -197,7 +195,7 @@ public class FeignService {
         } else {
             String message = null == whLocatorListResp ? "resp is null" : whLocatorListResp.getMessage();
             log.error("getWhLocatorListByLocationNoList({}) return error, msg:{}", locationNos, message);
+            throw new RuntimeException(message);
         }
-        return Maps.newHashMap();
     }
 }
