@@ -3,6 +3,8 @@ package com.prolog.eis.bc.facade.dto.inbound;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author: wuxl
  * @create: 2021-10-18 17:06
@@ -20,15 +22,9 @@ public class MasterInboundTaskDto {
     @ApiModelProperty("容器类型(-1空托剁、0非整托、1整托)")
     private int containerType;
 
-    @ApiModelProperty("商品id")
-    private String itemId;
-
-    @ApiModelProperty("批次id")
-    private String lotId;
-
-    @ApiModelProperty("数量")
-    private float qty;
-
     @ApiModelProperty("业务属性")
     private String businessProperty;
+
+    @ApiModelProperty("子容器集合")
+    private List<MasterInboundTaskSubDto> subList;
 }
