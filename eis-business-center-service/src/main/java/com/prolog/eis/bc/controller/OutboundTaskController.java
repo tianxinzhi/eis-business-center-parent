@@ -3,6 +3,7 @@ package com.prolog.eis.bc.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OutboundTaskController {
 
     @Autowired
+    @Qualifier("outboundTaskServiceImpl")
     private OutboundTaskService outboundTaskService;
 
     @ApiOperation(value = "生成拣选单", notes = "生成拣选单")

@@ -12,7 +12,7 @@ prolog:
     control: upcloud-base-wh-control-mysql-eistest-xt
     strategy: upcloud-base-strategy-mysql-eistest-xt
   serarch:
-    url: http://service-data-api-base/search
+    url: http://service-data-api-base-ai/search
 
 spring:
   application.name: service-ai-eis-business-center-eistest-xt
