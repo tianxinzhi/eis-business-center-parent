@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.prolog.eis.bc.facade.dto.businesscenter.OutboundTaskReportDto;
 import com.prolog.eis.bc.service.businesscenter.OutboundTaskReportService;
+import com.prolog.eis.common.util.JsonHelper;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskReport;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.pojo.Page;
@@ -39,6 +40,20 @@ public class OutboundTaskReportController {
     public RestMessage<List<OutboundTaskReport>> findAll() {
         List<OutboundTaskReport> list = service.findAll();
         return RestMessage.newInstance(true, "成功", list);
+    }
+
+    @ApiOperation(value = "出库任务回告转历史", notes = "出库任务回告转历史")
+    @PostMapping("/toCallbackHis")
+    public RestMessage<String> toCallbackHis(@RequestBody String json) throws Exception {
+        OutboundTaskReport outboundTaskReportCallback = JsonHelper.getObject(json, OutboundTaskReport.class);
+        RestMessage<String> restMessage;
+        try {
+            service.toCallbackHis(outboundTaskReportCallback);
+            restMessage = RestMessage.newInstance(true, "操作成功", null);
+        } catch (Exception e) {
+            restMessage = RestMessage.newInstance(false, "操作失败", e.getMessage());
+        }
+        return restMessage;
     }
 
 }

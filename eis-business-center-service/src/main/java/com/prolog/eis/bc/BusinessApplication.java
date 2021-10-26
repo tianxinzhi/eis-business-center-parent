@@ -1,5 +1,6 @@
 package com.prolog.eis.bc;
 
+import com.prolog.framework.authority.annotation.EnablePrologEmptySecurityServer;
 import com.prolog.framework.authority.annotation.EnablePrologResourceServer;
 import com.prolog.framework.bz.common.search.EnableSearchApi;
 import com.prolog.framework.microservice.annotation.EnablePrologService;
@@ -16,7 +17,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @Date 2021/9/13
  **/
 @EnableScheduling
-@EnablePrologResourceServer
+@EnablePrologEmptySecurityServer
+//@EnablePrologResourceServer
 @MapperScan({"com.prolog.eis.bc.dao", "com.prolog.eis.*.dao"})
 @EnableAsync
 @EnablePrologService

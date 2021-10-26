@@ -155,13 +155,25 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     public void applyContainer(ZxMcsInBoundResponseDto dto) throws Exception {
         PortInfo portInfo = validated(dto);
         //TODO 请求WMS拿数据
-        Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
-        RestMessage<MasterInboundTaskDto> masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
-        if (!masterRest.isSuccess()) {
-            log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
-            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
-        }
-        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
+//        Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
+//        RestMessage<MasterInboundTaskDto> masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
+//        if (!masterRest.isSuccess()) {
+//            log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
+//            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
+//        }
+//        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
+        MasterInboundTaskDto masterInboundTaskDto = new MasterInboundTaskDto();
+        masterInboundTaskDto.setUpperSystemTaskId("2");
+        masterInboundTaskDto.setContainerNo("1");
+        masterInboundTaskDto.setContainerType(1);
+        masterInboundTaskDto.setBusinessProperty("business");
+        masterInboundTaskDto.setSubList(Lists.newArrayList());
+        MasterInboundTaskSubDto subDto = new MasterInboundTaskSubDto();
+        subDto.setContainerSubNo("1");
+        subDto.setItemId("123");
+        subDto.setLotId("123");
+        subDto.setQty(1000.F);
+        masterInboundTaskDto.getSubList().add(subDto);
         if (null == masterInboundTaskDto) {
             throw new PrologException(String.format("容器{%}入库申请失败，WMS返回数据为空", dto.getStockId()));
         }

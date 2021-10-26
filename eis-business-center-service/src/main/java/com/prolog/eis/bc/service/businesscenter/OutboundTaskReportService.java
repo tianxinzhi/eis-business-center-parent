@@ -25,4 +25,10 @@ public interface OutboundTaskReportService {
      */
     List<OutboundTaskReport> findAll();
 
+    /**
+     * 出库任务回告转历史
+     * @param outboundTaskReportCallback 出库任务
+     */
+    void toCallbackHis(OutboundTaskReport outboundTaskReportCallback) throws Exception;
+
 }
