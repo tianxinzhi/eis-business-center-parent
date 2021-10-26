@@ -71,6 +71,16 @@ public class OutboundTaskController {
         return RestMessage.newInstance(true, "成功", list);
     }
 
+    @ApiOperation(value = "根据Id查询出库任务单", notes = "根据Id查询出库任务单")
+    @PostMapping("/getOneById")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "OutboundTaskDto", value = "出库任务单") })
+    public RestMessage<OutboundTask> getOneById(
+            @RequestBody OutboundTaskDto dto) {
+        OutboundTask result = outboundTaskService.getOneById(dto.getId());
+        return RestMessage.newInstance(true, "成功", result);
+    }
+
     @Autowired
     private OutboundStrategyConfigService outboundStrategyConfigService;
     @Autowired

@@ -57,4 +57,11 @@ public interface OutboundTaskService {
      */
     List<BizOutTask> getListByTypeNoListAndStateList(List<String> typeNoList,
             List<Integer> stateList);
+
+    /**
+     * 根据Id查询
+     * @param id 主键Id
+     * @return
+     */
+    OutboundTask getOneById(String id);
 }

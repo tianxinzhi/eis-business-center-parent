@@ -334,4 +334,12 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         return getBizOutTaskListByTaskList(outboundTaskMapper.findByCriteria(criteria));
     }
 
+    @Override
+    public OutboundTask getOneById(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return null;
+        }
+        return outboundTaskMapper.findById(id, OutboundTask.class);
+    }
+
 }

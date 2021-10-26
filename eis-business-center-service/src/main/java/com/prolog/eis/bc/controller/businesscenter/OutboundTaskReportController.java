@@ -34,14 +34,10 @@ public class OutboundTaskReportController {
         return RestMessage.newInstance(true,"成功",page);
     }
 
-    @ApiOperation(value = "根据上游系统任务单Id查询出库任务单回告", notes = "根据上游系统任务单Id查询出库任务单回告")
-    @PostMapping("/getListByUpperSystemTaskId")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "OutboundTaskReportDto", value = "出库任务单回告") })
-    public RestMessage<List<OutboundTaskReport>> getListByUpperSystemTaskId(
-            @RequestBody OutboundTaskReportDto dto) {
-        List<OutboundTaskReport> list = service
-                .getListByUpperSystemTaskId(dto.getUpperSystemTaskId());
+    @ApiOperation(value = "查询全部出库任务单回告", notes = "查询全部出库任务单回告")
+    @PostMapping("/findAll")
+    public RestMessage<List<OutboundTaskReport>> findAll() {
+        List<OutboundTaskReport> list = service.findAll();
         return RestMessage.newInstance(true, "成功", list);
     }
 

@@ -79,14 +79,8 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
     }
 
     @Override
-    public List<OutboundTaskReport> getListByUpperSystemTaskId(
-            String upperSystemTaskId) {
-        if (StringUtils.isEmpty(upperSystemTaskId)) {
-            return Lists.newArrayList();
-        }
+    public List<OutboundTaskReport> findAll() {
         Criteria criteria = new Criteria(OutboundTaskReport.class);
-        criteria.setRestriction(Restrictions
-                .and(Restrictions.eq("upperSystemTaskId", upperSystemTaskId)));
         return outboundTaskReportMapper.findByCriteria(criteria);
     }
 
