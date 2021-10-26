@@ -170,17 +170,17 @@ public class FeignService {
         }
         String locationNos = MathHelper.strListToStr(locationNoList, ",");
         // 根据托盘号查询托盘库存信息
-        RestMessage<List<WhLocatorDto>> whLocatorListResp = null;
+        RestMessage<List<WhLocatorDto>> webResp = null;
         try {
-            whLocatorListResp = eisWarehouseStationFeign.getWhLocatorListByLocationNos(locationNos);
-            log.error("getWhLocatorListByLocationNoList({}) return:{}", locationNos, JSONObject.toJSONString(whLocatorListResp));
+            webResp = eisWarehouseStationFeign.getWhLocatorListByLocationNos(locationNos);
+            log.info("getWhLocatorListByLocationNoList({}) return:{}", locationNos, JSONObject.toJSONString(webResp));
         } catch (Exception e) {
             log.error("getWhLocatorListByLocationNoList({}) excp:{}", locationNos, e.getMessage());
             throw new RuntimeException(e);
         }
 
-        if (null != whLocatorListResp && whLocatorListResp.isSuccess()) {
-            List<WhLocatorDto> whLocatorList = whLocatorListResp.getData();
+        if (null != webResp && webResp.isSuccess()) {
+            List<WhLocatorDto> whLocatorList = webResp.getData();
             if (CollectionUtils.isEmpty(whLocatorList)) {
                 return Maps.newHashMap();
             }
@@ -193,7 +193,7 @@ public class FeignService {
             }
             return locationNoAndLocatorMap;
         } else {
-            String message = null == whLocatorListResp ? "resp is null" : whLocatorListResp.getMessage();
+            String message = null == webResp ? "resp is null" : webResp.getMessage();
             log.error("getWhLocatorListByLocationNoList({}) return error, msg:{}", locationNos, message);
             throw new RuntimeException(message);
         }
