@@ -10,6 +10,8 @@ import org.apache.poi.ss.formula.functions.T;
 public class WholeStationDto {
 
     private String stationId;
+
+    private String areaNo;
     /**
      * 是否锁定 0-unlock
      */
@@ -81,7 +83,17 @@ public class WholeStationDto {
         this.chuKuLxCount = chuKuLxCount;
     }
 
+    public String getAreaNo() {
+        return areaNo;
+    }
+
+    public void setAreaNo(String areaNo) {
+        this.areaNo = areaNo;
+    }
+
     public int getContainerCount() {
         return this.chuKuLxCount + this.arriveLxCount;
     }
+
+
 }

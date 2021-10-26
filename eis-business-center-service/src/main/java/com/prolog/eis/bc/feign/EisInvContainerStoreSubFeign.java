@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
 
-@FeignClient(value = "${prolgo.service.inventory:upcloud-base-inventory-mysql}")
+@FeignClient(value = "${prolog.service.inventory:upcloud-base-inventory-mysql}")
 public interface EisInvContainerStoreSubFeign {
 
     @GetMapping("/eisInvSub/findSumQtyGroupByLotId")

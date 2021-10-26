@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(value = "${prolgo.service.warehouse:upcloud-base-wh-dev-mysql}")
+@FeignClient(value = "${prolog.service.warehouse:upcloud-base-wh-dev-mysql}")
 public interface MasterInboundFeign {
 
     @PostMapping("/master/inboundTask")

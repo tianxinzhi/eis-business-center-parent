@@ -4,6 +4,7 @@ import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaParamDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaResultDto;
 import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
+import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.core.model.biz.route.ContainerLocation;
 import com.prolog.eis.router.vo.ContainerLocationVo;
 import com.prolog.framework.common.message.RestMessage;
@@ -68,4 +69,6 @@ public interface EisContainerRouteClient {
     RestMessage<Map<String, StationDto>> findAreaNoAndContainerCountMap(
             @RequestParam(value = "areaNos", required = false) String areaNos);
 
+    @PostMapping("/api/v1/route/carry/createBatchCarry")
+    RestMessage<String> createBatchCarry(@RequestBody List<CarryTask> carryTaskList);
 }

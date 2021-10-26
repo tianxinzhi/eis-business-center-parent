@@ -192,6 +192,7 @@ public class OutboundWholeDataInitServiceImpl implements OutboundWholeDataInitSe
                     wholeStationDto.setArriveLxCount(0);
                     wholeStationDto.setChuKuLxCount(0);
                 }
+                wholeStationDto.setAreaNo(station.getAreaNo());
                 wholeStationDto.setIsLock(station.getIsLock());
                 wholeStationDto.setIsClaim(station.getClaim());
                 wholeStationDto.setStationId(station.getId());

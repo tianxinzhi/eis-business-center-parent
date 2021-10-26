@@ -17,6 +17,7 @@ import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBind;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.ctrl.outbound.OutboundStrategyTargetStationConfig;
+import com.prolog.eis.router.vo.ContainerLocationVo;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.utils.MapUtils;
@@ -99,7 +100,7 @@ public class OutWholeServiceImpl implements OutWholeService {
     @Override
     public void generateData(List<WholeOutStrategyResultDto> result, OutTaskAlgorithmDto outTaskAlgorithmDto, WholeStationDto wholeStationDto, OutboundStrategyConfigVo outboundStrategyConfigVo) throws Exception {
         this.generateContainerBindTask(result, outTaskAlgorithmDto, wholeStationDto, outboundStrategyConfigVo);
-        this.sendCarryTask(result);
+        this.sendCarryTask(result, wholeStationDto);
     }
 
     /**
@@ -161,18 +162,37 @@ public class OutWholeServiceImpl implements OutWholeService {
     /**
      * 生成搬运任务
      */
-    private void sendCarryTask(List<WholeOutStrategyResultDto> wholeOutStrategyResultDtos) throws Exception {
+    private void sendCarryTask(List<WholeOutStrategyResultDto> wholeOutStrategyResultDtos, WholeStationDto wholeStationDto) throws Exception {
         List<String> containerList = wholeOutStrategyResultDtos.stream().map(p -> p.getContaienrNo()).collect(Collectors.toList());
-//        CarryTask carryInterfaceTask = new CarryTask();
-//        carryInterfaceTask.setId(PrologStringUtils.newGUID());
-//        carryInterfaceTask.setContainerNo(containerTaskDetail.getContainerNo());
-//        carryInterfaceTask.setTaskType(20);
-//        carryInterfaceTask.setStartLocation(containerTaskDetail.getSourceArea());
-//        carryInterfaceTask.setStartLocation(containerTaskDetail.getSourceLocation());
-//        carryInterfaceTask.setEndRegion(containerTaskDetail.getTargetArea());
-//        carryInterfaceTask.setEndLocation(containerTaskDetail.getTargetLocation());
-//        carryInterfaceTask.setPriority(containerTask.getPriority() != 0 ? containerTask.getPriority() : containerTaskStrategy.getPriority());
-//        String json = JSONObject.toJSONString(carryInterfaceTask);
-//        RestMessage<String> carry = eisContainerRouteClient.createCarry(json);
+
+        /**
+         * 查询容器位置
+         */
+        RestMessage<List<ContainerLocationVo>> locationByContainerListRest = eisContainerRouteClient.findLocationByContainerList(containerList);
+        if (!locationByContainerListRest.isSuccess() || locationByContainerListRest.getData() == null) {
+            throw new PrologException("请求容器位置失败");
+        }
+        List<ContainerLocationVo> containerLocationVoList = locationByContainerListRest.getData();
+        List<CarryTask> carryTaskList = new ArrayList<>();
+        for (String containerNo : containerList) {
+            ContainerLocationVo containerLocationVo = containerLocationVoList.stream().filter(p -> containerNo.equals(p.getContainerNo())).findFirst().orElse(null);
+            if (containerLocationVo == null) {
+                throw new PrologException(String.format("容器号[%s]无法查询到位置,严重异常,请检查数据", containerNo));
+            }
+            CarryTask carryInterfaceTask = new CarryTask();
+            carryInterfaceTask.setId(PrologStringUtils.newGUID());
+            carryInterfaceTask.setContainerNo(containerNo);
+            carryInterfaceTask.setTaskType(20);
+            carryInterfaceTask.setStartLocation(containerLocationVo.getSourceArea());
+            carryInterfaceTask.setStartLocation(containerLocationVo.getSourceLocation());
+            carryInterfaceTask.setEndRegion(wholeStationDto.getAreaNo());
+            carryInterfaceTask.setPriority(50);
+            carryTaskList.add(carryInterfaceTask);
+
+        }
+        RestMessage<String> carry = eisContainerRouteClient.createBatchCarry(carryTaskList);
+        if(carry.isSuccess()){
+            throw new PrologException("生成搬运任务失败,请检查路径服务");
+        }
     }
 }
