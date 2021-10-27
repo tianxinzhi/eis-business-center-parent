@@ -27,14 +27,5 @@ public interface OutWholeService {
      */
     boolean outContainer(WholeStationDto wholeStationDto, WholeOutTaskContainerDto wholeOutTaskContainerDto, StrategyDTO data, OutboundStrategyTargetStationConfig outboundStrategyTargetStationConfig, OutboundStrategyConfigVo outboundStrategyConfigVo)throws Exception;
 
-    /**
-     * 生成数据
-     * @param result
-     * @param outTaskAlgorithmDto
-     * @param wholeStationDto
-     * @param outboundStrategyConfigVo
-     * @throws Exception
-     */
-    void generateData(List<WholeOutStrategyResultDto> result, OutTaskAlgorithmDto outTaskAlgorithmDto, WholeStationDto wholeStationDto, OutboundStrategyConfigVo outboundStrategyConfigVo)throws Exception;
 
 }
