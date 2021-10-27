@@ -68,9 +68,9 @@ public interface OutboundTaskService {
 
     /**
      * 根据容器No查询关联的出库任务
-     * @param containerNos 容器No多个以英文,分隔
+     * @param containerNoList 容器No集合
      * @return
      */
-    List<OutboundTaskIssueDto> getOutboundTaskListByContainerNos(
-            String containerNos);
+    List<OutboundTaskIssueDto> getOutboundTaskListByContainerNoList(
+            List<String> containerNoList);
 }

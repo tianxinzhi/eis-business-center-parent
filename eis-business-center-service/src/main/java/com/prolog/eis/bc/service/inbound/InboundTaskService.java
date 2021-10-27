@@ -78,4 +78,11 @@ public interface InboundTaskService {
      * @param map
      */
     long updateById(String id, Map<String, Object> map);
+
+    /**
+     * 根据任务Id查询入库任务
+     * @param taskIdList 任务Id
+     * @return 入库任务列表
+     */
+    List<InboundTask> getListByIdList(List<String> taskIdList);
 }

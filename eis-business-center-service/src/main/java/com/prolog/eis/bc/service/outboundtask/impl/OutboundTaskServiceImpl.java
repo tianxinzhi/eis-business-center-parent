@@ -345,9 +345,8 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
     }
 
     @Override
-    public List<OutboundTaskIssueDto> getOutboundTaskListByContainerNos(
-            String containerNos) {
-        List<String> containerNoList = MathHelper.strToStrList(containerNos, ",");
+    public List<OutboundTaskIssueDto> getOutboundTaskListByContainerNoList(
+            List<String> containerNoList) {
         if (CollectionUtils.isEmpty(containerNoList)) {
             return Lists.newArrayList();
         }
