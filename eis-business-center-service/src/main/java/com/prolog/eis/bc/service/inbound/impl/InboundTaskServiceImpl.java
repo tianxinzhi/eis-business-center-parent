@@ -35,6 +35,8 @@ import com.prolog.framework.core.exception.NotFoundException;
 import com.prolog.framework.core.exception.NullParameterException;
 import com.prolog.framework.core.exception.PrologException;
 import com.prolog.framework.core.pojo.Page;
+import com.prolog.framework.core.restriction.Criteria;
+import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
 import com.prolog.framework.utils.MapUtils;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
@@ -308,4 +310,15 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         vo.setInboundTaskDetailVoList(detailList);
         return vo;
     }
+
+    @Override
+    public List<InboundTask> getListByIdList(List<String> taskIdList) {
+        if (CollectionUtils.isEmpty(taskIdList)) {
+            return Lists.newArrayList();
+        }
+        Criteria inboundTaskCrt = Criteria.forClass(InboundTask.class);
+        inboundTaskCrt.setRestriction(Restrictions.in("id", taskIdList.toArray()));
+        return inboundTaskMapper.findByCriteria(inboundTaskCrt);
+    }
+
 }

@@ -3,6 +3,7 @@ package com.prolog.eis.bc.service.outboundtask;
 import java.util.List;
 
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
+import com.prolog.eis.core.dto.business.outboundtask.OutboundTaskIssueDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 
 /**
@@ -64,4 +65,12 @@ public interface OutboundTaskService {
      * @return
      */
     OutboundTask getOneById(String id);
+
+    /**
+     * 根据容器No查询关联的出库任务
+     * @param containerNoList 容器No集合
+     * @return
+     */
+    List<OutboundTaskIssueDto> getOutboundTaskListByContainerNoList(
+            List<String> containerNoList);
 }

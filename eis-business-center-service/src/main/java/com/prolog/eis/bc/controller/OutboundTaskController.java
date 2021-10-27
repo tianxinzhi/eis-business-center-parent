@@ -19,6 +19,8 @@ import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
 import com.prolog.eis.bc.service.dispatch.datainit.OutboundWholeDataInitService;
 import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
+import com.prolog.eis.common.util.JsonHelper;
+import com.prolog.eis.core.dto.business.outboundtask.OutboundTaskIssueDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.framework.common.message.RestMessage;
 
@@ -101,4 +103,15 @@ public class OutboundTaskController {
         return RestMessage.newInstance(true, "成功", null);
     }
 
+    @ApiOperation(value = "根据容器号查询绑定的出库任务", notes = "根据容器号查询绑定的出库任务")
+    @PostMapping("/getOutboundTaskListByContainerNoList")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "json", value = "托盘号数组") })
+    public RestMessage<List<OutboundTaskIssueDto>> getOutboundTaskListByContainerNoList(
+            @RequestBody String json) throws Exception {
+        List<String> containerNoList = JsonHelper.getStringList(json);
+        List<OutboundTaskIssueDto> result = outboundTaskService
+                .getOutboundTaskListByContainerNoList(containerNoList);
+        return RestMessage.newInstance(true, "成功", result);
+    }
 }

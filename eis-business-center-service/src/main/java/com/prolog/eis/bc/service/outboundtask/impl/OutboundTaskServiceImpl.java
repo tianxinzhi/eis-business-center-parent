@@ -29,12 +29,15 @@ import com.prolog.eis.bc.service.outboundtask.OutboundTaskDetailHistoryService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskHistoryService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
 import com.prolog.eis.bc.service.pickingorder.PickingOrderService;
+import com.prolog.eis.common.util.MathHelper;
 import com.prolog.eis.component.algorithm.composeorder.ComposeOrderUtils;
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTask;
 import com.prolog.eis.component.algorithm.composeorder.entity.BizOutTaskDetail;
 import com.prolog.eis.component.algorithm.composeorder.entity.PickingOrderDto;
 import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
 import com.prolog.eis.component.algorithm.composeorder.entity.WarehouseDto;
+import com.prolog.eis.core.dto.business.outboundtask.OutboundTaskDetailIssueDto;
+import com.prolog.eis.core.dto.business.outboundtask.OutboundTaskIssueDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskBindDetail;
 import com.prolog.eis.core.model.biz.outbound.OutboundTaskDetail;
@@ -100,17 +103,17 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             // 出单任务，从订单池获取biz_eis_out_task表 state=未开始
             List<BizOutTask> outTaskList = this.findAllNoStartTask();
 
-            log.error("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
+            log.info("outboundTaskService.findAllNoStartTask() return:{}", JSONObject.toJSONString(outTaskList));
 
             WarehouseDto warehouse = outboundTaskBizService.getWarehouseByPickingOrderOutModel(config);
-            log.error("outboundTaskBizService.getWarehouseByPickingOrderOutModel({}) return:{}", JSONObject.toJSONString(config), JSONObject.toJSONString(warehouse));
+            log.info("outboundTaskBizService.getWarehouseByPickingOrderOutModel({}) return:{}", JSONObject.toJSONString(config), JSONObject.toJSONString(warehouse));
             if (OutboundStrategyConfigConstant.ALGORITHM_COMPOSE_SIMILARITY.equals(composeOrderConfig)) {
                 warehouse.getStationList().sort(Comparator.comparingInt(StationDto::computeContainerCount));
                 for (StationDto station : warehouse.getStationList()) {
                     try {
                         // 筛选出最合适的任务
                         PickingOrderDto pickingOrderDto = ComposeOrderUtils.compose(station, warehouse, outTaskList);
-                        log.error("ComposeOrderUtils.compose({},{},{}) return:{}", JSONObject.toJSONString(station), JSONObject.toJSONString(warehouse), JSONObject.toJSONString(outTaskList), JSONObject.toJSONString(pickingOrderDto));
+                        log.info("ComposeOrderUtils.compose({},{},{}) return:{}", JSONObject.toJSONString(station), JSONObject.toJSONString(warehouse), JSONObject.toJSONString(outTaskList), JSONObject.toJSONString(pickingOrderDto));
                         if (pickingOrderDto == null) {
                             continue;
                         }
@@ -262,7 +265,6 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         // 按照PickingOrderId分类
         Map<String, List<OutboundTask>> taskListGroupByPickingOrderIdMap = filterTaskList
                 .stream().collect(Collectors.groupingBy(OutboundTask::getPickingOrderId));
-        log.error("taskListGroupByPickingOrderIdMap:{}", JSONObject.toJSONString(taskListGroupByPickingOrderIdMap));
         for (String pickingOrderId : taskListGroupByPickingOrderIdMap.keySet()) {
             // 根据pickingOrderId， 判断关联的outboundTask完成情况，进行后续操作
             List<OutboundTask> pickingOrderIdTaskList = taskListGroupByPickingOrderIdMap.get(pickingOrderId);
@@ -279,7 +281,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             }
             // 全部已完成->生成回执->转入历史
             if (isPickingOrderIdTaskListStateAllFinish) {
-                log.error("找到已全部完成的outboundTask, 对应拣选单Id:{}, 准备生成回告，历史，并删除原数据", pickingOrderId);
+                log.info("找到已全部完成的outboundTask, 对应拣选单Id:{}, 准备生成回告，历史，并删除原数据", pickingOrderId);
                 // PickingOrderIdTaskList转Id集合
                 List<String> pickingOrderIdTaskIdList = pickingOrderIdTaskList.stream().map(OutboundTask::getId).collect(Collectors.toList());
                 // 生成回执
@@ -300,7 +302,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
                     outboundTaskDetailMapper.deleteByIds(relaTaskDtIdList.toArray(), OutboundTaskDetail.class);
                 }
             } else {
-                log.error("找到没有全部完成的outboundTask, 对应拣选单Id:{}, 不执行操作", pickingOrderId);
+                log.info("找到没有全部完成的outboundTask, 对应拣选单Id:{}, 不执行操作", pickingOrderId);
             }
         }
     }
@@ -340,6 +342,58 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
             return null;
         }
         return outboundTaskMapper.findById(id, OutboundTask.class);
+    }
+
+    @Override
+    public List<OutboundTaskIssueDto> getOutboundTaskListByContainerNoList(
+            List<String> containerNoList) {
+        if (CollectionUtils.isEmpty(containerNoList)) {
+            return Lists.newArrayList();
+        }
+        // 根据托盘查询 任务绑定明细
+        Criteria outboundTaskBindDtCrt = Criteria.forClass(OutboundTaskBindDetail.class);
+        outboundTaskBindDtCrt.setRestriction(Restrictions.in("containerNo", containerNoList.toArray()));
+        List<OutboundTaskBindDetail> taskBindDtList = outboundTaskBindDtMapper.findByCriteria(outboundTaskBindDtCrt);
+        if (CollectionUtils.isEmpty(taskBindDtList)) {
+            return Lists.newArrayList();
+        }
+        // 根据 任务绑定明细.出库任务明细Id查询出库任务明细
+        List<String> taskDtIdList = taskBindDtList.stream().filter(e -> !StringUtils.isEmpty(e.getOutTaskDetailId())).map(e -> e.getOutTaskDetailId()).collect(Collectors.toList());
+        Criteria outboundTaskDtCrt = Criteria.forClass(OutboundTaskDetail.class);
+        outboundTaskDtCrt.setRestriction(Restrictions.in("id", taskDtIdList.toArray()));
+        List<OutboundTaskDetail> taskDtList = outboundTaskDetailMapper.findByCriteria(outboundTaskDtCrt);
+        if (CollectionUtils.isEmpty(taskDtList)) {
+            return Lists.newArrayList();
+        }
+        // 根据出库任务明细.出库任务Id查询出库任务
+        List<String> taskIdList = taskDtList.stream().filter(e -> !StringUtils.isEmpty(e.getOutTaskId())).map(e -> e.getOutTaskId()).collect(Collectors.toList());
+        Criteria outboundTaskCrt = Criteria.forClass(OutboundTask.class);
+        outboundTaskCrt.setRestriction(Restrictions.in("id", taskIdList.toArray()));
+        List<OutboundTask> taskList = outboundTaskMapper.findByCriteria(outboundTaskCrt);
+        if (CollectionUtils.isEmpty(taskList)) {
+            return Lists.newArrayList();
+        }
+        // 将出库任务明细 按照 任务Id分组
+        Map<String, List<OutboundTaskDetail>> taskIdAndTaskDtListMap = taskDtList.stream().filter(e -> !StringUtils.isEmpty(e.getOutTaskId())).collect(Collectors.groupingBy(e -> e.getOutTaskId()));
+        List<OutboundTaskIssueDto> taskDtoList = Lists.newArrayList();
+        for (OutboundTask task : taskList) {
+            // 出库任务数据库对象->出库任务业务对象
+            OutboundTaskIssueDto taskDto = new OutboundTaskIssueDto();
+            BeanUtils.copyProperties(task, taskDto);
+            // 出库任务明细数据库对象->出库任务明细业务对象
+            List<OutboundTaskDetailIssueDto> taskDtDtoList = Lists.newArrayList();
+            List<OutboundTaskDetail> subTaskDtList = taskIdAndTaskDtListMap.get(task.getId());
+            if (!CollectionUtils.isEmpty(subTaskDtList)) {
+                for (OutboundTaskDetail subTaskDt : subTaskDtList) {
+                    OutboundTaskDetailIssueDto taskDtDto = new OutboundTaskDetailIssueDto();
+                    BeanUtils.copyProperties(subTaskDt, taskDtDto);
+                    taskDtDtoList.add(taskDtDto);
+                }
+            }
+            taskDto.setOutboundTaskDetailIssueList(taskDtDtoList);
+            taskDtoList.add(taskDto);
+        }
+        return taskDtoList;
     }
 
 }

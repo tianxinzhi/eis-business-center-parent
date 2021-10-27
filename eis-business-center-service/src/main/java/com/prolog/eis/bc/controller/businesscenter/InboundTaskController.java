@@ -13,6 +13,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,4 +66,15 @@ public class InboundTaskController {
         inboundTaskService.applyContainer(dto);
         return RestMessage.newInstance(true, "入库申请成功", null);
     }
+
+    @ApiOperation(value = "根据入库任务Id查询", notes = "根据入库任务Id查询")
+    @PostMapping("/getListByIdList")
+    public RestMessage<List<InboundTask>> getListByIdList(
+            @RequestBody String json) throws Exception {
+        log.info("getListByIdList called, param:{}", json);
+        List<String> taskIdList = JsonHelper.getStringList("json");
+        List<InboundTask> result = inboundTaskService.getListByIdList(taskIdList);
+        return RestMessage.newInstance(true, "成功", result);
+    }
+
 }
