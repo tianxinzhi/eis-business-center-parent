@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
@@ -19,6 +20,7 @@ import com.prolog.eis.bc.facade.vo.OutboundStrategyConfigVo;
 import com.prolog.eis.bc.service.dispatch.datainit.OutboundWholeDataInitService;
 import com.prolog.eis.bc.service.outboundtask.OutboundStrategyConfigService;
 import com.prolog.eis.bc.service.outboundtask.OutboundTaskService;
+import com.prolog.eis.core.dto.business.outboundtask.OutboundTaskIssueDto;
 import com.prolog.eis.core.model.biz.outbound.OutboundTask;
 import com.prolog.framework.common.message.RestMessage;
 
@@ -101,4 +103,13 @@ public class OutboundTaskController {
         return RestMessage.newInstance(true, "成功", null);
     }
 
+    @ApiOperation(value = "根据容器号查询绑定的出库任务", notes = "根据容器号查询绑定的出库任务")
+    @PostMapping("/getOutboundTaskListByContainerNos")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "containerNos", value = "托盘号多个以英文,分隔") })
+    public RestMessage<List<OutboundTaskIssueDto>> getOutboundTaskListByContainerNos(
+            @RequestParam(value = "containerNos", required = false) String containerNos) {
+        List<OutboundTaskIssueDto> result = outboundTaskService.getOutboundTaskListByContainerNos(containerNos);
+        return RestMessage.newInstance(true, "成功", result);
+    }
 }
