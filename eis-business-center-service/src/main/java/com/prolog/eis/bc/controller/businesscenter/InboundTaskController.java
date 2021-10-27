@@ -2,6 +2,7 @@ package com.prolog.eis.bc.controller.businesscenter;
 
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
+import com.prolog.eis.bc.service.inbound.InboundDispatch;
 import com.prolog.eis.bc.service.inbound.InboundTaskService;
 import com.prolog.eis.common.util.JsonHelper;
 import com.prolog.eis.component.algorithm.InterfaceDtoUtil;
@@ -12,15 +13,14 @@ import com.prolog.framework.core.pojo.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author: wuxl
@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class InboundTaskController {
     @Autowired
     private InboundTaskService inboundTaskService;
+    @Autowired
+    private InboundDispatch inboundDispatch;
 
     @ApiOperation(value = "入库任务单查询", notes = "入库任务单查询")
     @PostMapping("/list")
@@ -77,4 +79,11 @@ public class InboundTaskController {
         return RestMessage.newInstance(true, "成功", result);
     }
 
+
+    @ApiOperation(value = "入库调度", notes = "入库调度")
+    @PostMapping("/dispatch")
+    public RestMessage<String> inboundDispatch() throws Exception {
+        inboundDispatch.inboundSchedule();
+        return RestMessage.newInstance(true, "入库申请成功", null);
+    }
 }

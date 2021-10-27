@@ -45,7 +45,8 @@ public interface InboundTaskDetailMapper extends BaseMapper<InboundTaskDetail> {
             @Result(property = "detailStatus", column = "detail_status"),
             @Result(property = "createTime", column = "create_time"),
             @Result(property = "startTime", column = "start_time"),
-            @Result(property = "finishTime", column = "finish_time")
+            @Result(property = "finishTime", column = "finish_time"),
+            @Result(property = "businessProperty", column = "business_property")
     })
     List<InboundTaskDetailVo> findByParam(@Param("inboundTaskId") String inboundTaskId);
 }

@@ -156,32 +156,51 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     @Override
     public void applyContainer(ZxMcsInBoundResponseDto dto) throws Exception {
         PortInfo portInfo = validated(dto);
+        Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
+        RestMessage<MasterInboundTaskDto> masterRest;
         //TODO 请求WMS拿数据
-//        Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
-//        RestMessage<MasterInboundTaskDto> masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
-//        if (!masterRest.isSuccess()) {
-//            log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
-//            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
-//        }
-//        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
-        MasterInboundTaskDto masterInboundTaskDto = new MasterInboundTaskDto();
-        masterInboundTaskDto.setUpperSystemTaskId("2");
-        masterInboundTaskDto.setContainerNo("1");
-        masterInboundTaskDto.setContainerType(1);
-        masterInboundTaskDto.setBusinessProperty("business");
-        masterInboundTaskDto.setSubList(Lists.newArrayList());
-        MasterInboundTaskSubDto subDto = new MasterInboundTaskSubDto();
-        subDto.setContainerSubNo("1");
-        subDto.setItemId("123");
-        subDto.setLotId("123");
-        subDto.setQty(1000.F);
-        masterInboundTaskDto.getSubList().add(subDto);
+        if (StringUtils.isEmpty(dto.getTarget())) {
+            masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
+        } else {
+            masterRest = testData(dto);
+        }
+        if (!masterRest.isSuccess()) {
+            log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
+        }
+        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
         if (null == masterInboundTaskDto) {
-            throw new PrologException(String.format("容器{%}入库申请失败，WMS返回数据为空", dto.getStockId()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，WMS返回数据为空", dto.getStockId()));
         }
         //生成标准入库单
         InboundTaskVo inboundTaskVo = convertDto(dto, portInfo, masterInboundTaskDto);
         createInboundTask(inboundTaskVo);
+    }
+
+    private RestMessage<MasterInboundTaskDto> testData(ZxMcsInBoundResponseDto dto) {
+        RestMessage<MasterInboundTaskDto> restMessage = new RestMessage<>();
+
+        MasterInboundTaskDto dto1 = new MasterInboundTaskDto();
+        dto1.setUpperSystemTaskId(PrologStringUtils.newGUID());
+        dto1.setContainerNo(dto.getStockId());
+        dto1.setContainerType(1);
+        dto1.setBusinessProperty("111@222");
+
+        MasterInboundTaskSubDto dto2 = new MasterInboundTaskSubDto();
+        dto2.setContainerSubNo(dto.getStockId());
+        dto2.setItemId("111");
+        dto2.setLotId("222");
+        dto2.setQty(99);
+
+        List<MasterInboundTaskSubDto> subList = Lists.newArrayList();
+        subList.add(dto2);
+        dto1.setSubList(subList);
+
+        restMessage.setSuccess(true);
+        restMessage.setMessage("操作工程");
+        restMessage.setCode("200");
+        restMessage.setData(dto1);
+        return restMessage;
     }
 
     @Override
@@ -230,43 +249,43 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         RestMessage<List<EisInvContainerStoreVo>> containerRest = eisInvContainerStoreSubFeign.findByContainerNo(dto.getStockId());
         if (!containerRest.isSuccess()) {
             log.error(String.format("[findByContainerNo]：查询库存失败：%s", containerRest.getMessage()));
-            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), containerRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), containerRest.getMessage()));
         }
         List<EisInvContainerStoreVo> containerList = containerRest.getData();
         if (!CollectionUtils.isEmpty(containerList)) {
-            throw new PrologException(String.format("容器{%}入库申请失败，库存已存在", dto.getStockId()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，库存已存在", dto.getStockId()));
         }
         //调用路径服务，找容器是否存在
         Map<String, Object> map = MapUtils.put("containerNo", dto.getStockId()).getMap();
         RestMessage<String> locationRest = eisContainerRouteClient.findContainerLocation(JsonHelper.toJson(map));
         if (!locationRest.isSuccess()) {
             log.error(String.format("[findContainerLocation]：查询容器位置失败：%s", locationRest.getMessage()));
-            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), locationRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), locationRest.getMessage()));
         }
         String data = locationRest.getData();
         ContainerLocationRespDto containerLocationRespDto = JsonHelper.getObject(data, ContainerLocationRespDto.class);
         if (ContainerLocationRespDto.CONTAINER_ERROR_STATE != containerLocationRespDto.getState()) {
-            throw new PrologException(String.format("容器{%}入库申请失败，容器位置已存在", dto.getStockId()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，容器位置已存在", dto.getStockId()));
         }
         //调用仓库服务，找区域配置
         RestMessage<WhArea> areaRest = eisWarehouseStationFeign.getAreaByLocation(dto.getSource());
         if (!areaRest.isSuccess()) {
             log.error(String.format("[getAreaByLocation]：查询区域失败：%s", areaRest.getMessage()));
-            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), areaRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), areaRest.getMessage()));
         }
         WhArea whArea = areaRest.getData();
         if (null == whArea) {
-            throw new PrologException(String.format("容器{%}入库申请失败，坐标区域不存在", dto.getStockId()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，坐标区域不存在", dto.getStockId()));
         }
         //调用控制服务，找入库口配置
         RestMessage<PortInfo> portRest = eisControllerClient.getPortByArea(whArea.getAreaNo());
         if (!portRest.isSuccess()) {
             log.error(String.format("[getPortByArea]：查询入库口失败：%s", portRest.getMessage()));
-            throw new PrologException(String.format("容器{%}入库申请失败，{%s}", dto.getStockId(), portRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), portRest.getMessage()));
         }
         PortInfo portInfo = portRest.getData();
         if (null == portInfo) {
-            throw new PrologException(String.format("容器{%}入库申请失败，出入口资料不存在", dto.getStockId()));
+            throw new PrologException(String.format("容器{%s}入库申请失败，出入口资料不存在", dto.getStockId()));
         }
         return portInfo;
     }

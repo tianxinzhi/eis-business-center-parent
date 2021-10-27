@@ -5,7 +5,7 @@ prolog.tx.url: http://192.168.0.167:7000/tx/manager/
 server:
   port: 40014
 prolog:
-  serivce:
+  service:
     inventory: upcloud-base-inventory-mysql-eistest-xt
     route: service-ai-eis-route-center-eistest-xt
     warehouse: upcloud-base-wh-dev-mysql-eistest-xt

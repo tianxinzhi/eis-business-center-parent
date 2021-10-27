@@ -1,6 +1,7 @@
 package com.prolog.eis.bc.service.inbound;
 
 import com.google.common.collect.Lists;
+import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskDetailVo;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
@@ -15,6 +16,7 @@ import com.prolog.eis.common.util.location.LocationConstants;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaParamDto;
 import com.prolog.eis.core.dto.inboundallot.InboundAllotAreaResultDto;
 import com.prolog.eis.core.dto.route.CarryTaskCallbackDto;
+import com.prolog.eis.core.dto.route.ItemContainerReqDto;
 import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetail;
@@ -121,7 +123,7 @@ public class InboundDispatch {
      * @return
      */
     private List<InboundTaskVo> init() {
-        return inboundTaskService.listInboundTask(null);
+        return inboundTaskService.listInboundTask(new InboundTaskDto());
     }
 
     /**
@@ -170,9 +172,11 @@ public class InboundDispatch {
             //获取最佳入库区域
             InboundAllotAreaResultDto areaData = findArea(detailVo);
             if (null == areaData) {
-                log.error(String.format("容器{%}获取未找到入库区域", detailVo.getContainerNo()));
+                log.error(String.format("容器{%s}获取未找到入库区域", detailVo.getContainerNo()));
                 continue;
             }
+            //生成容器位置
+            createContainerLocation(detailVo);
             //生成搬运任务
             createCarryTask(detailVo, areaData);
             //生成库存
@@ -249,9 +253,28 @@ public class InboundDispatch {
         RestMessage<InboundAllotAreaResultDto> allotAreaRest = eisContainerRouteClient.getAllotArea(dto);
         if (!allotAreaRest.isSuccess()) {
             log.error(String.format("[getAllotArea]：查询入库区域失败：%s", allotAreaRest.getMessage()));
-            throw new PrologException(String.format("容器{%}获取入库区域失败，{%s}", dto.getContainerNo(), allotAreaRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}获取入库区域失败，{%s}", dto.getContainerNo(), allotAreaRest.getMessage()));
         }
         return allotAreaRest.getData();
+    }
+
+    /**
+     * 生成容器位置
+     *
+     * @param detailVo
+     * @throws Exception
+     */
+    private void createContainerLocation(InboundTaskDetailVo detailVo) throws Exception {
+        ItemContainerReqDto dto = new ItemContainerReqDto();
+        dto.setLocationNo(detailVo.getSourceLocation());
+        dto.setContainerNo(detailVo.getContainerNo());
+        dto.setContainerType(String.valueOf(detailVo.getContainerType()));
+        dto.setBusinessProperty(detailVo.getBusinessProperty());
+        RestMessage<String> containerRest = eisContainerRouteClient.createItemContainer(dto);
+        if (!containerRest.isSuccess()) {
+            log.error(String.format("[createCarry]：生成容器位置失败：%s", containerRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}生成容器位置失败，{%s}", detailVo.getContainerNo(), containerRest.getMessage()));
+        }
     }
 
     /**
@@ -266,7 +289,7 @@ public class InboundDispatch {
         carryTask.setId(detailVo.getTaskId());
         carryTask.setContainerNo(detailVo.getContainerNo());
         carryTask.setPalletNo(detailVo.getContainerNo());
-        carryTask.setTaskType(LocationConstants.PATH_TASK_TYPE_INBOUND);
+        carryTask.setTaskType(LocationConstants.PATH_TASK_TYPE_CARRY);
         carryTask.setStartRegion(detailVo.getSourceArea());
         carryTask.setStartLocation(detailVo.getSourceLocation());
         carryTask.setEndRegion(areaData.getAreaNo());
@@ -280,7 +303,7 @@ public class InboundDispatch {
         RestMessage<String> carryRest = eisContainerRouteClient.createCarry(data);
         if (!carryRest.isSuccess()) {
             log.error(String.format("[createCarry]：生成搬运任务失败：%s", carryRest.getMessage()));
-            throw new PrologException(String.format("容器{%}生成搬运任务失败，{%s}", detailVo.getContainerNo(), carryRest.getMessage()));
+            throw new PrologException(String.format("容器{%s}生成搬运任务失败，{%s}", detailVo.getContainerNo(), carryRest.getMessage()));
         }
     }
 
