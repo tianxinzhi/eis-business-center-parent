@@ -330,7 +330,7 @@ public class OutboundTaskServiceImpl implements OutboundTaskService {
         criteria.setRestriction(Restrictions.and(
                 Restrictions.in("outboundTaskTypeNo", typeNoList.toArray()),
                 Restrictions.in("state", stateList.toArray())));
-        criteria.setOrder(Order.newInstance().asc("priority").asc("expiryDate"));
+        criteria.setOrder(Order.newInstance().asc("priority"));
         return getBizOutTaskListByTaskList(outboundTaskMapper.findByCriteria(criteria));
     }
 

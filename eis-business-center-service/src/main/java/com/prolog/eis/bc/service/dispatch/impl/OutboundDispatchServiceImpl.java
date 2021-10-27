@@ -91,7 +91,7 @@ public class OutboundDispatchServiceImpl implements OutboundDispatchService {
         List<WholeStationDto> wholeStationDtoList = wholeOutTaskContainerDto.getWholeStationDtoList();
         wholeStationDtoList.sort(Comparator.comparingInt(WholeStationDto::getContainerCount));
 
-        RestMessage<StrategyDTO> strategyDTO = strategyClient.getStrategyDTO(Enterprise.enterpriseId, "EisInStock", Enterprise.categoryOwnId, Enterprise.warehouseId);
+        RestMessage<StrategyDTO> strategyDTO = strategyClient.getStrategyDTO(Enterprise.enterpriseId, "EisOutStock", Enterprise.categoryOwnId, Enterprise.warehouseId);
         if (!strategyDTO.isSuccess() || strategyDTO.getData() == null) {
             throw new Exception("获取策略失败");
         }
