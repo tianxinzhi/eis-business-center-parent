@@ -45,10 +45,10 @@ public class OutboundTaskReportController {
     @ApiOperation(value = "出库任务回告转历史", notes = "出库任务回告转历史")
     @PostMapping("/toCallbackHis")
     public RestMessage<String> toCallbackHis(@RequestBody String json) throws Exception {
-        OutboundTaskReport outboundTaskReportCallback = JsonHelper.getObject(json, OutboundTaskReport.class);
+        OutboundTaskReport dto = JsonHelper.getObject(json, OutboundTaskReport.class);
         RestMessage<String> restMessage;
         try {
-            service.toCallbackHis(outboundTaskReportCallback);
+            service.toCallbackHis(dto);
             restMessage = RestMessage.newInstance(true, "操作成功", null);
         } catch (Exception e) {
             restMessage = RestMessage.newInstance(false, "操作失败", e.getMessage());

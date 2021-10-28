@@ -93,13 +93,13 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void toCallbackHis(OutboundTaskReport outboundTaskReportCallback) throws Exception {
-        if (StringUtils.isEmpty(outboundTaskReportCallback.getId())) {
+    public void toCallbackHis(OutboundTaskReport dto) throws Exception {
+        if (StringUtils.isEmpty(dto.getId())) {
             throw new Exception("任务ID不能为空！");
         }
-        OutboundTaskReport one = outboundTaskReportMapper.findById(outboundTaskReportCallback.getId(), OutboundTaskReport.class);
+        OutboundTaskReport one = outboundTaskReportMapper.findById(dto.getId(), OutboundTaskReport.class);
         if (null == one) {
-            throw new Exception("任务ID不存在！ id=" + outboundTaskReportCallback.getId());
+            throw new Exception("出库任务回告ID不存在！ id=" + dto.getId());
         }
         OutboundTaskReportHis insertHis = new OutboundTaskReportHis();
         // 复制数据 回告->回告历史
@@ -107,7 +107,7 @@ public class OutboundTaskReportServiceImpl implements OutboundTaskReportService 
         // 入库回告历史
         outboundTaskReportHisMapper.save(insertHis);
         // 删除回告
-        outboundTaskReportMapper.deleteById(outboundTaskReportCallback.getId(), OutboundTaskReport.class);
+        outboundTaskReportMapper.deleteById(dto.getId(), OutboundTaskReport.class);
     }
 
 }
