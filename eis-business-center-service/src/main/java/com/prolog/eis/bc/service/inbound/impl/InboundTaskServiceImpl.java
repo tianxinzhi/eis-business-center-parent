@@ -14,6 +14,7 @@ import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
 import com.prolog.eis.bc.feign.MasterInboundFeign;
+import com.prolog.eis.bc.feign.WmsFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.feign.container.EisControllerClient;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailService;
@@ -78,6 +79,8 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     private EisControllerClient eisControllerClient;
     @Autowired
     private MasterInboundFeign masterInboundFeign;
+    @Autowired
+    private WmsFeign wmsFeign;
 
     @Override
     public Page<InboundTaskVo> listInboundTaskByPage(InboundTaskDto dto) {
@@ -160,7 +163,8 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         RestMessage<MasterInboundTaskDto> masterRest;
         //TODO 请求WMS拿数据
         if (StringUtils.isEmpty(dto.getTarget())) {
-            masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
+//            masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
+            masterRest = wmsFeign.pickInstockTask(dto.getStockId(), "XTHZ5632", "XTWH5632");
         } else {
             masterRest = testData(dto);
         }
