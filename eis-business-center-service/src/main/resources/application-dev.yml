@@ -10,7 +10,7 @@ prolog:
     warehouse: upcloud-base-wh-dev-mysql-eistest
     control: upcloud-base-wh-control
     strategy: upcloud-base-strategy
-    inbound: UPCLOUD-BASE-WH-INBOUND
+    inbound: upcloud-base-wh-inbound
   serarch:
     url: http://service-data-api-base/search
 

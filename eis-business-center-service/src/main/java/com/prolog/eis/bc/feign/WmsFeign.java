@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.prolog.eis.bc.facade.dto.inbound.MasterInboundTaskDto;
 import com.prolog.framework.common.message.RestMessage;
 
-@FeignClient(value = "${prolog.service.inbound:UPCLOUD-BASE-WH-INBOUND}")
+@FeignClient(value = "${prolog.service.inbound:upcloud-base-wh-inbound}")
 public interface WmsFeign {
 
     /**
