@@ -17,6 +17,7 @@ import com.prolog.eis.bc.feign.MasterInboundFeign;
 import com.prolog.eis.bc.feign.WmsFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.feign.container.EisControllerClient;
+import com.prolog.eis.bc.service.FeignService;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailService;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailSubService;
 import com.prolog.eis.bc.service.inbound.InboundTaskService;
@@ -80,7 +81,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     @Autowired
     private MasterInboundFeign masterInboundFeign;
     @Autowired
-    private WmsFeign wmsFeign;
+    private FeignService feignService;
 
     @Override
     public Page<InboundTaskVo> listInboundTaskByPage(InboundTaskDto dto) {
@@ -163,8 +164,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
         RestMessage<MasterInboundTaskDto> masterRest;
         //TODO 请求WMS拿数据
         if (StringUtils.isEmpty(dto.getTarget())) {
-//            masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
-            masterRest = wmsFeign.pickInstockTask(dto.getStockId(), "XTHZ5632", "XTWH5632");
+            masterRest = masterInboundFeign.inboundTask(JsonHelper.toJson(map));
         } else {
             masterRest = testData(dto);
         }
@@ -172,7 +172,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
             log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
             throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
         }
-        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
+        MasterInboundTaskDto masterInboundTaskDto = feignService.getInboundTaskFromWms(dto.getStockId(), "XTHZ5632", "XTWH5632");
         if (null == masterInboundTaskDto) {
             throw new PrologException(String.format("容器{%s}入库申请失败，WMS返回数据为空", dto.getStockId()));
         }

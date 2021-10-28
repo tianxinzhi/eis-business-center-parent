@@ -11,8 +11,10 @@ import org.springframework.util.CollectionUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.prolog.eis.bc.facade.dto.inbound.MasterInboundTaskDto;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
+import com.prolog.eis.bc.feign.WmsFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.common.util.MathHelper;
 import com.prolog.eis.component.algorithm.composeorder.entity.StationDto;
@@ -36,6 +38,9 @@ public class FeignService {
 
     @Autowired
     private EisInvContainerStoreSubFeign eisInvContainerStoreSubFeign;
+
+    @Autowired
+    private WmsFeign wmsFeign;
 
     /**
      * 获取区域中所有空闲的容器
@@ -198,4 +203,34 @@ public class FeignService {
             throw new RuntimeException(message);
         }
     }
+
+    /**
+     * 向WMS系统索取入库任务
+     * @param containerNo 容器号
+     * @param cargoOwnerId 货主Id
+     * @param warehouseId 仓库Id
+     * @return 入库任务
+     */
+    public MasterInboundTaskDto getInboundTaskFromWms(String containerNo,
+            String cargoOwnerId, String warehouseId) {
+        RestMessage<MasterInboundTaskDto> webResp = null;
+        try {
+            webResp = wmsFeign.pickInstockTask(containerNo, cargoOwnerId, warehouseId);
+        } catch (Exception e) {
+            log.error("wmsFeign.pickInstockTask({},{},{}) excp:{}", containerNo, cargoOwnerId, warehouseId, e.getMessage());
+            throw new RuntimeException(e);
+        }
+        if (null != webResp && webResp.isSuccess()) {
+            MasterInboundTaskDto wmsInboundTask = webResp.getData();
+            if (null == wmsInboundTask || CollectionUtils.isEmpty(wmsInboundTask.getSubList())) {
+                throw new RuntimeException("返回任务为NULL 或 SUBLIST 任务明细为空");
+            }
+            return wmsInboundTask;
+        } else {
+            String message = null == webResp ? "resp is null" : webResp.getMessage();
+            log.error("wmsFeign.pickInstockTask({},{},{}) return error:{}", containerNo, cargoOwnerId, warehouseId, message);
+            throw new RuntimeException(message);
+        }
+    }
+
 }
