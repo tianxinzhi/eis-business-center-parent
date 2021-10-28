@@ -11,6 +11,7 @@ prolog:
     warehouse: upcloud-base-wh-dev-mysql-eistest-xt
     control: upcloud-base-wh-control-mysql-eistest-xt
     strategy: upcloud-base-strategy-mysql-eistest-xt
+    xt: service-ai-eis-xt-center
   serarch:
     url: http://service-data-api-base-ai/search
 
