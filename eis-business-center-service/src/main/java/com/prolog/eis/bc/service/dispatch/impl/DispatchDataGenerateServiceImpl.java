@@ -70,7 +70,7 @@ public class DispatchDataGenerateServiceImpl implements DispatchDataGenerateServ
         if (!containerStoreListRest.isSuccess() || containerStoreListRest.getData() == null) {
             throw new PrologException(String.format("容器集合[%s]库存查询失败原因[%s]", containerList.toString(), containerStoreListRest.getMessage()));
         }
-        outboundTaskMapper.updateMapById(outTaskAlgorithmDto.getOutTaskId(), MapUtils.put("state", 1).getMap(), OutboundTask.class);
+        outboundTaskMapper.updateMapById(outTaskAlgorithmDto.getOutTaskId(), MapUtils.put("state", 1).put("startTime",new Date()).getMap(), OutboundTask.class);
         List<EisInvContainerStoreVo> eisInvContainerStoreVoList = containerStoreListRest.getData();
         for (WholeOutStrategyResultDto wholeOutStrategyResultDto : result) {
             List<OutboundTaskBind> outboundTaskBindList = outboundTaskBindMapper.findByMap(MapUtils.put("containerNo", wholeOutStrategyResultDto.getContaienrNo()).getMap(), OutboundTaskBind.class);
@@ -142,7 +142,7 @@ public class DispatchDataGenerateServiceImpl implements DispatchDataGenerateServ
             carryInterfaceTask.setId(PrologStringUtils.newGUID());
             carryInterfaceTask.setContainerNo(containerNo);
             carryInterfaceTask.setTaskType(30);
-            carryInterfaceTask.setStartLocation(containerLocationVo.getSourceArea());
+            carryInterfaceTask.setStartRegion(containerLocationVo.getSourceArea());
             carryInterfaceTask.setStartLocation(containerLocationVo.getSourceLocation());
             carryInterfaceTask.setEndRegion(wholeStationDto.getAreaNo());
             carryInterfaceTask.setPriority(50);
@@ -150,7 +150,7 @@ public class DispatchDataGenerateServiceImpl implements DispatchDataGenerateServ
 
         }
         RestMessage<String> carry = eisContainerRouteClient.createBatchCarry(carryTaskList);
-        if (carry.isSuccess()) {
+        if (!carry.isSuccess()) {
             throw new PrologException("生成搬运任务失败,请检查路径服务");
         }
     }
