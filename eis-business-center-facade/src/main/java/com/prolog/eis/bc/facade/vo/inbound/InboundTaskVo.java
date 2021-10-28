@@ -19,4 +19,7 @@ public class InboundTaskVo extends InboundTask {
 
     @ApiModelProperty("明细数量")
     private int detailSize;
+
+    @ApiModelProperty("坐标")
+    private String location;
 }
