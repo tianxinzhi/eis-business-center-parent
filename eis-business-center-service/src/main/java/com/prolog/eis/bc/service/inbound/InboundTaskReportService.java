@@ -40,4 +40,23 @@ public interface InboundTaskReportService {
      */
     void toReport(InboundTask inboundTask);
 
+    /**
+     * 查询所有入库任务回告
+     * @return
+     */
+    List<InboundTaskReport> findAll();
+
+    /**
+     * 入库任务回告转历史
+     * @param dto 数据对象 id属性必填
+     */
+    void toCallbackHis(InboundTaskReport dto) throws Exception;
+
+    /**
+     * 入库任务回告失败
+     * @param dto 数据对象 id属性必填
+     */
+    void toCallbackFail(InboundTaskReport dto) throws Exception;
+
+
 }
