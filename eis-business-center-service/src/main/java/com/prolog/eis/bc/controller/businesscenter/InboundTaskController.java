@@ -1,5 +1,15 @@
 package com.prolog.eis.bc.controller.businesscenter;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.alibaba.fastjson.JSONObject;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.bc.service.inbound.InboundDispatch;
@@ -10,17 +20,10 @@ import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.inter.dto.mcs.ZxMcsInBoundResponseDto;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.pojo.Page;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * @author: wuxl
@@ -74,7 +77,7 @@ public class InboundTaskController {
     public RestMessage<List<InboundTask>> getListByIdList(
             @RequestBody String json) throws Exception {
         log.info("getListByIdList called, param:{}", json);
-        List<String> taskIdList = JsonHelper.getStringList("json");
+        List<String> taskIdList = JSONObject.parseArray(json, String.class);
         List<InboundTask> result = inboundTaskService.getListByIdList(taskIdList);
         return RestMessage.newInstance(true, "成功", result);
     }
