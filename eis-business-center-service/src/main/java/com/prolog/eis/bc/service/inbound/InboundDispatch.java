@@ -89,6 +89,7 @@ public class InboundDispatch {
                 for (InboundTaskVo inboundTaskVo : cancelList) {
                     cancelTask(inboundTaskVo);
                 }
+                list.removeAll(cancelList);
             }
             //执行入库任务
             List<InboundTaskVo> executeList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_NOTSTART == vo.getStatus() || InboundTask.TASK_STATUS_GOINGON == vo.getStatus());
@@ -98,20 +99,19 @@ public class InboundDispatch {
                 }
             }
             //获取已完成的搬运任务
-            List<InboundTaskVo> taskList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_GOINGON == vo.getStatus());
+            List<InboundTaskVo> taskList = ListHelper.where(executeList, vo -> InboundTask.TASK_STATUS_GOINGON == vo.getStatus());
             if (!CollectionUtils.isEmpty(taskList)) {
                 for (InboundTaskVo inboundTaskVo : taskList) {
                     callbackTask(inboundTaskVo);
                 }
             }
             //任务完成
-            List<InboundTaskVo> finishList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_FINISH == vo.getStatus());
-            if (!CollectionUtils.isEmpty(finishList)) {
-                for (InboundTaskVo inboundTaskVo : finishList) {
-                    finishTask(inboundTaskVo);
-                }
-            }
-            //TODO 回告上报
+            //List<InboundTaskVo> finishList = ListHelper.where(list, vo -> InboundTask.TASK_STATUS_FINISH == vo.getStatus());
+            //if (!CollectionUtils.isEmpty(finishList)) {
+            //    for (InboundTaskVo inboundTaskVo : finishList) {
+            //        finishTask(inboundTaskVo);
+            //    }
+            //}
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -182,7 +182,7 @@ public class InboundDispatch {
             //生成库存
             createStore(detailVo);
             //修改任务状态
-            updateForStart(detailVo);
+            updateForStart(detailVo, inboundTaskVo);
         }
     }
 
@@ -264,16 +264,20 @@ public class InboundDispatch {
      * @param detailVo
      * @throws Exception
      */
-    private void createContainerLocation(InboundTaskDetailVo detailVo) throws Exception {
+    private void createContainerLocation(InboundTaskDetailVo detailVo) {
         ItemContainerReqDto dto = new ItemContainerReqDto();
         dto.setLocationNo(detailVo.getSourceLocation());
         dto.setContainerNo(detailVo.getContainerNo());
         dto.setContainerType(String.valueOf(detailVo.getContainerType()));
         dto.setBusinessProperty(detailVo.getBusinessProperty());
-        RestMessage<String> containerRest = eisContainerRouteClient.createItemContainer(dto);
-        if (!containerRest.isSuccess()) {
-            log.error(String.format("[createCarry]：生成容器位置失败：%s", containerRest.getMessage()));
-            throw new PrologException(String.format("容器{%s}生成容器位置失败，{%s}", detailVo.getContainerNo(), containerRest.getMessage()));
+        try {
+            RestMessage<String> containerRest = eisContainerRouteClient.createItemContainer(dto);
+            if (!containerRest.isSuccess()) {
+                log.error(String.format("[createCarry]：生成容器位置失败：%s", containerRest.getMessage()));
+                throw new PrologException(String.format("容器{%s}生成容器位置失败，{%s}", detailVo.getContainerNo(), containerRest.getMessage()));
+            }
+        } catch (Exception e) {
+            throw new PrologException(e.toString());
         }
     }
 
@@ -300,10 +304,14 @@ public class InboundDispatch {
         carryTask.setWeight(detailVo.getWeight());
         carryTask.setCreateTime(new Date());
         String data = JsonHelper.toJson(carryTask);
-        RestMessage<String> carryRest = eisContainerRouteClient.createCarry(data);
-        if (!carryRest.isSuccess()) {
-            log.error(String.format("[createCarry]：生成搬运任务失败：%s", carryRest.getMessage()));
-            throw new PrologException(String.format("容器{%s}生成搬运任务失败，{%s}", detailVo.getContainerNo(), carryRest.getMessage()));
+        try {
+            RestMessage<String> carryRest = eisContainerRouteClient.createCarry(data);
+            if (!carryRest.isSuccess()) {
+                log.error(String.format("[createCarry]：生成搬运任务失败：%s", carryRest.getMessage()));
+                throw new PrologException(String.format("容器{%s}生成搬运任务失败，{%s}", detailVo.getContainerNo(), carryRest.getMessage()));
+            }
+        } catch (Exception e) {
+            throw new PrologException(e.toString());
         }
     }
 
@@ -340,10 +348,14 @@ public class InboundDispatch {
         }
         vo.setContainerStoreSubList(subList);
 
-        RestMessage<String> storeRest = eisContainerStoreFeign.saveContainerStore(vo);
-        if (!storeRest.isSuccess()) {
-            log.error(String.format("[saveContainerStore]：生成库存失败：%s", storeRest.getMessage()));
-            throw new PrologException("生成库存失败!" + storeRest.getMessage());
+        try {
+            RestMessage<String> storeRest = eisContainerStoreFeign.saveContainerStore(vo);
+            if (!storeRest.isSuccess()) {
+                log.error(String.format("[saveContainerStore]：生成库存失败：%s", storeRest.getMessage()));
+                throw new PrologException("生成库存失败!" + storeRest.getMessage());
+            }
+        } catch (Exception e) {
+            throw new PrologException(e.toString());
         }
     }
 
@@ -352,7 +364,7 @@ public class InboundDispatch {
      *
      * @param detailVo
      */
-    private void updateForStart(InboundTaskDetailVo detailVo) {
+    private void updateForStart(InboundTaskDetailVo detailVo, InboundTaskVo inboundTaskVo) {
         long l1 = inboundTaskService.updateById(detailVo.getInboundTaskId()
                 , MapUtils.put("status", InboundTask.TASK_STATUS_GOINGON).put("startTime", new Date()).getMap());
         long l2 = inboundTaskDetailService.updateById(detailVo.getId()
@@ -360,6 +372,8 @@ public class InboundDispatch {
         if (l1 == 0L || l2 == 0L) {
             throw new UpdateException("修改任务状态失败");
         }
+        detailVo.setDetailStatus(InboundTask.TASK_STATUS_GOINGON);
+        inboundTaskVo.setStatus(InboundTask.TASK_STATUS_GOINGON);
     }
 
     /**
@@ -367,16 +381,20 @@ public class InboundDispatch {
      *
      * @param inboundTaskVo
      */
-    private void updateForFinish(InboundTaskVo inboundTaskVo) {
+    private void updateForFinish(InboundTaskVo inboundTaskVo) throws Exception {
         List<InboundTaskDetailVo> inboundTaskDetailVoList = inboundTaskVo.getInboundTaskDetailVoList();
         List<InboundTaskDetailVo> where = ListHelper.where(inboundTaskDetailVoList, t -> InboundTask.TASK_STATUS_FINISH == t.getDetailStatus() && null == t.getFinishTime());
         for (InboundTaskDetailVo detailVo : where) {
             inboundTaskDetailService.updateById(detailVo.getId()
                     , MapUtils.put("detailStatus", InboundTask.TASK_STATUS_FINISH).put("finishTime", new Date()).getMap());
+            detailVo.setDetailStatus(InboundTask.TASK_STATUS_FINISH);
         }
+        //任务完成转历史
         if (inboundTaskDetailVoList.size() == where.size()) {
-            inboundTaskService.updateById(inboundTaskVo.getId()
-                    , MapUtils.put("status", InboundTask.TASK_STATUS_FINISH).put("finishTime", new Date()).getMap());
+            //inboundTaskService.updateById(inboundTaskVo.getId()
+            //        , MapUtils.put("status", InboundTask.TASK_STATUS_FINISH).put("finishTime", new Date()).getMap());
+            inboundTaskVo.setStatus(InboundTask.TASK_STATUS_FINISH);
+            cancelTask(inboundTaskVo);
         }
     }
 }
