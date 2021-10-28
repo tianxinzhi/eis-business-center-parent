@@ -1,5 +1,16 @@
 package com.prolog.eis.bc.service.inbound.impl;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.dao.inbound.InboundTaskHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskMapper;
@@ -14,7 +25,6 @@ import com.prolog.eis.bc.facade.vo.inbound.InboundTaskVo;
 import com.prolog.eis.bc.feign.EisInvContainerStoreSubFeign;
 import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
 import com.prolog.eis.bc.feign.MasterInboundFeign;
-import com.prolog.eis.bc.feign.WmsFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.feign.container.EisControllerClient;
 import com.prolog.eis.bc.service.FeignService;
@@ -42,17 +52,8 @@ import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
 import com.prolog.framework.utils.MapUtils;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: wuxl
@@ -172,7 +173,7 @@ public class InboundTaskServiceImpl implements InboundTaskService {
             log.error(String.format("[inboundTask]：查询入库数据失败：%s", masterRest.getMessage()));
             throw new PrologException(String.format("容器{%s}入库申请失败，{%s}", dto.getStockId(), masterRest.getMessage()));
         }
-        MasterInboundTaskDto masterInboundTaskDto = feignService.getInboundTaskFromWms(dto.getStockId(), "XTHZ5632", "XTWH5632");
+        MasterInboundTaskDto masterInboundTaskDto = masterRest.getData();
         if (null == masterInboundTaskDto) {
             throw new PrologException(String.format("容器{%s}入库申请失败，WMS返回数据为空", dto.getStockId()));
         }
