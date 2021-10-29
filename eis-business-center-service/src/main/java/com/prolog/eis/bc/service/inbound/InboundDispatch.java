@@ -21,7 +21,6 @@ import com.prolog.eis.core.model.biz.carry.CarryTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetail;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskDetailSub;
-import com.prolog.eis.core.model.ctrl.basis.DispatchSwitch;
 import com.prolog.framework.bz.common.search.SearchApi;
 import com.prolog.framework.common.message.RestMessage;
 import com.prolog.framework.core.exception.PrologException;
@@ -71,10 +70,12 @@ public class InboundDispatch {
      */
     public void inboundSchedule() throws Exception {
         //调度开关
-        DispatchSwitch dispatchSwitch = searchApi.search("getSwitchByCode"
-                , MapUtils.put("switchCode", DispatchSwitchConstants.DISPATCH_SWITCH_INBOUND_TASK).getMap()
-                , DispatchSwitch.class).stream().findFirst().orElse(new DispatchSwitch());
-        if (CommonConstants.YES != dispatchSwitch.getSwitchValue()) {
+        RestMessage<Boolean> restMessage = eisControllerClient.getSwitchByCode(DispatchSwitchConstants.DISPATCH_SWITCH_INBOUND_TASK);
+        if (!restMessage.isSuccess()) {
+            log.error(String.format("查询调度开关失败，失败原因：%s", restMessage.getMessage()));
+            throw new PrologException(String.format("查询调度开关失败，失败原因：%s", restMessage.getMessage()));
+        }
+        if (!restMessage.getData()) {
             return;
         }
         try {
