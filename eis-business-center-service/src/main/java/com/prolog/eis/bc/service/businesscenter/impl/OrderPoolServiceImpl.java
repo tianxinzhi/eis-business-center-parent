@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,7 +81,7 @@ public class OrderPoolServiceImpl implements OrderPoolService {
         if(StringUtils.isEmpty(orderPool.getTypeNo())) {
             throw new RuntimeException("请选择出库任务单类型编号");
         }
-
+        orderPool.setCreateTime(new Date());
 //        if(StringUtils.isEmpty(orderPool.getMaxOrderNum())) {
 //            throw new RuntimeException("请输入最大汇单数量");
 //        }
