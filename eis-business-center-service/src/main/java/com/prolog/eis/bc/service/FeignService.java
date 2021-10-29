@@ -198,4 +198,5 @@ public class FeignService {
             throw new RuntimeException(message);
         }
     }
+
 }

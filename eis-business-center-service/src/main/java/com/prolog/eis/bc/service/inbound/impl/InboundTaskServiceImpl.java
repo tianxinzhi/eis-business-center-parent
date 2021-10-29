@@ -1,5 +1,16 @@
 package com.prolog.eis.bc.service.inbound.impl;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import com.google.common.collect.Lists;
 import com.prolog.eis.bc.dao.inbound.InboundTaskHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskMapper;
@@ -16,6 +27,7 @@ import com.prolog.eis.bc.feign.EisWarehouseStationFeign;
 import com.prolog.eis.bc.feign.MasterInboundFeign;
 import com.prolog.eis.bc.feign.container.EisContainerRouteClient;
 import com.prolog.eis.bc.feign.container.EisControllerClient;
+import com.prolog.eis.bc.service.FeignService;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailService;
 import com.prolog.eis.bc.service.inbound.InboundTaskDetailSubService;
 import com.prolog.eis.bc.service.inbound.InboundTaskService;
@@ -40,17 +52,8 @@ import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
 import com.prolog.framework.utils.MapUtils;
 import com.prolog.upcloud.base.inventory.vo.EisInvContainerStoreVo;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: wuxl
@@ -78,6 +81,8 @@ public class InboundTaskServiceImpl implements InboundTaskService {
     private EisControllerClient eisControllerClient;
     @Autowired
     private MasterInboundFeign masterInboundFeign;
+    @Autowired
+    private FeignService feignService;
 
     @Override
     public Page<InboundTaskVo> listInboundTaskByPage(InboundTaskDto dto) {
