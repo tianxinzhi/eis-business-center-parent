@@ -152,7 +152,7 @@ public class InboundDispatch {
                 inboundTaskDetailSubService.toHistory(sub.getId());
             }
         }
-        inboundTaskReportService.toReport(inboundTask);
+        inboundTaskReportService.toReport(inboundTask, inboundTaskVo.getLocation());
     }
 
     /**
@@ -218,6 +218,7 @@ public class InboundDispatch {
             }
             detailVo.setDetailStatus(InboundTask.TASK_STATUS_FINISH);
             newCarryList.add(callback);
+            inboundTaskVo.setLocation(callback.getEndLocation());
         }
         RestMessage<String> restMessage = eisContainerRouteClient.toCallbackHisList(newCarryList);
         if (!restMessage.isSuccess()) {

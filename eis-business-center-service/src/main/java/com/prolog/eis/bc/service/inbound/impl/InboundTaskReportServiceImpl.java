@@ -1,14 +1,5 @@
 package com.prolog.eis.bc.service.inbound.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import com.prolog.eis.bc.dao.inbound.InboundTaskReportHisMapper;
 import com.prolog.eis.bc.dao.inbound.InboundTaskReportMapper;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportDto;
@@ -25,8 +16,15 @@ import com.prolog.framework.core.restriction.Criteria;
 import com.prolog.framework.core.restriction.FieldSelector;
 import com.prolog.framework.core.restriction.Restrictions;
 import com.prolog.framework.dao.util.PageUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author: wuxl
@@ -56,11 +54,12 @@ public class InboundTaskReportServiceImpl implements InboundTaskReportService {
     }
 
     @Override
-    public void toReport(InboundTask inboundTask) {
+    public void toReport(InboundTask inboundTask, String location) {
         InboundTaskReport taskReport = new InboundTaskReport();
         taskReport.setInboundTaskId(inboundTask.getId());
         taskReport.setUpperSystemTaskId(inboundTask.getUpperSystemTaskId());
         taskReport.setCreateTime(new Date());
+        taskReport.setExtend1(location);
 
         inboundTaskReportMapper.save(taskReport);
     }

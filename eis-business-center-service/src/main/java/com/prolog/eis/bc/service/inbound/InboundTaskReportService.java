@@ -1,7 +1,5 @@
 package com.prolog.eis.bc.service.inbound;
 
-import java.util.List;
-
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportDto;
 import com.prolog.eis.bc.facade.dto.inbound.InboundTaskReportHisDto;
 import com.prolog.eis.bc.facade.vo.inbound.InboundTaskReportHisVo;
@@ -9,6 +7,8 @@ import com.prolog.eis.bc.facade.vo.inbound.InboundTaskReportVo;
 import com.prolog.eis.core.model.biz.inbound.InboundTask;
 import com.prolog.eis.core.model.biz.inbound.InboundTaskReport;
 import com.prolog.framework.core.pojo.Page;
+
+import java.util.List;
 
 /**
  * @author: wuxl
@@ -37,8 +37,9 @@ public interface InboundTaskReportService {
      * 转回告
      *
      * @param inboundTask
+     * @param location
      */
-    void toReport(InboundTask inboundTask);
+    void toReport(InboundTask inboundTask, String location);
 
     /**
      * 查询所有入库任务回告
